@@ -1,0 +1,8 @@
+node_modules/
+data/
+quiz/
+*.log
+*.bak.json
+.env
+.DS_Store
+Thumbs.db

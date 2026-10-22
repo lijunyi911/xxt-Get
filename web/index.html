@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>学习通刷课助手</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="titlebar" id="titlebar">
+    <span class="dot"></span>
+    <span class="title">学习通刷课</span>
+    <div class="win-btns">
+      <button class="wbtn" id="btnMin" title="最小化">—</button>
+      <button class="wbtn close" id="btnClose" title="关闭">✕</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="section">
+      <div class="row">
+        <button id="btnLoad" class="primary">读取我的课程</button>
+        <span class="hint" id="loadHint"></span>
+      </div>
+      <div id="courseList" class="course-list">
+        <div class="empty">点「读取我的课程」加载列表</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="label">倍速</div>
+      <div class="speed-row" id="speedRow">
+        <button class="spd" data-speed="0.5">0.5x</button>
+        <button class="spd" data-speed="1">1x</button>
+        <button class="spd" data-speed="1.5">1.5x</button>
+        <button class="spd active" data-speed="2">2x</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="row">
+        <button id="btnStart" class="primary">开始刷课</button>
+        <button id="btnStop" class="danger" disabled>停止</button>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button id="btnClear" class="ghost">清除断点重刷</button>
+      </div>
+    </div>
+
+    <div class="section status">
+      <div class="status-line"><span class="st-label">状态</span><span id="stage">待启动</span></div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+    </div>
+
+    <div class="section log-wrap">
+      <div class="log-head">运行日志</div>
+      <div id="log" class="log"></div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
