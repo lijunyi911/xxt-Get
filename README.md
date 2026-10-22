@@ -6,6 +6,17 @@
 
 ---
 
+## ⬇️ 下载
+
+| 版本 | 下载 |
+|---|---|
+| Windows 安装版（中文向导 + 卸载程序） | [xxt-Get-Setup-1.0.0.exe](https://github.com/lijunyi911/xxt-Get/releases/download/v1.0.0/xxt-Get-Setup-1.0.0.exe) |
+| Windows 便携版（免安装，可放 U 盘） | [xxt-Get-Portable-1.0.0.exe](https://github.com/lijunyi911/xxt-Get/releases/download/v1.0.0/xxt-Get-Portable-1.0.0.exe) |
+
+全部版本见 [Releases](https://github.com/lijunyi911/xxt-Get/releases)。
+
+---
+
 ## ✨ 功能特性
 
 - **悬浮置顶小窗**：始终显示在最上层，随时开始/暂停/停止，实时进度与日志。
