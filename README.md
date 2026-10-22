@@ -38,12 +38,33 @@
 
 ---
 
-## 🚀 安装
+## 📥 下载与安装
+
+### Windows
+
+| 版本 | 文件 | 说明 |
+|---|---|---|
+| 安装版 | `xxt-Get-Setup-1.0.0.exe` | 双击安装向导，可自选安装目录；自带卸载程序（设置 → 应用 → 卸载） |
+| 便携版 | `xxt-Get-Portable-1.0.0.exe` | 单文件免安装，可放 U 盘随身携带，数据跟随 exe 目录 |
+
+> 安装/卸载界面为中文向导，安装版会在桌面和开始菜单创建「xxt-Get 学习通刷课助手」快捷方式。
+
+### macOS
+
+通过 GitHub Actions 构建（mac 产物需在 macOS 环境生成）：
+
+1. 打开仓库 **Actions → Build → Run workflow**
+2. 运行完成后在 Artifacts 下载 `dist-macos-latest`（含 `.dmg` 与 `.zip`）
+
+macOS 安装：打开 dmg，把 `xxt-Get.app` 拖进「应用程序」；卸载：从「应用程序」拖到废纸篓。
+
+### 从源码运行
 
 ```bash
 git clone https://github.com/lijunyi911/xxt-Get.git
 cd xxt-Get
 npm install
+npm start
 ```
 
 ---

@@ -1,18 +1,95 @@
 {
   "name": "xxt-auto",
+  "productName": "xxt-Get",
   "version": "1.0.0",
   "description": "学习通自动刷课助手（悬浮置顶小窗控制）",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "cli": "node run.js"
+    "cli": "node run.js",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "type": "commonjs",
-  "dependencies": {
+  "devDependencies": {
     "electron": "^45.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
     "playwright-core": "^1.64.1"
+  },
+  "build": {
+    "appId": "com.lijunyi.xxtget",
+    "productName": "xxt-Get",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "config.js",
+      "run.js",
+      "cleanup_logs.js",
+      "src/**/*",
+      "web/**/*",
+      "package.json",
+      "!data/**",
+      "!quiz/**",
+      "!dist/**",
+      "!build/make_icon.py"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "xxt-Get 学习通刷课助手",
+      "installerLanguages": [
+        "zh_CN"
+      ],
+      "language": "2052",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "xxt-Get-Setup-${version}.exe"
+    },
+    "portable": {
+      "artifactName": "xxt-Get-Portable-${version}.exe"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.education",
+      "identity": null,
+      "artifactName": "xxt-Get-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "xxt-Get ${version}"
+    }
   }
 }
