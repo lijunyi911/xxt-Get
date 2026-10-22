@@ -1,4 +1,4 @@
-name: Build
+name: Build & Release
 
 on:
   workflow_dispatch:
@@ -6,7 +6,11 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
+  # 1) 各平台构建，产物作为 artifact
   build:
     strategy:
       fail-fast: false
@@ -35,9 +39,39 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CSC_IDENTITY_AUTO_DISCOVERY: false
 
-      - name: Upload artifacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist-${{ matrix.os }}
-          path: dist/*
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/latest*.yml
+            dist/*.blockmap
           if-no-files-found: warn
+
+  # 2) 打 tag 时，聚合所有平台的产物并发布到 Release
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List files
+        run: ls -lh dist
+
+      - name: Create / update Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
