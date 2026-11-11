@@ -11,13 +11,14 @@
     <span class="title">学习通刷课</span>
     <div class="win-btns">
       <button class="theme-btn" id="btnTheme" title="切换主题（浅色/深色/跟随系统）">跟随系统</button>
+      <button class="wbtn" id="btnMax" title="最大化 / 还原">□</button>
       <button class="wbtn" id="btnMin" title="最小化">—</button>
       <button class="wbtn close" id="btnClose" title="关闭">✕</button>
     </div>
   </div>
 
   <div class="body">
-    <div class="section">
+    <div class="section courses">
       <div class="row">
         <button id="btnLoad" class="primary">读取我的课程</button>
         <button id="btnAll" class="mini" disabled>全选</button>
@@ -28,7 +29,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section speed">
       <div class="label">倍速</div>
       <div class="speed-row" id="speedRow">
         <button class="spd" data-speed="0.5">0.5x</button>
@@ -38,7 +39,7 @@
       </div>
     </div>
 
-    <div class="section">
+    <div class="section actions">
       <div class="row">
         <button id="btnStart" class="primary">开始刷课</button>
         <button id="btnStop" class="danger" disabled>停止</button>

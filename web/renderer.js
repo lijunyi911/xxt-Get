@@ -171,6 +171,7 @@ $('btnClear').addEventListener('click', async () => {
 // 窗口按钮
 $('btnMin').addEventListener('click', () => window.api.minimize());
 $('btnClose').addEventListener('click', () => window.api.close());
+if ($('btnMax')) $('btnMax').addEventListener('click', () => window.api.toggleMax());
 
 function setStats(s) {
   if (!s) return;
@@ -368,6 +369,7 @@ document.querySelectorAll('.section').forEach((el) => {
     el.style.transition = 'transform .18s cubic-bezier(.22, 1, .36, 1)';
   });
   el.addEventListener('mousemove', (e) => {
+    if (window.innerWidth > 900) return; // 宽屏/全屏不做 3D 倾斜
     const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;

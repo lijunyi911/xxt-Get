@@ -76,6 +76,11 @@ ipcMain.handle('clear-state', () => {
 
 ipcMain.handle('win-minimize', () => { if (win) win.minimize(); });
 ipcMain.handle('win-close', () => { if (win) win.close(); });
+ipcMain.handle('win-toggle-max', () => {
+  if (!win) return;
+  if (win.isMaximized()) win.unmaximize();
+  else win.maximize();
+});
 
 app.whenReady().then(() => {
   log.init(cfg.logFile, { retentionDays: cfg.logRetentionDays, maxSizeMB: cfg.maxLogSizeMB });

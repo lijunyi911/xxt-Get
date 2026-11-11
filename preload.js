@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('api', {
   clearState: () => ipcRenderer.invoke('clear-state'),
   minimize: () => ipcRenderer.invoke('win-minimize'),
   close: () => ipcRenderer.invoke('win-close'),
+  toggleMax: () => ipcRenderer.invoke('win-toggle-max'),
   onEvent: (cb) => ipcRenderer.on('event', (_e, data) => cb(data)),
 });
