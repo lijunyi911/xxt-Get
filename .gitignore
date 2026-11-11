@@ -3,6 +3,7 @@ data/
 quiz/
 dist/
 build/*.ico
+!build/icon.ico
 build/*.icns
 *.log
 *.bak.json
