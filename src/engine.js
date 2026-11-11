@@ -58,11 +58,16 @@ function pushStats(push) {
 async function isLoggedIn(page) {
   try {
     if (page.isClosed && page.isClosed()) return false;
-    if (/passport|login|sso|verify/i.test(page.url())) return false;
-    const hasUser = await page.locator('text=个人空间').count();
-    if (hasUser > 0) return true;
-    const hasLogin = await page.locator('text=登录').count();
-    return hasLogin === 0;
+    const url = page.url();
+    if (/passport|login|sso|verify/i.test(url)) return false;
+
+    const text = await page.evaluate(() => (document.body ? document.body.innerText : '') || '');
+    // 明确的未登录特征
+    if (/扫码登录|账号登录|登录学习通|请输入手机号|请输入密码|请登录后/.test(text)) return false;
+    // 明确的已登录特征
+    if (/个人空间|我的课程|退出登录|个人中心|我的资料|我的收藏/.test(text)) return true;
+    // 兜底：页面在 chaoxing 且有内容，视为已登录
+    return true;
   } catch {
     return false;
   }
@@ -132,6 +137,11 @@ async function getCourses(push) {
 async function getCoursesInner(push) {
   resetStop(); // 新的一次读取不受上次“停止”影响
   const { page } = await ensureSession(push);
+
+  // 先强制回到个人空间首页，避免页面停在活动页/课程页导致登录判断失败
+  await page.goto(cfg.chaoxingHome, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+  await page.waitForTimeout(1500);
+
   if (!(await isLoggedIn(page))) {
     const ok = await waitForLogin(page, 10 * 60 * 1000, push);
     if (!ok) throw new Error('登录超时或已停止');
