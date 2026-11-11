@@ -63,10 +63,28 @@ html, body {
 .body::-webkit-scrollbar-thumb:hover { background: var(--accent2); }
 
 .section {
-  background: var(--panel);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0%, transparent 42%, rgba(255, 140, 26, 0.04) 100%),
+    var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 9px;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(1.5deg) rotateY(-0.8deg);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(255, 140, 26, 0.08);
+  transition: transform .22s ease, box-shadow .22s ease;
+  will-change: transform;
+}
+.section:hover {
+  box-shadow:
+    0 16px 38px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 140, 26, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
 }
 .row { display: flex; gap: 8px; align-items: center; }
 

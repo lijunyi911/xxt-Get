@@ -270,6 +270,21 @@ function fireGrandFirework(duration = 1500) {
   requestAnimationFrame(frame);
 }
 
+// ===== 3D 倾斜光影：鼠标跟随 =====
+document.querySelectorAll('.section').forEach((el) => {
+  el.addEventListener('mousemove', (e) => {
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.transition = 'none';
+    el.style.transform = `perspective(800px) rotateY(${(px * 10).toFixed(2)}deg) rotateX(${(-py * 10).toFixed(2)}deg) translateY(-2px)`;
+  });
+  el.addEventListener('mouseleave', () => {
+    el.style.transition = '';
+    el.style.transform = '';
+  });
+});
+
 function addLog(line) {
   const box = $('log');
   const div = document.createElement('div');
