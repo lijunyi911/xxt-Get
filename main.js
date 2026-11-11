@@ -23,6 +23,7 @@ function createWindow() {
     skipTaskbar: false,
     title: '学习通刷课助手',
     backgroundColor: '#12161c',
+    icon: path.join(__dirname, 'build', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
