@@ -99,11 +99,6 @@ function isSessionAlive(s) {
   try {
     if (!s || !s.context) return false;
     if (typeof s.context.isConnected === 'function' && !s.context.isConnected()) return false;
-    if (!s.page || (typeof s.page.isClosed === 'function' && s.page.isClosed())) {
-      const pages = s.context.pages();
-      if (!pages.length) return false;
-      s.page = pages[0];
-    }
     return true;
   } catch (e) {
     return false;
@@ -111,7 +106,16 @@ function isSessionAlive(s) {
 }
 
 async function ensureSession(push) {
-  if (session && isSessionAlive(session)) return session;
+  if (session && isSessionAlive(session)) {
+    // 工作页被用户关掉了就新开一个，绝不复用用户自己的标签页
+    if (session.workPage && !session.workPage.isClosed()) {
+      session.page = session.workPage;
+      return session;
+    }
+    session.workPage = await session.context.newPage();
+    session.page = session.workPage;
+    return session;
+  }
 
   if (session) {
     log.warn('检测到 Edge 会话已关闭，重新启动');
@@ -121,10 +125,15 @@ async function ensureSession(push) {
 
   if (push) push({ type: 'stage', text: '正在启动专用 Edge...' });
   const context = await profile.launch();
-  const page = context.pages()[0] || (await context.newPage());
-  session = { context, page };
-  await page.goto(cfg.chaoxingHome, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
-  await page.waitForTimeout(1200);
+  const pages = context.pages();
+
+  // 优先用空白页当工作页，避免占用用户已经打开的标签页
+  let workPage = pages.find((p) => /^about:blank$|^$/.test(p.url()));
+  if (!workPage) workPage = await context.newPage();
+
+  session = { context, page: workPage, workPage };
+  await workPage.goto(cfg.chaoxingHome, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+  await workPage.waitForTimeout(1200);
   return session;
 }
 
@@ -141,6 +150,8 @@ async function getCoursesInner(push) {
   // 先强制回到个人空间首页，避免页面停在活动页/课程页导致登录判断失败
   await page.goto(cfg.chaoxingHome, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
   await page.waitForTimeout(1500);
+  // 把工作页切到前台，让用户看到首页（用户自己的标签页保留不动）
+  try { await page.bringToFront(); } catch (e) {}
 
   if (!(await isLoggedIn(page))) {
     const ok = await waitForLogin(page, 10 * 60 * 1000, push);
@@ -263,6 +274,8 @@ async function openChapterWithStatus(page, chUrl, chId) {
 async function processCourse(page, course, speed, push) {
   log.info(`课程：${course.title}`);
   if (push) push({ type: 'stage', text: `课程：${course.title}` });
+  // 刷课时把工作页切到前台，用户自己的标签页不动
+  try { await page.bringToFront(); } catch (e) {}
 
   const list = await getChapterList(page, course);
   if (!list.length) {
