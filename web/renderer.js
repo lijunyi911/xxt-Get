@@ -80,13 +80,13 @@ function escapeHtml(s) {
 // 开始刷课
 $('btnStart').addEventListener('click', async () => {
   const selected = [...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid);
-  if (!selected.length) {
-    addLog('[WARN] 请先勾选至少一门课程');
-    return;
-  }
   $('btnStart').disabled = true;
   $('btnStop').disabled = false;
-  addLog(`[INFO] 开始刷课，已选 ${selected.length} 门，倍速 ${currentSpeed}x`);
+  if (!selected.length) {
+    addLog('[WARN] 未勾选课程，将刷全部课程');
+  } else {
+    addLog(`[INFO] 开始刷课，已选 ${selected.length} 门，倍速 ${currentSpeed}x`);
+  }
   await window.api.start(selected, currentSpeed);
 });
 

@@ -37,8 +37,10 @@ function createWindow() {
 }
 
 ipcMain.handle('load-courses', async () => {
+  engine.requestStop(); // 若正在刷课/读取，先中止旧操作
   try {
     const courses = await engine.getCourses(send);
+    if (!courses) return { ok: false, error: '已被新的操作取代' };
     return { ok: true, courses };
   } catch (e) {
     log.error(`加载课程失败: ${e.message}`);
@@ -48,6 +50,7 @@ ipcMain.handle('load-courses', async () => {
 
 ipcMain.handle('start', async (_e, payload) => {
   const { courses, speed } = payload || {};
+  engine.requestStop(); // 若正在读取/刷课，先中止旧操作
   // 不 await，立即返回，进度通过事件推送
   engine.runCourses(courses || [], speed || cfg.defaultSpeed, send)
     .catch((e) => send({ type: 'error', text: e.message }));

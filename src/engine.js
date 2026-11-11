@@ -24,6 +24,26 @@ const stats = {
 function requestStop() { stopFlag = true; }
 function resetStop() { stopFlag = false; }
 
+// ===== 操作串行队列：同一时间只跑一个浏览器操作，新请求自动取代旧请求 =====
+let opChain = Promise.resolve();
+let opSeq = 0;
+
+function serialize(fn) {
+  const mySeq = ++opSeq;
+  const p = opChain.then(
+    () => {
+      if (mySeq !== opSeq) return null; // 已被更新的请求取代
+      return fn();
+    },
+    () => {
+      if (mySeq !== opSeq) return null;
+      return fn();
+    }
+  );
+  opChain = p.catch(() => {});
+  return p;
+}
+
 function pushStats(push) {
   if (!push) return;
   push({
@@ -103,8 +123,13 @@ async function ensureSession(push) {
   return session;
 }
 
-/** 读取课程列表（必要时先等待登录） */
+/** 读取课程列表（对外：串行队列） */
 async function getCourses(push) {
+  return serialize(() => getCoursesInner(push));
+}
+
+/** 读取课程列表（内部：不加锁） */
+async function getCoursesInner(push) {
   resetStop(); // 新的一次读取不受上次“停止”影响
   const { page } = await ensureSession(push);
   if (!(await isLoggedIn(page))) {
@@ -344,8 +369,13 @@ async function processCourse(page, course, speed, push) {
   }
 }
 
-/** 开始刷课 */
+/** 开始刷课（对外：串行队列） */
 async function runCourses(courses, speed, push) {
+  return serialize(() => runCoursesInner(courses, speed, push));
+}
+
+/** 开始刷课（内部：不加锁） */
+async function runCoursesInner(courses, speed, push) {
   resetStop();
   stateData = state.load(cfg.stateFile);
 
@@ -355,12 +385,12 @@ async function runCourses(courses, speed, push) {
   const { page } = await ensureSession(push);
 
   try {
-    const all = await getCourses(push);
+    const all = await getCoursesInner(push);
     const chosen = courses && courses.length
       ? all.filter((c) => courses.includes(c.courseId) || courses.includes(c.title))
       : all;
     if (!chosen.length) {
-      if (push) push({ type: 'error', text: '没有选中课程' });
+      if (push) push({ type: 'error', text: '没有可刷的课程' });
       return;
     }
     log.info(`准备刷 ${chosen.length} 门课程`);
