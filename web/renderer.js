@@ -330,7 +330,7 @@ function fireGrandFirework(duration = 1500, onDone) {
 const glowEl = document.getElementById('cursor-glow');
 if (glowEl) {
   document.addEventListener('mousemove', (e) => {
-    glowEl.style.transform = `translate(${e.clientX - 140}px, ${e.clientY - 140}px)`;
+    glowEl.style.transform = `translate(${e.clientX - 70}px, ${e.clientY - 70}px)`;
     glowEl.classList.add('on');
   });
   document.addEventListener('mouseleave', () => glowEl.classList.remove('on'));
