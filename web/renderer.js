@@ -64,6 +64,15 @@ function renderCourses(list) {
   $('btnAll').textContent = '全选';
 }
 
+/** 收起课程列表，回到初始状态 */
+function resetCourseList() {
+  courses = [];
+  $('courseList').innerHTML = '<div class="empty">点「读取我的课程」加载列表</div>';
+  $('btnAll').disabled = true;
+  $('btnAll').textContent = '全选';
+  $('loadHint').textContent = '';
+}
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
@@ -144,6 +153,11 @@ window.api.onEvent((ev) => {
     addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；今日已学 ${ev.dailyMinutes} 分钟`);
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
+    // 正常刷完（非手动停止）→ 收起课程列表，回到初始状态
+    if (ev.finished) {
+      resetCourseList();
+      $('stage').textContent = '全部课程已刷完，可再次点击「读取我的课程」';
+    }
   } else if (ev.type === 'error') {
     addLog('[ERROR] ' + (ev.text || ''));
     $('btnStart').disabled = false;

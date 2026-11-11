@@ -377,6 +377,7 @@ async function runCourses(courses, speed, push) {
       push({
         type: 'summary',
         ...stats,
+        finished: !stopFlag,
         dailyMinutes: daily.minutes(),
         dailyLimit: (cfg.antiBan && cfg.antiBan.dailyLimitMinutes) || 0,
       });
