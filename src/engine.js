@@ -245,6 +245,7 @@ async function processCourse(page, course, speed, push) {
 
   if (!todo.length) {
     log.info(`  ${course.title} 全部已完成，整门课跳过`);
+    if (push) push({ type: 'courseDone', title: course.title });
     return;
   }
 

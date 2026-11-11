@@ -160,8 +160,84 @@ window.api.onEvent((ev) => {
     $('btnStop').disabled = true;
   } else if (ev.type === 'quiz') {
     addLog('[WARN] ' + (ev.text || '') + (ev.file ? `（截图：${ev.file}）` : ''));
+  } else if (ev.type === 'courseDone') {
+    showCourseDone(ev.title || '');
   }
 });
+
+// ===== 全绿庆祝 =====
+let confettiEl = null;
+
+function showCourseDone(title) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = `《${title}》已经全部刷完了！🎉`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+  fireConfetti(1500);
+}
+
+function fireConfetti(duration) {
+  if (confettiEl) {
+    confettiEl.remove();
+    confettiEl = null;
+  }
+  const canvas = document.createElement('canvas');
+  confettiEl = canvas;
+  canvas.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext('2d');
+  const colors = ['#ff8c1a', '#ffb347', '#ffd166', '#ff6b6b', '#ffffff', '#4dd4ac', '#7bdff2'];
+  const parts = [];
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 3;
+
+  for (let i = 0; i < 140; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = 4 + Math.random() * 9;
+    parts.push({
+      x: cx,
+      y: cy,
+      vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp - 4,
+      size: 3 + Math.random() * 5,
+      color: colors[(Math.random() * colors.length) | 0],
+      rot: Math.random() * Math.PI,
+      vr: (Math.random() - 0.5) * 0.35,
+    });
+  }
+
+  const start = performance.now();
+  function frame(now) {
+    const elapsed = now - start;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const p of parts) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.32;
+      p.vx *= 0.992;
+      p.rot += p.vr;
+      const k = Math.max(0, 1 - elapsed / duration);
+      ctx.save();
+      ctx.globalAlpha = k;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+      ctx.restore();
+    }
+    if (elapsed < duration) {
+      requestAnimationFrame(frame);
+    } else {
+      canvas.remove();
+      if (confettiEl === canvas) confettiEl = null;
+    }
+  }
+  requestAnimationFrame(frame);
+}
 
 function addLog(line) {
   const box = $('log');

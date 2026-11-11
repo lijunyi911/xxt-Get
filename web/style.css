@@ -81,7 +81,7 @@ button {
   padding: 6px 10px;
   transition: .15s;
 }
-button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+button:hover:not(:disabled) { border-color: var(--accent); color: #fff; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 
 .primary {
@@ -91,7 +91,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-weight: 700;
   flex: 1;
 }
-.primary:hover:not(:disabled) { background: var(--accent3); border-color: var(--accent3); color: #111; }
+.primary:hover:not(:disabled) { background: var(--accent3); border-color: var(--accent3); color: #fff; }
 
 .danger { border-color: #5a2222; color: var(--danger); flex: 0 0 90px; }
 .danger:hover:not(:disabled) { background: #2a1010; border-color: var(--danger); color: #ff8080; }
@@ -139,6 +139,11 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   color: #111;
   font-weight: 700;
 }
+.spd.active:hover:not(:disabled) {
+  background: var(--accent3);
+  border-color: var(--accent3);
+  color: #fff;
+}
 
 /* 状态 */
 .status .status-line { display: flex; gap: 8px; align-items: center; margin-bottom: 7px; }
@@ -185,3 +190,27 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 }
 .stat-line b { color: var(--accent3); font-weight: 700; }
 .stat-line span:last-child { margin-left: auto; color: var(--accent3); }
+
+/* 全绿庆祝提示 */
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 64px;
+  transform: translateX(-50%);
+  max-width: 320px;
+  background: rgba(18, 18, 18, 0.96);
+  border: 1px solid var(--accent);
+  color: var(--accent3);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  z-index: 10000;
+  box-shadow: 0 6px 26px rgba(255, 140, 26, 0.4);
+  animation: toastIn .3s ease;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
