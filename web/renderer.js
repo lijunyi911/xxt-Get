@@ -187,7 +187,6 @@ function showCourseDone(title) {
 
 function fireGrandFirework(duration = 1500) {
   if (document.body.classList.contains('celebrating')) return;
-  document.body.classList.add('celebrating');
 
   const canvas = document.createElement('canvas');
   canvas.className = 'firework-canvas';
@@ -221,6 +220,12 @@ function fireGrandFirework(duration = 1500) {
 
   // 只放一个居中的大烟花
   spawnBurst(W * 0.5, H * 0.45, null, 380);
+
+  // 烟花先画出来，下一帧再同时：烟花渐显 + UI 渐隐，避免出现全黑空档
+  requestAnimationFrame(() => {
+    canvas.classList.add('show');
+    document.body.classList.add('celebrating');
+  });
 
   const start = performance.now();
   function frame(now) {
@@ -256,8 +261,10 @@ function fireGrandFirework(duration = 1500) {
     if (t < duration) {
       requestAnimationFrame(frame);
     } else {
-      canvas.remove();
+      // 渐出：烟花淡出 + UI 渐显，过渡结束后再移除画布
+      canvas.classList.remove('show');
       document.body.classList.remove('celebrating');
+      setTimeout(() => canvas.remove(), 300);
     }
   }
   requestAnimationFrame(frame);
