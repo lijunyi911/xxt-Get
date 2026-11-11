@@ -175,6 +175,63 @@ async function readDocument(page, totalMs) {
   log.info(`文档阅读完成（约 ${Math.round(totalMs / 1000)}s 渐进滚动）`);
 }
 
+/**
+ * 直接跳到文档/PPT 最后一页（不做逐页滚动）
+ * 1) 所有可滚动容器瞬间滚到底
+ * 2) 分页组件（PPT/PDF 查看器）快速点“下一页”直到不能再点
+ */
+async function jumpDocumentToEnd(page, dwellMs = 3000) {
+  // 1. 瞬间滚到底
+  for (const f of page.frames()) {
+    try {
+      await f.evaluate(() => {
+        const h = document.body ? document.body.scrollHeight : 0;
+        window.scrollTo(0, h);
+        document
+          .querySelectorAll('div, section, article, [class*="scroll"], [class*="viewer"], [class*="pdf"], [class*="ppt"]')
+          .forEach((d) => {
+            try {
+              if (d.scrollHeight > d.clientHeight + 50) d.scrollTop = d.scrollHeight;
+            } catch (e) {}
+          });
+      });
+    } catch (e) {}
+  }
+
+  // 2. 分页组件：快速点“下一页”直到点不动
+  for (let i = 0; i < 120; i++) {
+    let clicked = false;
+    for (const f of page.frames()) {
+      try {
+        let u = '';
+        try { u = f.url ? f.url() : ''; } catch (e) {}
+        if (!/document|pdf|ppt|office|viewer/i.test(u)) continue;
+
+        clicked = await f.evaluate(() => {
+          const sels = [
+            '.nextPage', '.next-page', '[class*="nextPage"]', '[class*="next-page"]',
+            'a[title="下一页"]', 'button[title="下一页"]', '.page-next', '.btn-next',
+          ];
+          for (const s of sels) {
+            const el = document.querySelector(s);
+            if (el && !el.disabled && el.offsetParent !== null) {
+              el.click();
+              return true;
+            }
+          }
+          return false;
+        }) || false;
+      } catch (e) {}
+      if (clicked) break;
+    }
+    if (!clicked) break;
+    await page.waitForTimeout(120);
+  }
+
+  await page.waitForTimeout(dwellMs);
+  log.info(`文档/PPT 已跳到最后一页（停留 ${Math.round(dwellMs / 1000)}s）`);
+}
+
 /** 读取当前章节顶部的任务点标签（视频/文档/阅读/章节测验） */
 async function getTaskBadges(page) {
   try {
@@ -353,4 +410,5 @@ module.exports = {
   hasQuizTask,
   captureQuiz,
   detectLimitHint,
+  jumpDocumentToEnd,
 };

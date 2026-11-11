@@ -320,13 +320,13 @@ async function processCourse(page, course, speed, push) {
         }
       }
     } else if (st.kind === 'doc') {
-      log.info(`  阅读文档（章节 ${chId}），停留 ${Math.round(cfg.docDwellMs / 1000)}s`);
-      if (push) push({ type: 'stage', text: `阅读文档 ${chId} ...` });
-      await player.readDocument(page, cfg.docDwellMs);
-      daily.add(cfg.docDwellMs / 1000);
+      log.info(`  文档/PPT（章节 ${chId}），直接跳到最后一页`);
+      if (push) push({ type: 'stage', text: `文档 ${chId}：跳到最后一页` });
+      await player.jumpDocumentToEnd(page, cfg.docJumpDwellMs);
+      daily.add(cfg.docJumpDwellMs / 1000);
       pushStats(push);
       completed = true;
-      completionInfo = { type: 'doc', dwell: cfg.docDwellMs };
+      completionInfo = { type: 'doc', dwell: cfg.docJumpDwellMs };
     }
 
     if (completed && !stopFlag && completionInfo) {

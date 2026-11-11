@@ -64,7 +64,8 @@ module.exports = {
   // 时间参数
   actionDelayMs: 600,
   videoWaitTimeoutMs: 60 * 60 * 1000, // 单视频最长等待 1h
-  docDwellMs: 30000,                  // 文档阅读停留 30s（渐进滚动）
+  docDwellMs: 30000,                  // 未知文档兜底停留 30s（渐进滚动，仅兜底用）
+  docJumpDwellMs: 3000,               // 文档/PPT 直接跳最后一页后的停留
   docFallbackMs: 6000,                // 未知任务点短暂兜底滚动
   pollIntervalMs: 1000,
 
