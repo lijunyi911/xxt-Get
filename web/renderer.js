@@ -1,5 +1,36 @@
 const $ = (id) => document.getElementById(id);
 
+// ===== 主题：浅色 / 深色 / 跟随系统 =====
+const THEME_KEY = 'xxt-theme';
+let themeMode = 'system';
+try { themeMode = localStorage.getItem(THEME_KEY) || 'system'; } catch (e) {}
+const lightMedia = window.matchMedia('(prefers-color-scheme: light)');
+
+function applyTheme() {
+  let dark;
+  if (themeMode === 'dark') dark = true;
+  else if (themeMode === 'light') dark = false;
+  else dark = !lightMedia.matches;
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+
+  const btn = document.getElementById('btnTheme');
+  if (btn) {
+    btn.textContent = themeMode === 'system' ? '跟随系统' : themeMode === 'dark' ? '深色' : '浅色';
+  }
+}
+
+const themeBtn = document.getElementById('btnTheme');
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => {
+    themeMode = themeMode === 'system' ? 'light' : themeMode === 'light' ? 'dark' : 'system';
+    try { localStorage.setItem(THEME_KEY, themeMode); } catch (e) {}
+    applyTheme();
+    addLog(`[INFO] 主题切换为：${themeBtn.textContent}`);
+  });
+}
+lightMedia.addEventListener('change', () => { if (themeMode === 'system') applyTheme(); });
+applyTheme();
+
 let currentSpeed = 2;
 let courses = [];
 
