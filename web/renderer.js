@@ -165,75 +165,91 @@ window.api.onEvent((ev) => {
   }
 });
 
-// ===== 全绿庆祝 =====
-let confettiEl = null;
-
+// ===== 全绿庆祝：隐藏全部 UI + 满屏大烟花 =====
 function showCourseDone(title) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = `《${title}》已经全部刷完了！🎉`;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2600);
-  fireConfetti(1500);
+  if (title) addLog(`[INFO] 《${title}》已经全部刷完了`);
+  fireGrandFirework(1500);
 }
 
-function fireConfetti(duration) {
-  if (confettiEl) {
-    confettiEl.remove();
-    confettiEl = null;
-  }
+function fireGrandFirework(duration = 1500) {
+  if (document.body.classList.contains('celebrating')) return;
+  document.body.classList.add('celebrating');
+
   const canvas = document.createElement('canvas');
-  confettiEl = canvas;
-  canvas.style.cssText = 'position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+  canvas.className = 'firework-canvas';
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   document.body.appendChild(canvas);
 
   const ctx = canvas.getContext('2d');
-  const colors = ['#ff8c1a', '#ffb347', '#ffd166', '#ff6b6b', '#ffffff', '#4dd4ac', '#7bdff2'];
-  const parts = [];
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 3;
+  const W = canvas.width;
+  const H = canvas.height;
+  const colors = ['#ff8c1a', '#ffd166', '#ff6b6b', '#ffffff', '#7bdff2', '#b388ff', '#4dd4ac'];
+  const bursts = [];
 
-  for (let i = 0; i < 140; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const sp = 4 + Math.random() * 9;
-    parts.push({
-      x: cx,
-      y: cy,
-      vx: Math.cos(a) * sp,
-      vy: Math.sin(a) * sp - 4,
-      size: 3 + Math.random() * 5,
-      color: colors[(Math.random() * colors.length) | 0],
-      rot: Math.random() * Math.PI,
-      vr: (Math.random() - 0.5) * 0.35,
-    });
+  function spawnBurst(x, y, color, count) {
+    const parts = [];
+    for (let i = 0; i < count; i++) {
+      const a = (Math.PI * 2 * i) / count + Math.random() * 0.08;
+      const sp = 2 + Math.random() * 7;
+      parts.push({
+        x, y,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp,
+        size: 1.5 + Math.random() * 2.5,
+        color,
+        life: 1,
+        decay: 0.007 + Math.random() * 0.01,
+      });
+    }
+    bursts.push(parts);
   }
+
+  const points = [
+    [W * 0.5, H * 0.32, 240],
+    [W * 0.22, H * 0.52, 160],
+    [W * 0.78, H * 0.52, 160],
+  ];
+  points.forEach(([x, y, n], i) => {
+    setTimeout(() => spawnBurst(x, y, colors[i % colors.length], n), i * 170);
+  });
 
   const start = performance.now();
   function frame(now) {
-    const elapsed = now - start;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const p of parts) {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.32;
-      p.vx *= 0.992;
-      p.rot += p.vr;
-      const k = Math.max(0, 1 - elapsed / duration);
-      ctx.save();
-      ctx.globalAlpha = k;
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-      ctx.restore();
+    const t = now - start;
+
+    // 拖尾残影
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.fillStyle = 'rgba(0,0,0,0.16)';
+    ctx.fillRect(0, 0, W, H);
+
+    // 发光叠加
+    ctx.globalCompositeOperation = 'lighter';
+    for (const ps of bursts) {
+      for (const p of ps) {
+        if (p.life <= 0) continue;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.045;
+        p.vx *= 0.986;
+        p.vy *= 0.986;
+        p.life -= p.decay;
+        if (p.life <= 0) continue;
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
-    if (elapsed < duration) {
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+
+    if (t < duration) {
       requestAnimationFrame(frame);
     } else {
       canvas.remove();
-      if (confettiEl === canvas) confettiEl = null;
+      document.body.classList.remove('celebrating');
     }
   }
   requestAnimationFrame(frame);

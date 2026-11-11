@@ -191,26 +191,20 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .stat-line b { color: var(--accent3); font-weight: 700; }
 .stat-line span:last-child { margin-left: auto; color: var(--accent3); }
 
-/* 全绿庆祝提示 */
-.toast {
-  position: fixed;
-  left: 50%;
-  top: 64px;
-  transform: translateX(-50%);
-  max-width: 320px;
-  background: rgba(18, 18, 18, 0.96);
-  border: 1px solid var(--accent);
-  color: var(--accent3);
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
-  z-index: 10000;
-  box-shadow: 0 6px 26px rgba(255, 140, 26, 0.4);
-  animation: toastIn .3s ease;
+/* 全绿庆祝：隐藏全部 UI + 满屏烟花 */
+body.celebrating .titlebar,
+body.celebrating .body {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s;
 }
-@keyframes toastIn {
-  from { opacity: 0; transform: translate(-50%, -10px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
+.firework-canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
+  background: #000;
+  pointer-events: none;
 }
