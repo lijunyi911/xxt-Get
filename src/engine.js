@@ -114,12 +114,16 @@ async function getCourses(push) {
   return courseMod.listCourses(page);
 }
 
-/** 进入课程页，抓出所有章节学习链接 */
-async function getChapterUrls(page, course) {
+/**
+ * 进入课程页，读取目录里每个小节的完成状态。
+ * 学习通目录圆点：绿色 em.openlock = 已完成；橙色 em.orange = 未完成。
+ * @returns [{ url, chId, title, done }]
+ */
+async function getChapterList(page, course) {
   await page.goto(course.href, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
   await page.waitForTimeout(2500);
 
-  const urls = await page.evaluate(() => {
+  return page.evaluate(() => {
     const out = [];
     const seen = new Set();
     document.querySelectorAll('a[href*="studentstudy"]').forEach((a) => {
@@ -128,11 +132,25 @@ async function getChapterUrls(page, course) {
       if (!m) return;
       if (seen.has(m[1])) return;
       seen.add(m[1]);
-      out.push(h);
+
+      const em = a.querySelector('.icon em');
+      const cls = em ? String(em.className || '') : '';
+      const isOrange = /\borange\b/i.test(cls);
+      const hasJobCount = !!a.querySelector('.icon .knowledgeJobCount');
+      // 有图标时：橙色/有未完成任务点 = 未完成；否则已完成
+      // 没有图标：状态未知，按未完成处理，进页面再判断
+      const done = em ? !(isOrange || hasJobCount) : false;
+
+      const title = (
+        a.getAttribute('aria-label') ||
+        (a.querySelector('.articlename') || {}).textContent ||
+        ''
+      ).trim().replace(/\s+/g, ' ');
+
+      out.push({ url: h, chId: m[1], title, done });
     });
     return out;
   });
-  return urls;
 }
 
 /** 等视频播放结束（或超时/停止） */
@@ -211,16 +229,26 @@ async function processCourse(page, course, speed, push) {
   log.info(`课程：${course.title}`);
   if (push) push({ type: 'stage', text: `课程：${course.title}` });
 
-  const chapters = await getChapterUrls(page, course);
-  log.info(`  ${course.title} 共 ${chapters.length} 个章节`);
-  if (!chapters.length) {
+  const list = await getChapterList(page, course);
+  if (!list.length) {
     log.warn('  未找到章节链接');
     return;
   }
 
-  stats.total += chapters.length;
+  const todo = list.filter((x) => !x.done);
+  const already = list.length - todo.length;
 
-  for (let i = 0; i < chapters.length; i++) {
+  log.info(`  ${course.title}：共 ${list.length} 节，已完成 ${already} 节，待刷 ${todo.length} 节`);
+  stats.skipped += already;
+  stats.total += todo.length;
+  pushStats(push);
+
+  if (!todo.length) {
+    log.info(`  ${course.title} 全部已完成，整门课跳过`);
+    return;
+  }
+
+  for (let i = 0; i < todo.length; i++) {
     if (stopFlag) break;
 
     // 单日学习时长上限保护
@@ -230,13 +258,14 @@ async function processCourse(page, course, speed, push) {
       break;
     }
 
-    const chUrl = chapters[i];
-    const chId = (chUrl.match(/chapterId=(\d+)/i) || [])[1] || String(i);
+    const ch = todo[i];
+    const chUrl = ch.url;
+    const chId = ch.chId;
     const key = `ch_${chId}`;
 
     stats.current = i + 1;
     pushStats(push);
-    if (push) push({ type: 'stage', text: `${course.title} 章节 ${i + 1}/${chapters.length}` });
+    if (push) push({ type: 'stage', text: `${course.title} 章节 ${i + 1}/${todo.length}（${ch.title || chId}）` });
 
     const st = await openChapterWithStatus(page, chUrl, chId);
 
@@ -367,7 +396,7 @@ async function _forceCloseContextForTest() {
 module.exports = {
   getCourses,
   runCourses,
-  getChapterUrls,
+  getChapterList,
   requestStop,
   resetStop,
   isLoggedIn,
