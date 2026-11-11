@@ -228,3 +228,29 @@ body.celebrating .body {
   transition: opacity .2s ease;
 }
 .firework-canvas.show { opacity: 1; }
+
+/* 顶部提示条 */
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 64px;
+  transform: translate(-50%, -8px);
+  max-width: 320px;
+  background: rgba(18, 18, 18, 0.96);
+  border: 1px solid var(--accent);
+  color: var(--accent3);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  z-index: 100000;
+  box-shadow: 0 6px 26px rgba(255, 140, 26, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+}
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

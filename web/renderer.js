@@ -181,11 +181,35 @@ window.api.onEvent((ev) => {
 
 // ===== 全绿庆祝：隐藏全部 UI + 满屏大烟花 =====
 function showCourseDone(title) {
-  if (title) addLog(`[INFO] 《${title}》已经全部刷完了`);
-  fireGrandFirework(1500);
+  if (title) addLog(`[INFO] 《${title}》已完成`);
+  if (document.body.classList.contains('celebrating')) {
+    if (title) showToast(`《${title}》已完成`);
+    return;
+  }
+  fireGrandFirework(1500, () => {
+    if (title) showToast(`《${title}》已完成`);
+  });
 }
 
-function fireGrandFirework(duration = 1500) {
+/** 顶部提示条 */
+let toastTimer = null;
+function showToast(text) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = text;
+  // 强制重排后再加 show，保证过渡生效
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function fireGrandFirework(duration = 1500, onDone) {
   if (document.body.classList.contains('celebrating')) return;
 
   const canvas = document.createElement('canvas');
@@ -265,6 +289,7 @@ function fireGrandFirework(duration = 1500) {
       canvas.classList.remove('show');
       document.body.classList.remove('celebrating');
       setTimeout(() => canvas.remove(), 300);
+      if (typeof onDone === 'function') onDone();
     }
   }
   requestAnimationFrame(frame);
