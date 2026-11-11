@@ -76,13 +76,13 @@ html, body {
   padding: 9px;
   position: relative;
   transform-style: preserve-3d;
-  transform: perspective(1000px) rotateX(1.5deg) rotateY(-0.8deg);
+  transform: perspective(1000px) rotateX(0.8deg) rotateY(-0.5deg);
   box-shadow:
     0 10px 24px rgba(0, 0, 0, 0.55),
     0 2px 6px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     inset 0 -1px 0 rgba(255, 140, 26, 0.08);
-  transition: transform .22s ease, box-shadow .22s ease;
+  transition: transform .6s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s ease;
   will-change: transform;
 }
 .section:hover {

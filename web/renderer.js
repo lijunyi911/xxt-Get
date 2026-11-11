@@ -305,17 +305,21 @@ if (glowEl) {
   document.addEventListener('mouseleave', () => glowEl.classList.remove('on'));
 }
 
-// ===== 3D 倾斜光影：鼠标跟随 =====
+// ===== 3D 倾斜光影：鼠标跟随（Q 弹） =====
 document.querySelectorAll('.section').forEach((el) => {
+  el.addEventListener('mouseenter', () => {
+    // 跟手：短而平滑，避免跳变
+    el.style.transition = 'transform .18s cubic-bezier(.22, 1, .36, 1)';
+  });
   el.addEventListener('mousemove', (e) => {
     const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transition = 'none';
-    el.style.transform = `perspective(800px) rotateY(${(px * 10).toFixed(2)}deg) rotateX(${(-py * 10).toFixed(2)}deg) translateY(-2px)`;
+    el.style.transform = `perspective(800px) rotateY(${(px * 9).toFixed(2)}deg) rotateX(${(-py * 9).toFixed(2)}deg) translateY(-2px) scale(1.006)`;
   });
   el.addEventListener('mouseleave', () => {
-    el.style.transition = '';
+    // 离开：弹性回弹（带过冲，Q 弹）
+    el.style.transition = 'transform .62s cubic-bezier(.34, 1.56, .64, 1)';
     el.style.transform = '';
   });
 });
