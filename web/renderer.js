@@ -36,18 +36,32 @@ $('btnLoad').addEventListener('click', async () => {
   }
 });
 
+// 全选 / 反选
+$('btnAll').addEventListener('click', () => {
+  const boxes = [...document.querySelectorAll('#courseList input[type="checkbox"]')];
+  if (!boxes.length) return;
+  const allChecked = boxes.every((b) => b.checked);
+  boxes.forEach((b) => { b.checked = !allChecked; });
+  $('btnAll').textContent = allChecked ? '全选' : '取消全选';
+  addLog(`[INFO] ${allChecked ? '已取消全选' : '已全选'} ${boxes.length} 门课程`);
+});
+
 function renderCourses(list) {
   const box = $('courseList');
   if (!list.length) {
     box.innerHTML = '<div class="empty">没有读到课程，请确认已登录</div>';
+    $('btnAll').disabled = true;
+    $('btnAll').textContent = '全选';
     return;
   }
-  box.innerHTML = list.map((c, i) => `
+  box.innerHTML = list.map((c) => `
     <label class="course-item">
       <input type="checkbox" data-cid="${c.courseId}" />
       <span class="cname" title="${escapeHtml(c.title)}">${escapeHtml(c.title)}</span>
     </label>
   `).join('');
+  $('btnAll').disabled = false;
+  $('btnAll').textContent = '全选';
 }
 
 function escapeHtml(s) {
@@ -93,23 +107,43 @@ $('btnClear').addEventListener('click', async () => {
 $('btnMin').addEventListener('click', () => window.api.minimize());
 $('btnClose').addEventListener('click', () => window.api.close());
 
+function setStats(s) {
+  if (!s) return;
+  $('stDone').textContent = s.done ?? 0;
+  $('stSkip').textContent = s.skipped ?? 0;
+  $('stQuiz').textContent = s.quiz ?? 0;
+  $('stFail').textContent = s.failed ?? 0;
+  if (s.dailyMinutes != null) $('stDaily').textContent = s.dailyMinutes;
+  if (s.dailyLimit != null) $('stLimit').textContent = s.dailyLimit;
+}
+
 // 事件接收
 window.api.onEvent((ev) => {
   if (!ev) return;
   if (ev.type === 'stage') {
     $('stage').textContent = ev.text || '';
   } else if (ev.type === 'progress') {
-    // 解析 "视频 cur/dur"
-    const m = (ev.text || '').match(/(\d+)\s*\/\s*(\d+)/);
-    if (m) {
-      const pct = Math.min(100, Math.round((parseInt(m[1]) / parseInt(m[2])) * 100));
-      $('bar').style.width = pct + '%';
-      $('stage').textContent = ev.text;
+    if (ev.pct != null) {
+      $('bar').style.width = Math.min(100, ev.pct) + '%';
+    } else {
+      const m = (ev.text || '').match(/(\d+)\s*\/\s*(\d+)/);
+      if (m) {
+        const pct = Math.min(100, Math.round((parseInt(m[1]) / parseInt(m[2])) * 100));
+        $('bar').style.width = pct + '%';
+      }
     }
+    if (ev.text) $('stage').textContent = ev.text;
   } else if (ev.type === 'log') {
     addLog(ev.text || '');
   } else if (ev.type === 'courses') {
     if (Array.isArray(ev.courses)) courses = ev.courses;
+  } else if (ev.type === 'stats') {
+    setStats(ev);
+  } else if (ev.type === 'summary') {
+    setStats(ev);
+    addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；今日已学 ${ev.dailyMinutes} 分钟`);
+    $('btnStart').disabled = false;
+    $('btnStop').disabled = true;
   } else if (ev.type === 'error') {
     addLog('[ERROR] ' + (ev.text || ''));
     $('btnStart').disabled = false;
@@ -119,6 +153,13 @@ window.api.onEvent((ev) => {
     $('stage').textContent = '需要人工验证，已暂停';
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
+  } else if (ev.type === 'limit') {
+    addLog('[WARN] ⚠ 平台提示：' + (ev.text || '') + '，已停止');
+    $('stage').textContent = '已达平台上限，已停止';
+    $('btnStart').disabled = false;
+    $('btnStop').disabled = true;
+  } else if (ev.type === 'quiz') {
+    addLog('[WARN] ' + (ev.text || '') + (ev.file ? `（截图：${ev.file}）` : ''));
   }
 });
 
@@ -130,6 +171,5 @@ function addLog(line) {
   div.textContent = line;
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
-  // 限制行数
   while (box.childNodes.length > 400) box.removeChild(box.firstChild);
 }

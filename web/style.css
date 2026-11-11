@@ -139,3 +139,25 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .log::-webkit-scrollbar-thumb { background: #2c3742; border-radius: 3px; }
 .log .warn { color: #e0b050; }
 .log .error { color: #ff7777; }
+
+/* 小按钮（全选） */
+.mini {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.mini:hover:not(:disabled) { color: var(--text); }
+
+/* 统计行 */
+.stat-line {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.stat-line b { color: var(--text); font-weight: 600; }
+.stat-line span:last-child { margin-left: auto; color: #9fd0ff; }
+

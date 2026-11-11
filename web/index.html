@@ -19,6 +19,7 @@
     <div class="section">
       <div class="row">
         <button id="btnLoad" class="primary">读取我的课程</button>
+        <button id="btnAll" class="mini" disabled>全选</button>
         <span class="hint" id="loadHint"></span>
       </div>
       <div id="courseList" class="course-list">
@@ -49,6 +50,13 @@
     <div class="section status">
       <div class="status-line"><span class="st-label">状态</span><span id="stage">待启动</span></div>
       <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="stat-line">
+        <span>完成 <b id="stDone">0</b></span>
+        <span>跳过 <b id="stSkip">0</b></span>
+        <span>测验 <b id="stQuiz">0</b></span>
+        <span>失败 <b id="stFail">0</b></span>
+        <span>今日 <b id="stDaily">0</b>/<span id="stLimit">240</span>分</span>
+      </div>
     </div>
 
     <div class="section log-wrap">

@@ -1,5 +1,7 @@
 const cfg = require('../config');
 const log = require('./log');
+const fs = require('fs');
+const path = require('path');
 
 const CONTINUE_TEXTS = ['继续学习', '继续观看', '继续播放', '确定', '我知道了', '知道了'];
 
@@ -228,7 +230,7 @@ async function hasDocumentFrame(page) {
 
 /**
  * 读取章节真实完成状态（页面为准，不依赖本地断点）
- * @returns { done: boolean, kind: 'video'|'doc'|'unknown', progress? }
+ * @returns { done: boolean, kind: 'video'|'doc'|'quiz'|'unknown', progress? }
  */
 async function checkChapterStatus(page) {
   // 1. 视频：等待加载（最多 5s），以播放进度判断是否已看完
@@ -242,8 +244,55 @@ async function checkChapterStatus(page) {
   // 2. 文档
   if (await hasDocumentFrame(page)) return { done: false, kind: 'doc' };
 
-  // 3. 无法判定：交给上层按本地记录/兜底处理
+  // 3. 章节测验
+  if (await hasQuizTask(page)) return { done: false, kind: 'quiz' };
+
+  // 4. 无法判定：交给上层按本地记录/兜底处理
   return { done: false, kind: 'unknown' };
+}
+
+/** 当前章节是否含“章节测验”任务点 */
+async function hasQuizTask(page) {
+  try {
+    const badges = await getTaskBadges(page);
+    if (badges.includes('章节测验')) return true;
+    const text = await page.evaluate(() => (document.body ? document.body.innerText : '') || '');
+    return /章节测验/.test(text);
+  } catch (e) {
+    return false;
+  }
+}
+
+/** 章节测验截图存档（留给用户手动完成，不硬刷） */
+async function captureQuiz(page, chId) {
+  try {
+    fs.mkdirSync(cfg.quizDir, { recursive: true });
+    const file = path.join(cfg.quizDir, `chapter_${chId}_${Date.now()}.png`);
+    await page.screenshot({ path: file, fullPage: false });
+    return file;
+  } catch (e) {
+    return null;
+  }
+}
+
+/** 检测学习通“今日上限”提示 */
+async function detectLimitHint(page) {
+  const texts = [
+    '今日视频任务点完成数已达上限',
+    '今日视频观看时长已达上限',
+    '今日学习时长已达上限',
+    '已达今日上限',
+  ];
+  for (const f of page.frames()) {
+    try {
+      const hit = await f.evaluate((ts) => {
+        const body = document.body ? (document.body.innerText || '') : '';
+        return ts.find((x) => body.includes(x)) || null;
+      }, texts);
+      if (hit) return hit;
+    } catch (e) {}
+  }
+  return null;
 }
 
 /** 暂停视频 */
@@ -301,4 +350,7 @@ module.exports = {
   pauseVideo,
   resumeVideo,
   detectChallenge,
+  hasQuizTask,
+  captureQuiz,
+  detectLimitHint,
 };

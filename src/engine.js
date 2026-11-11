@@ -11,8 +11,28 @@ let session = null;      // { context, page }
 let stopFlag = false;
 let stateData = {};
 
+// 本次运行统计
+const stats = {
+  done: 0,      // 本次完成
+  skipped: 0,   // 已完成跳过
+  quiz: 0,      // 章节测验（需手动）
+  failed: 0,    // 无法识别/失败
+  total: 0,     // 总章节数
+  current: 0,   // 当前进度序号
+};
+
 function requestStop() { stopFlag = true; }
 function resetStop() { stopFlag = false; }
+
+function pushStats(push) {
+  if (!push) return;
+  push({
+    type: 'stats',
+    ...stats,
+    dailyMinutes: daily.minutes(),
+    dailyLimit: (cfg.antiBan && cfg.antiBan.dailyLimitMinutes) || 0,
+  });
+}
 
 /** 判断是否已登录 */
 async function isLoggedIn(page) {
@@ -123,6 +143,15 @@ async function waitVideoEnd(page, push) {
   while (Date.now() - start < cfg.videoWaitTimeoutMs) {
     if (stopFlag) return false;
 
+    // 平台每日上限提示 → 立即停止
+    const limitHit = await player.detectLimitHint(page);
+    if (limitHit) {
+      log.warn(`检测到平台上限提示：${limitHit}`);
+      if (push) push({ type: 'limit', text: limitHit });
+      requestStop();
+      return false;
+    }
+
     // 人工验证检测（人脸/验证码/滑块）→ 停止，避免硬刷触发封禁
     const challenge = await player.detectChallenge(page);
     if (challenge) {
@@ -150,11 +179,31 @@ async function waitVideoEnd(page, push) {
     const p = await player.getVideoProgress(page);
     if (p && Date.now() - lastLog > 5000) {
       lastLog = Date.now();
-      if (push) push({ type: 'progress', text: `视频 ${p.cur}/${p.dur}s` });
+      const pct = p.dur > 0 ? Math.round((p.cur / p.dur) * 100) : 0;
+      if (push) push({ type: 'progress', text: `视频 ${p.cur}/${p.dur}s`, pct });
     }
     await page.waitForTimeout(cfg.pollIntervalMs);
   }
   return false;
+}
+
+/** 打开章节并读取状态（带一次重试） */
+async function openChapterWithStatus(page, chUrl, chId) {
+  let st = { done: false, kind: 'unknown' };
+  for (let attempt = 0; attempt < 2; attempt++) {
+    await humanize.jitterMouse(page);
+    await humanize.sleep(page);
+    await page.goto(chUrl, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
+    await page.waitForTimeout(1200);
+    await humanize.jitterMouse(page);
+    await humanize.sleep(page, 300, 1200);
+
+    st = await player.checkChapterStatus(page);
+    if (st.kind !== 'unknown') return st;
+
+    if (attempt === 0) log.warn(`  章节 ${chId} 状态未识别，重试一次`);
+  }
+  return st;
 }
 
 /** 刷单门课程：逐个章节进入并播放 */
@@ -168,6 +217,8 @@ async function processCourse(page, course, speed, push) {
     log.warn('  未找到章节链接');
     return;
   }
+
+  stats.total += chapters.length;
 
   for (let i = 0; i < chapters.length; i++) {
     if (stopFlag) break;
@@ -183,28 +234,43 @@ async function processCourse(page, course, speed, push) {
     const chId = (chUrl.match(/chapterId=(\d+)/i) || [])[1] || String(i);
     const key = `ch_${chId}`;
 
+    stats.current = i + 1;
+    pushStats(push);
     if (push) push({ type: 'stage', text: `${course.title} 章节 ${i + 1}/${chapters.length}` });
 
-    // 打开章节前：鼠标抖动 + 随机延迟（降低自动化特征）
-    await humanize.jitterMouse(page);
-    await humanize.sleep(page);
+    const st = await openChapterWithStatus(page, chUrl, chId);
 
-    // 打开章节 → 读取页面真实完成状态
-    await page.goto(chUrl, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
-    await page.waitForTimeout(1200);
-    await humanize.jitterMouse(page);
-    await humanize.sleep(page, 300, 1200);
-
-    const st = await player.checkChapterStatus(page);
     if (st.done) {
       log.info(`  章节 ${chId} 已完成（${st.kind}），跳过`);
-      continue; // 已完成：不做任何操作，直接下一个
+      stats.skipped++;
+      pushStats(push);
+      continue;
     }
+
     // 文档/未知：页面无可靠完成标记，本地记录过即视为已完成，跳过
     if ((st.kind === 'doc' || st.kind === 'unknown') && state.isDone(stateData, key)) {
       log.info(`  章节 ${chId} 已完成（本地记录/${st.kind}），跳过`);
+      stats.skipped++;
+      pushStats(push);
       continue;
     }
+
+    if (st.kind === 'quiz') {
+      const file = await player.captureQuiz(page, chId);
+      log.info(`  章节测验（章节 ${chId}），已截图存档${file ? '：' + file : ''}，请手动完成`);
+      if (push) push({ type: 'quiz', text: `章节 ${chId} 有章节测验，需手动完成`, file: file || null });
+      stats.quiz++;
+      pushStats(push);
+      continue; // 不硬刷，继续下一个章节
+    }
+
+    if (st.kind === 'unknown') {
+      log.warn(`  章节 ${chId} 状态无法识别，跳过（计入失败）`);
+      stats.failed++;
+      pushStats(push);
+      continue;
+    }
+
     log.info(`  章节 ${chId} 未完成（${st.kind}），开始刷`);
 
     let completed = false;
@@ -217,6 +283,7 @@ async function processCourse(page, course, speed, push) {
         const t0 = Date.now();
         const ended = await waitVideoEnd(page, push);
         daily.add((Date.now() - t0) / 1000);
+        pushStats(push);
         if (ended) {
           completed = true;
           const p = await player.getVideoProgress(page);
@@ -228,20 +295,19 @@ async function processCourse(page, course, speed, push) {
       if (push) push({ type: 'stage', text: `阅读文档 ${chId} ...` });
       await player.readDocument(page, cfg.docDwellMs);
       daily.add(cfg.docDwellMs / 1000);
+      pushStats(push);
       completed = true;
       completionInfo = { type: 'doc', dwell: cfg.docDwellMs };
-    } else {
-      log.info(`  未知任务点（章节 ${chId}），短暂滚动兜底`);
-      await player.readDocument(page, cfg.docFallbackMs);
-      daily.add(cfg.docFallbackMs / 1000);
-      completed = true;
-      completionInfo = { type: 'doc', dwell: cfg.docFallbackMs };
     }
 
     if (completed && !stopFlag && completionInfo) {
+      stats.done++;
       state.markDone(stateData, key, completionInfo);
       state.save(cfg.stateFile, stateData);
+    } else if (!completed && !stopFlag) {
+      stats.failed++;
     }
+    pushStats(push);
 
     // 章节间随机间隔，避免连续快速切换（模拟真人节奏）
     await humanize.sleep(page, cfg.antiBan.chapterGapMinMs, cfg.antiBan.chapterGapMaxMs);
@@ -252,6 +318,10 @@ async function processCourse(page, course, speed, push) {
 async function runCourses(courses, speed, push) {
   resetStop();
   stateData = state.load(cfg.stateFile);
+
+  stats.done = 0; stats.skipped = 0; stats.quiz = 0; stats.failed = 0; stats.total = 0; stats.current = 0;
+  pushStats(push);
+
   const { page } = await ensureSession(push);
 
   try {
@@ -268,10 +338,19 @@ async function runCourses(courses, speed, push) {
       if (stopFlag) break;
       await processCourse(page, c, speed, push);
     }
-    if (push) push({ type: 'stage', text: '全部完成' });
+    if (push) push({ type: 'stage', text: stopFlag ? '已停止' : '全部完成' });
   } catch (e) {
     log.error(`运行异常: ${e.message}`);
     if (push) push({ type: 'error', text: e.message });
+  } finally {
+    if (push) {
+      push({
+        type: 'summary',
+        ...stats,
+        dailyMinutes: daily.minutes(),
+        dailyLimit: (cfg.antiBan && cfg.antiBan.dailyLimitMinutes) || 0,
+      });
+    }
   }
 }
 
