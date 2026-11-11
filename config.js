@@ -77,8 +77,8 @@ module.exports = {
     mouseJitter: true,
     randomPauseChance: 0.2,
     dailyLimitMinutes: 240,
-    chapterGapMinMs: 2000,
-    chapterGapMaxMs: 6000,
+    chapterGapMinMs: 1000,
+    chapterGapMaxMs: 3000,
   },
 
   // 日志：单文件超过 5MB 轮转；保留 7 天，超期自动删除

@@ -182,8 +182,8 @@ async function waitVideoEnd(page, push) {
     await player.handleDialogs(page);
     if (await player.isVideoEnded(page)) return true;
 
-    // 模拟真人：每隔约 30 秒有 20% 概率随机暂停一会儿
-    if (cfg.antiBan && cfg.antiBan.enabled && Date.now() - lastPauseCheck > 30000) {
+    // 模拟真人：每隔约 2 秒判定一次，有概率随机暂停一会儿
+    if (cfg.antiBan && cfg.antiBan.enabled && Date.now() - lastPauseCheck > 2000) {
       lastPauseCheck = Date.now();
       if (Math.random() < cfg.antiBan.randomPauseChance) {
         log.info('模拟真人：随机暂停一会儿');
