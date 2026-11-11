@@ -191,13 +191,13 @@ function fireGrandFirework(duration = 1500) {
     const parts = [];
     for (let i = 0; i < count; i++) {
       const a = (Math.PI * 2 * i) / count + Math.random() * 0.08;
-      const sp = 2 + Math.random() * 7;
+      const sp = 2.5 + Math.random() * 8;
       parts.push({
         x, y,
         vx: Math.cos(a) * sp,
         vy: Math.sin(a) * sp,
         size: 1.5 + Math.random() * 2.5,
-        color,
+        color: color || colors[(Math.random() * colors.length) | 0],
         life: 1,
         decay: 0.007 + Math.random() * 0.01,
       });
@@ -205,14 +205,8 @@ function fireGrandFirework(duration = 1500) {
     bursts.push(parts);
   }
 
-  const points = [
-    [W * 0.5, H * 0.32, 240],
-    [W * 0.22, H * 0.52, 160],
-    [W * 0.78, H * 0.52, 160],
-  ];
-  points.forEach(([x, y, n], i) => {
-    setTimeout(() => spawnBurst(x, y, colors[i % colors.length], n), i * 170);
-  });
+  // 只放一个居中的大烟花
+  spawnBurst(W * 0.5, H * 0.45, null, 380);
 
   const start = performance.now();
   function frame(now) {
@@ -230,7 +224,7 @@ function fireGrandFirework(duration = 1500) {
         if (p.life <= 0) continue;
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.045;
+        p.vy += 0.025;
         p.vx *= 0.986;
         p.vy *= 0.986;
         p.life -= p.decay;
