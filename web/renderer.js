@@ -20,12 +20,37 @@ function applyTheme() {
 }
 
 const themeBtn = document.getElementById('btnTheme');
-if (themeBtn) {
-  themeBtn.addEventListener('click', () => {
-    themeMode = themeMode === 'system' ? 'light' : themeMode === 'light' ? 'dark' : 'system';
-    try { localStorage.setItem(THEME_KEY, themeMode); } catch (e) {}
+const themePop = document.getElementById('themePop');
+
+function updateThemeMenu() {
+  if (!themePop) return;
+  themePop.querySelectorAll('button[data-mode]').forEach((b) => {
+    b.classList.toggle('active', b.dataset.mode === themeMode);
+  });
+}
+
+if (themeBtn && themePop) {
+  themeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    themePop.classList.toggle('show');
+    updateThemeMenu();
+  });
+
+  themePop.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-mode]');
+    if (!b) return;
+    themeMode = b.dataset.mode;
+    try { localStorage.setItem(THEME_KEY, themeMode); } catch (err) {}
     applyTheme();
-    addLog(`[INFO] 主题切换为：${themeBtn.textContent}`);
+    updateThemeMenu();
+    themePop.classList.remove('show');
+    addLog(`[INFO] 主题切换为：${b.textContent.trim()}`);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!themePop.contains(e.target) && e.target !== themeBtn) {
+      themePop.classList.remove('show');
+    }
   });
 }
 lightMedia.addEventListener('change', () => { if (themeMode === 'system') applyTheme(); });
