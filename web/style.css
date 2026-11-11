@@ -15,7 +15,10 @@
 
 html, body {
   height: 100%;
-  background: var(--bg);
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(255, 140, 26, 0.07), transparent 60%),
+    radial-gradient(900px 500px at 100% 100%, rgba(255, 140, 26, 0.05), transparent 55%),
+    #0a0a0a;
   color: var(--text);
   font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
   font-size: 13px;
@@ -64,9 +67,11 @@ html, body {
 
 .section {
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0%, transparent 42%, rgba(255, 140, 26, 0.04) 100%),
-    var(--panel);
-  border: 1px solid var(--line);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, transparent 42%, rgba(255, 140, 26, 0.05) 100%),
+    rgba(24, 24, 24, 0.55);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 8px;
   padding: 9px;
   position: relative;
@@ -75,7 +80,7 @@ html, body {
   box-shadow:
     0 10px 24px rgba(0, 0, 0, 0.55),
     0 2px 6px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
     inset 0 -1px 0 rgba(255, 140, 26, 0.08);
   transition: transform .22s ease, box-shadow .22s ease;
   will-change: transform;
@@ -228,6 +233,28 @@ body.celebrating .body {
   transition: opacity .2s ease;
 }
 .firework-canvas.show { opacity: 1; }
+
+/* 鼠标橙色光晕：印在毛玻璃上 */
+#cursor-glow {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(255, 140, 26, 0.2) 0%,
+    rgba(255, 140, 26, 0.09) 38%,
+    transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0;
+  transition: opacity .25s ease;
+  will-change: transform;
+}
+#cursor-glow.on { opacity: 1; }
+body.celebrating #cursor-glow { opacity: 0; }
 
 /* 顶部提示条 */
 .toast {

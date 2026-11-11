@@ -295,6 +295,16 @@ function fireGrandFirework(duration = 1500, onDone) {
   requestAnimationFrame(frame);
 }
 
+// ===== 光标橙色光晕 =====
+const glowEl = document.getElementById('cursor-glow');
+if (glowEl) {
+  document.addEventListener('mousemove', (e) => {
+    glowEl.style.transform = `translate(${e.clientX - 140}px, ${e.clientY - 140}px)`;
+    glowEl.classList.add('on');
+  });
+  document.addEventListener('mouseleave', () => glowEl.classList.remove('on'));
+}
+
 // ===== 3D 倾斜光影：鼠标跟随 =====
 document.querySelectorAll('.section').forEach((el) => {
   el.addEventListener('mousemove', (e) => {
