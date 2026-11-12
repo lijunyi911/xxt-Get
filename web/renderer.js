@@ -3,6 +3,13 @@ const $ = (id) => document.getElementById(id);
 // ===== 主题：浅色 / 深色 / 跟随系统 =====
 const THEME_KEY = 'xxt-theme';
 let themeMode = 'system';
+let currentAccentHex = '#ff8c1a';
+const ACCENT_PRESETS = {
+  orange: '#ff8c1a',
+  blue: '#3d9bff',
+  green: '#2fbf71',
+  purple: '#a06bff',
+};
 try { themeMode = localStorage.getItem(THEME_KEY) || 'system'; } catch (e) {}
 const lightMedia = window.matchMedia('(prefers-color-scheme: light)');
 
@@ -17,6 +24,7 @@ function applyTheme() {
   if (btn) {
     btn.textContent = themeMode === 'system' ? '跟随系统' : themeMode === 'dark' ? '深色' : '浅色';
   }
+  applyAccentHex(currentAccentHex);
 }
 
 const themeBtn = document.getElementById('btnTheme');
@@ -127,12 +135,50 @@ if (optSound) {
 const ACCENT_KEY = 'xxt-accent';
 const RADIUS_KEY = 'xxt-radius';
 
-function applyAccent(name) {
-  document.documentElement.dataset.accent = name === 'orange' ? '' : name;
-  document.querySelectorAll('.color-dot').forEach((b) => {
-    b.classList.toggle('active', b.dataset.accent === name);
-  });
+function hexToRgb(hex) {
+  let h = String(hex || '').replace('#', '');
+  if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+  const n = parseInt(h, 16);
+  if (!Number.isFinite(n)) return { r: 255, g: 140, b: 26 };
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+}
+function mixHex(hex, target, ratio) {
+  const a = hexToRgb(hex);
+  const b = hexToRgb(target);
+  return rgbToHex(a.r + (b.r - a.r) * ratio, a.g + (b.g - a.g) * ratio, a.b + (b.b - a.b) * ratio);
+}
+function luminance(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const f = (c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+/** 应用任意主题色，并按深浅色分别适配 */
+function applyAccentHex(hex) {
+  const isLight = document.documentElement.dataset.theme === 'light';
+  const accent = hex;
+  const accent2 = isLight ? mixHex(hex, '#000000', 0.22) : mixHex(hex, '#000000', 0.12);
+  const accent3 = isLight ? mixHex(hex, '#000000', 0.32) : mixHex(hex, '#ffffff', 0.40);
+  const onAccent = luminance(hex) > 0.55 ? '#111111' : '#ffffff';
+
+  const root = document.documentElement.style;
+  root.setProperty('--accent', accent);
+  root.setProperty('--accent2', accent2);
+  root.setProperty('--accent3', accent3);
+  root.setProperty('--on-accent', onAccent);
+  root.setProperty('--hover-text', accent3);
+
+  document.querySelectorAll('.color-dot').forEach((b) => {
+    const p = ACCENT_PRESETS[b.dataset.accent];
+    b.classList.toggle('active', !!p && p.toLowerCase() === String(hex).toLowerCase());
+  });
+  const picker = document.getElementById('accentPicker');
+  if (picker) picker.value = hex;
+}
+
 function applyRadius(v) {
   document.documentElement.style.setProperty('--radius', v + 'px');
   document.querySelectorAll('button[data-radius]').forEach((b) => {
@@ -143,8 +189,10 @@ function applyRadius(v) {
 document.addEventListener('click', (e) => {
   const dot = e.target.closest('.color-dot');
   if (dot) {
-    applyAccent(dot.dataset.accent);
-    try { localStorage.setItem(ACCENT_KEY, dot.dataset.accent); } catch (err) {}
+    const hex = ACCENT_PRESETS[dot.dataset.accent] || dot.dataset.accent;
+    currentAccentHex = hex;
+    applyAccentHex(hex);
+    try { localStorage.setItem(ACCENT_KEY, hex); } catch (err) {}
     return;
   }
   const rb = e.target.closest('button[data-radius]');
@@ -154,13 +202,29 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// 颜色轮盘：任意颜色
+const accentPicker = document.getElementById('accentPicker');
+if (accentPicker) {
+  accentPicker.addEventListener('input', (e) => {
+    currentAccentHex = e.target.value;
+    applyAccentHex(currentAccentHex);
+  });
+  accentPicker.addEventListener('change', (e) => {
+    currentAccentHex = e.target.value;
+    applyAccentHex(currentAccentHex);
+    try { localStorage.setItem(ACCENT_KEY, currentAccentHex); } catch (err) {}
+  });
+}
+
 (function initThemeExtras() {
-  let a = 'orange', r = '8';
+  let a = '#ff8c1a', r = '8';
   try {
-    a = localStorage.getItem(ACCENT_KEY) || 'orange';
+    a = localStorage.getItem(ACCENT_KEY) || '#ff8c1a';
+    if (!String(a).startsWith('#')) a = ACCENT_PRESETS[a] || '#ff8c1a';
     r = localStorage.getItem(RADIUS_KEY) || '8';
   } catch (e) {}
-  applyAccent(a);
+  currentAccentHex = a;
+  applyAccentHex(a);
   applyRadius(r);
 })();
 
