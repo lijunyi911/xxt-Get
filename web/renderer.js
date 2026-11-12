@@ -59,14 +59,30 @@ applyTheme();
 let currentSpeed = 2;
 let courses = [];
 
-// 倍速选择
+// 倍速选择 + 记忆
+const SPEED_KEY = 'xxt-speed';
+function loadSpeed() {
+  try {
+    const v = parseFloat(localStorage.getItem(SPEED_KEY));
+    return [0.5, 1, 1.5, 2].includes(v) ? v : 2;
+  } catch (e) { return 2; }
+}
+function applySpeed(sp) {
+  currentSpeed = sp;
+  document.querySelectorAll('.spd').forEach((b) => {
+    b.classList.toggle('active', parseFloat(b.dataset.speed) === sp);
+  });
+}
+
 $('speedRow').addEventListener('click', (e) => {
   const btn = e.target.closest('.spd');
   if (!btn) return;
-  document.querySelectorAll('.spd').forEach((b) => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentSpeed = parseFloat(btn.dataset.speed);
+  const sp = parseFloat(btn.dataset.speed);
+  applySpeed(sp);
+  try { localStorage.setItem(SPEED_KEY, String(sp)); } catch (err) {}
 });
+
+applySpeed(loadSpeed());
 
 // 加载课程
 $('btnLoad').addEventListener('click', async () => {
