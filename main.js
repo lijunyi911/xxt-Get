@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const engine = require('./src/engine');
@@ -102,6 +102,18 @@ ipcMain.handle('win-toggle-max', () => {
   if (!win) return;
   if (win.isMaximized()) win.unmaximize();
   else win.maximize();
+});
+
+ipcMain.handle('notify', (_e, payload) => {
+  try {
+    if (Notification.isSupported()) {
+      new Notification({
+        title: (payload && payload.title) || '学习通刷课助手',
+        body: (payload && payload.body) || '',
+        icon: path.join(__dirname, 'build', 'icon.png'),
+      }).show();
+    }
+  } catch (e) {}
 });
 
 app.whenReady().then(() => {

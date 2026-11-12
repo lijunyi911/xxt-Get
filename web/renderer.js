@@ -262,6 +262,12 @@ window.api.onEvent((ev) => {
     if (ev.finished) {
       resetCourseList();
       $('stage').textContent = '全部课程已刷完，可再次点击「读取我的课程」';
+      try {
+        window.api.notify({
+          title: '刷课完成',
+          body: `完成 ${ev.done} 节，跳过 ${ev.skipped} 节`,
+        });
+      } catch (e) {}
     }
   } else if (ev.type === 'error') {
     addLog('[ERROR] ' + (ev.text || ''));
@@ -281,6 +287,9 @@ window.api.onEvent((ev) => {
     addLog('[WARN] ' + (ev.text || '') + (ev.file ? `（截图：${ev.file}）` : ''));
   } else if (ev.type === 'courseDone') {
     showCourseDone(ev.title || '');
+    try {
+      window.api.notify({ title: '课程完成', body: `《${ev.title}》已全部刷完` });
+    } catch (e) {}
   }
 });
 
