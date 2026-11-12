@@ -9,5 +9,6 @@ contextBridge.exposeInMainWorld('api', {
   close: () => ipcRenderer.invoke('win-close'),
   toggleMax: () => ipcRenderer.invoke('win-toggle-max'),
   notify: (payload) => ipcRenderer.invoke('notify', payload),
+  exportLog: () => ipcRenderer.invoke('export-log'),
   onEvent: (cb) => ipcRenderer.on('event', (_e, data) => cb(data)),
 });

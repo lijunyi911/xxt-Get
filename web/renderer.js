@@ -198,6 +198,17 @@ $('btnClear').addEventListener('click', async () => {
   }
 });
 
+// 导出日志
+$('btnExportLog').addEventListener('click', async () => {
+  try {
+    const r = await window.api.exportLog();
+    if (r && r.ok) addLog(`[INFO] 日志已导出：${r.path}`);
+    else if (r && r.error) addLog(`[ERROR] 导出失败：${r.error}`);
+  } catch (e) {
+    addLog(`[ERROR] 导出失败：${e.message}`);
+  }
+});
+
 // 快捷键
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.key === 'Enter') {

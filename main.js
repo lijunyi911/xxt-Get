@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const engine = require('./src/engine');
@@ -114,6 +114,23 @@ ipcMain.handle('notify', (_e, payload) => {
       }).show();
     }
   } catch (e) {}
+});
+
+ipcMain.handle('export-log', async () => {
+  try {
+    const { canceled, filePath } = await dialog.showSaveDialog(win, {
+      title: '导出运行日志',
+      defaultPath: `xxt-log-${Date.now()}.txt`,
+      filters: [{ name: '文本文件', extensions: ['txt'] }],
+    });
+    if (canceled || !filePath) return { ok: false };
+    let content = '';
+    try { content = fs.readFileSync(cfg.logFile, 'utf8'); } catch (e) {}
+    fs.writeFileSync(filePath, content, 'utf8');
+    return { ok: true, path: filePath };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
 });
 
 app.whenReady().then(() => {
