@@ -12,9 +12,15 @@
     <div class="win-btns">
       <button class="theme-btn" id="btnTheme" title="切换主题">跟随系统</button>
       <button class="theme-btn" id="btnSettings" title="设置">设置</button>
-      <button class="wbtn" id="btnMax" title="最大化 / 还原">□</button>
-      <button class="wbtn" id="btnMin" title="最小化">—</button>
-      <button class="wbtn close" id="btnClose" title="关闭">✕</button>
+      <button class="wbtn" id="btnMax" title="最大化 / 还原">
+        <svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="wbtn" id="btnMin" title="最小化">
+        <svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="5" x2="9" y2="5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+      <button class="wbtn close" id="btnClose" title="关闭">
+        <svg width="10" height="10" viewBox="0 0 10 10"><line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.2"/><line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
     </div>
   </div>
 
@@ -99,7 +105,7 @@
     <div class="settings-panel">
       <div class="settings-head">
         <span>设置</span>
-        <button class="wbtn close" id="btnSettingsClose">✕</button>
+        <button class="wbtn close set-close" id="btnSettingsClose">✕</button>
       </div>
 
       <div class="settings-body">
