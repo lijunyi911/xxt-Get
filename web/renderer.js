@@ -91,6 +91,47 @@ if (optMuted) {
   try { window.api.setMuted(v === '1'); } catch (e) {}
 })();
 
+// ===== 主题色 / 圆角 =====
+const ACCENT_KEY = 'xxt-accent';
+const RADIUS_KEY = 'xxt-radius';
+
+function applyAccent(name) {
+  document.documentElement.dataset.accent = name === 'orange' ? '' : name;
+  document.querySelectorAll('.color-dot').forEach((b) => {
+    b.classList.toggle('active', b.dataset.accent === name);
+  });
+}
+function applyRadius(v) {
+  document.documentElement.style.setProperty('--radius', v + 'px');
+  document.querySelectorAll('button[data-radius]').forEach((b) => {
+    b.classList.toggle('active', b.dataset.radius === String(v));
+  });
+}
+
+document.addEventListener('click', (e) => {
+  const dot = e.target.closest('.color-dot');
+  if (dot) {
+    applyAccent(dot.dataset.accent);
+    try { localStorage.setItem(ACCENT_KEY, dot.dataset.accent); } catch (err) {}
+    return;
+  }
+  const rb = e.target.closest('button[data-radius]');
+  if (rb) {
+    applyRadius(rb.dataset.radius);
+    try { localStorage.setItem(RADIUS_KEY, rb.dataset.radius); } catch (err) {}
+  }
+});
+
+(function initThemeExtras() {
+  let a = 'orange', r = '8';
+  try {
+    a = localStorage.getItem(ACCENT_KEY) || 'orange';
+    r = localStorage.getItem(RADIUS_KEY) || '8';
+  } catch (e) {}
+  applyAccent(a);
+  applyRadius(r);
+})();
+
 // ===== 设置面板开关 =====
 const settingsMask = document.getElementById('settingsMask');
 const btnSettings = document.getElementById('btnSettings');
