@@ -248,6 +248,39 @@ window.addEventListener('online', () => {
   playBeep(880, 0.2, 0.08);
 });
 
+// ===== 窗口置顶 / 透明度 =====
+const optOnTop = document.getElementById('optOnTop');
+const optOpacity = document.getElementById('optOpacity');
+const opacityVal = document.getElementById('opacityVal');
+if (optOnTop) {
+  optOnTop.addEventListener('change', (e) => {
+    try { window.api.setOnTop(e.target.checked); } catch (err) {}
+    try { localStorage.setItem('xxt-ontop', e.target.checked ? '1' : '0'); } catch (err) {}
+  });
+}
+if (optOpacity) {
+  optOpacity.addEventListener('input', (e) => {
+    const v = Number(e.target.value);
+    if (opacityVal) opacityVal.textContent = Math.round(v * 100) + '%';
+    try { window.api.setOpacity(v); } catch (err) {}
+  });
+  optOpacity.addEventListener('change', (e) => {
+    try { localStorage.setItem('xxt-opacity', e.target.value); } catch (err) {}
+  });
+}
+(function initWindowOpts() {
+  let top = '1', op = '1';
+  try {
+    top = localStorage.getItem('xxt-ontop') || '1';
+    op = localStorage.getItem('xxt-opacity') || '1';
+  } catch (e) {}
+  if (optOnTop) optOnTop.checked = top === '1';
+  if (optOpacity) optOpacity.value = op;
+  if (opacityVal) opacityVal.textContent = Math.round(Number(op) * 100) + '%';
+  try { window.api.setOnTop(top === '1'); } catch (e) {}
+  try { window.api.setOpacity(Number(op)); } catch (e) {}
+})();
+
 // ===== 学习历史 =====
 async function loadHistory() {
   try {

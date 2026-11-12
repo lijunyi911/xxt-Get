@@ -9,6 +9,8 @@ contextBridge.exposeInMainWorld('api', {
   setDocDwell: (v) => ipcRenderer.invoke('set-doc-dwell', v),
   setDailyLimit: (v) => ipcRenderer.invoke('set-daily-limit', v),
   setMuted: (v) => ipcRenderer.invoke('set-muted', v),
+  setOnTop: (v) => ipcRenderer.invoke('set-on-top', v),
+  setOpacity: (v) => ipcRenderer.invoke('set-opacity', v),
   getHistory: () => ipcRenderer.invoke('get-history'),
   exportHistory: () => ipcRenderer.invoke('export-history'),
   clearState: () => ipcRenderer.invoke('clear-state'),

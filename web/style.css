@@ -397,6 +397,27 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   background: var(--panel2);
 }
 .set-check input { accent-color: var(--accent); }
+
+/* 透明度 */
+.opacity-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.opacity-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.opacity-row span:last-child {
+  color: var(--accent3);
+  font-weight: 700;
+  min-width: 40px;
+  text-align: right;
+}
 .settings-foot { display: flex; gap: 10px; margin-top: 18px; }
 .settings-foot button { flex: 1; padding: 9px; }
 
