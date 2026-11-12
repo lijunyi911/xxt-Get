@@ -199,11 +199,14 @@ async function getChapterList(page, course) {
   });
 }
 
-/** 等视频播放结束（或超时/停止） */
-async function waitVideoEnd(page, push) {
+/** 等视频播放结束（或超时/停止），带卡住重试 */
+async function waitVideoEnd(page, push, speed = cfg.defaultSpeed) {
   const start = Date.now();
   let lastLog = 0;
   let lastPauseCheck = 0;
+  let lastPos = -1;
+  let lastMoveAt = Date.now();
+  let retries = 0;
   while (Date.now() - start < cfg.videoWaitTimeoutMs) {
     if (stopFlag) return false;
 
@@ -241,6 +244,17 @@ async function waitVideoEnd(page, push) {
     }
 
     const p = await player.getVideoProgress(page);
+    if (p) {
+      if (p.cur !== lastPos) {
+        lastPos = p.cur;
+        lastMoveAt = Date.now();
+      } else if (Date.now() - lastMoveAt > 90000 && retries < 3) {
+        retries++;
+        log.warn(`视频 ${Math.round((Date.now() - lastMoveAt) / 1000)}s 无进度，尝试重新播放（第 ${retries} 次）`);
+        await player.ensureVideoPlaying(page, speed);
+        lastMoveAt = Date.now();
+      }
+    }
     if (p && Date.now() - lastLog > 5000) {
       lastLog = Date.now();
       const pct = p.dur > 0 ? Math.round((p.cur / p.dur) * 100) : 0;
@@ -359,7 +373,7 @@ async function processCourse(page, course, speed, push) {
       if (found) {
         log.info(`  播放视频（章节 ${chId}）`);
         const t0 = Date.now();
-        const ended = await waitVideoEnd(page, push);
+        const ended = await waitVideoEnd(page, push, speed);
         daily.add((Date.now() - t0) / 1000);
         pushStats(push);
         if (ended) {
