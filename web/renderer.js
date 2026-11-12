@@ -755,6 +755,12 @@ document.addEventListener('keydown', (e) => {
   } else if (e.ctrlKey && (e.key === 'l' || e.key === 'L')) {
     e.preventDefault();
     if (!$('btnLoad').disabled) $('btnLoad').click();
+  } else if (e.ctrlKey && (e.key === 'f' || e.key === 'F')) {
+    e.preventDefault();
+    if ($('courseSearch')) {
+      $('courseSearch').focus();
+      $('courseSearch').select();
+    }
   }
 });
 
