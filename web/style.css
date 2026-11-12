@@ -255,6 +255,25 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .label { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
 .speed-row { display: flex; gap: 6px; }
 .spd { flex: 1; }
+
+/* 文档停留：无极调节 */
+.dwell-row { display: flex; gap: 8px; align-items: center; }
+.dwell-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.dwell-row input[type="number"] {
+  width: 66px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 4px 6px;
+  font-size: 12px;
+  outline: none;
+}
+.dwell-row input[type="number"]:focus { border-color: var(--accent); }
 .spd.active {
   background: var(--accent);
   border-color: var(--accent);

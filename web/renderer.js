@@ -172,25 +172,33 @@ $('speedRow').addEventListener('click', (e) => {
 
 applySpeed(loadSpeed());
 
-// 文档停留时长
+// 文档停留时长：无极调节 + 自定义输入
 const DOC_KEY = 'xxt-doc-dwell';
-function applyDocDwell(v) {
-  document.querySelectorAll('#docDwellRow .spd').forEach((b) => {
-    b.classList.toggle('active', parseInt(b.dataset.dwell, 10) === v);
-  });
-  try { window.api.setDocDwell(v); } catch (e) {}
+const dwellRange = $('docDwellRange');
+const dwellNum = $('docDwellNum');
+const dwellVal = $('docDwellVal');
+
+function setDwellSec(sec) {
+  let s = Math.round(Number(sec));
+  if (!Number.isFinite(s)) s = 30;
+  s = Math.max(1, Math.min(300, s));
+  dwellRange.value = String(Math.min(120, s));
+  dwellNum.value = String(s);
+  dwellVal.textContent = String(s);
+  try { window.api.setDocDwell(s * 1000); } catch (e) {}
+  try { localStorage.setItem(DOC_KEY, String(s)); } catch (e) {}
 }
-$('docDwellRow').addEventListener('click', (e) => {
-  const b = e.target.closest('.spd');
-  if (!b) return;
-  const v = parseInt(b.dataset.dwell, 10);
-  applyDocDwell(v);
-  try { localStorage.setItem(DOC_KEY, String(v)); } catch (err) {}
-});
+
+dwellRange.addEventListener('input', () => setDwellSec(dwellRange.value));
+dwellNum.addEventListener('change', () => setDwellSec(dwellNum.value));
+
 (function initDocDwell() {
-  let v = 30000;
-  try { v = parseInt(localStorage.getItem(DOC_KEY), 10) || 30000; } catch (e) {}
-  applyDocDwell(v);
+  let s = 30;
+  try {
+    s = parseInt(localStorage.getItem(DOC_KEY), 10) || 30;
+    if (s > 300) s = Math.round(s / 1000); // 兼容旧版毫秒数据
+  } catch (e) {}
+  setDwellSec(s);
 })();
 
 // 加载课程（失败自动重试一次）
