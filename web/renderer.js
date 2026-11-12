@@ -102,6 +102,27 @@ if (optMuted) {
 // 启动淡入（用 CSS 动画，不依赖初始透明度）
 document.body.classList.add('ready');
 
+// ===== 橙黑主题确认弹窗（替代系统 confirm） =====
+function showConfirm(msg) {
+  return new Promise((resolve) => {
+    const mask = $('confirmMask');
+    const msgEl = $('confirmMsg');
+    const ok = $('confirmOk');
+    const cancel = $('confirmCancel');
+    if (!mask || !ok || !cancel) { resolve(true); return; }
+    msgEl.textContent = String(msg || '');
+    mask.classList.add('show');
+    const done = (v) => {
+      mask.classList.remove('show');
+      ok.onclick = null;
+      cancel.onclick = null;
+      resolve(v);
+    };
+    ok.onclick = () => done(true);
+    cancel.onclick = () => done(false);
+  });
+}
+
 // ===== 提示音 =====
 let audioCtx = null;
 let soundOn = true;
@@ -528,8 +549,8 @@ if (optDailyLimit) {
 
 const btnResetOpt = document.getElementById('btnResetOpt');
 if (btnResetOpt) {
-  btnResetOpt.addEventListener('click', () => {
-    if (!confirm('恢复所有设置到默认值？')) return;
+  btnResetOpt.addEventListener('click', async () => {
+    if (!(await showConfirm('恢复所有设置到默认值？'))) return;
     try { localStorage.clear(); } catch (e) {}
     location.reload();
   });
@@ -739,7 +760,7 @@ $('btnStart').addEventListener('click', async () => {
   const selected = [...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid);
   if ($('btnRetry')) $('btnRetry').style.display = 'none';
   const scope = selected.length ? `${selected.length} 门` : '全部课程';
-  if (!confirm(`即将开始刷课\n课程：${scope}\n倍速：${currentSpeed}x\n\n确定开始？`)) return;
+  if (!(await showConfirm(`即将开始刷课\n课程：${scope}\n倍速：${currentSpeed}x\n\n确定开始？`))) return;
   $('btnStart').disabled = true;
   $('btnStop').disabled = false;
   $('btnPause').disabled = false;
@@ -764,7 +785,7 @@ if ($('btnRetry')) {
 
 // 停止
 $('btnStop').addEventListener('click', async () => {
-  if (!confirm('确定要停止刷课吗？')) return;
+  if (!(await showConfirm('确定要停止刷课吗？'))) return;
   await window.api.stop();
   addLog('[INFO] 已发送停止指令');
   $('btnStop').disabled = true;

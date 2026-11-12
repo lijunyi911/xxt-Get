@@ -785,6 +785,44 @@ body.celebrating #cursor-glow { opacity: 0; }
   font-weight: 700;
 }
 
+/* 确认弹窗（橙黑主题） */
+.confirm-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100010;
+  padding: 16px;
+}
+.confirm-mask.show { display: flex; }
+.confirm-box {
+  width: 360px;
+  max-width: 92vw;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-line);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  padding: 18px;
+}
+.confirm-msg {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.confirm-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+  justify-content: flex-end;
+}
+.confirm-btns button { min-width: 82px; padding: 8px 14px; }
+
 /* 紧凑模式 */
 body.compact .body { gap: 6px; padding: 6px; }
 body.compact .section { padding: 6px; }
