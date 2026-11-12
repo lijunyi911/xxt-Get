@@ -217,6 +217,16 @@ ipcMain.handle('set-pace', (_e, v) => {
   return { ok: true };
 });
 
+ipcMain.handle('refresh-session', async () => {
+  try {
+    const r = await engine().refreshSession();
+    return r || { ok: true };
+  } catch (e) {
+    log.error(`刷新会话失败: ${e.message}`);
+    return { ok: false, error: e.message };
+  }
+});
+
 ipcMain.handle('clear-log-file', () => {
   try {
     fs.writeFileSync(cfg.logFile, '', 'utf8');

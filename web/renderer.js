@@ -796,6 +796,38 @@ $('btnStop').addEventListener('click', async () => {
   runStart = 0;
 });
 
+// 刷新会话（刷课卡住时用）
+if ($('btnRefresh')) {
+  $('btnRefresh').addEventListener('click', async () => {
+    const btn = $('btnRefresh');
+    if (btn.disabled) return;
+    btn.disabled = true;
+    btn.textContent = '刷新中';
+    addLog('[INFO] 正在重置浏览器会话...');
+    try {
+      const r = await window.api.refreshSession();
+      if (r && r.ok) {
+        addLog('[INFO] 会话已重置，正在重新读取课程...');
+        $('btnStart').disabled = false;
+        $('btnStop').disabled = true;
+        $('btnPause').disabled = true;
+        isPaused = false;
+        $('btnPause').textContent = '暂停';
+        runStart = 0;
+        btn.textContent = '刷新';
+        btn.disabled = false;
+        $('btnLoad').click();
+        return;
+      }
+      addLog(`[ERROR] 刷新失败：${(r && r.error) || '未知错误'}`);
+    } catch (e) {
+      addLog(`[ERROR] 刷新失败：${e.message}`);
+    }
+    btn.textContent = '刷新';
+    btn.disabled = false;
+  });
+}
+
 // 清除断点重刷
 $('btnClear').addEventListener('click', async () => {
   try {

@@ -557,6 +557,17 @@ async function shutdown() {
   session = null;
 }
 
+/** 重置浏览器会话（刷课卡住时刷新用）：停止任务并关闭当前 Edge，下次操作会自动重建 */
+async function refreshSession() {
+  requestStop();
+  if (session) {
+    try { await session.context.close(); } catch (e) {}
+    session = null;
+  }
+  log.info('浏览器会话已重置');
+  return { ok: true };
+}
+
 module.exports = {
   getCourses,
   runCourses,
@@ -568,4 +579,5 @@ module.exports = {
   setDailyLimit,
   setMuted,
   setPace,
+  refreshSession,
 };
