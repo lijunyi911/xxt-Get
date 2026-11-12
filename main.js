@@ -35,8 +35,16 @@ let isQuitting = false;
 // 系统托盘
 function createTray() {
   try {
-    const iconPath = path.join(__dirname, 'build', 'icon.png');
-    const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+    const trayPng = path.join(__dirname, 'build', 'tray.png');
+    const icoPath = path.join(__dirname, 'build', 'icon.ico');
+    const pngPath = path.join(__dirname, 'build', 'icon.png');
+    let icon = nativeImage.createFromPath(trayPng);
+    if (icon.isEmpty()) icon = nativeImage.createFromPath(icoPath).resize({ width: 32, height: 32 });
+    if (icon.isEmpty()) icon = nativeImage.createFromPath(pngPath).resize({ width: 32, height: 32 });
+    if (icon.isEmpty()) {
+      log.warn('托盘图标加载失败，跳过托盘');
+      return;
+    }
     tray = new Tray(icon);
     tray.setToolTip('学习通刷课助手');
     const menu = Menu.buildFromTemplate([
@@ -47,6 +55,7 @@ function createTray() {
     ]);
     tray.setContextMenu(menu);
     tray.on('double-click', () => showMainWindow());
+    log.info(`托盘图标已加载（${icon.getSize().width}x${icon.getSize().height}）`);
   } catch (e) {
     log.warn(`托盘创建失败: ${e.message}`);
   }
