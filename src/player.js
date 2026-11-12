@@ -6,17 +6,17 @@ const path = require('path');
 const CONTINUE_TEXTS = ['继续学习', '继续观看', '继续播放', '确定', '我知道了', '知道了'];
 
 /** 找视频并强制播放 */
-async function ensureVideoPlaying(page, speed) {
+async function ensureVideoPlaying(page, speed, muted = true) {
   let found = false;
   for (const frame of page.frames()) {
     try {
       const has = await frame.evaluate(() => !!document.querySelector('video'));
       if (!has) continue;
       found = true;
-      await frame.evaluate((sp) => {
+      await frame.evaluate(({ sp, mu }) => {
         const v = document.querySelector('video');
         if (!v) return;
-        v.muted = true;
+        v.muted = mu;
         v.playbackRate = sp;
         v.play().catch(() => {});
         if (!window.__xxtSpeedLoop) {
@@ -27,7 +27,7 @@ async function ensureVideoPlaying(page, speed) {
             }
           }, 800);
         }
-      }, speed);
+      }, { sp: speed, mu: muted });
     } catch (e) {}
   }
   return found;

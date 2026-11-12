@@ -146,6 +146,11 @@ ipcMain.handle('set-daily-limit', (_e, v) => {
   return { ok: true };
 });
 
+ipcMain.handle('set-muted', (_e, v) => {
+  engine.setMuted(v);
+  return { ok: true };
+});
+
 ipcMain.handle('clear-state', () => {
   try {
     const b = state.clear(cfg.stateFile);

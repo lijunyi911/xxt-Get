@@ -50,6 +50,10 @@ function setDocDwell(v) {
   if (Number.isFinite(n) && n > 0) runtimeDocDwell = Math.round(n);
 }
 
+// 静音播放
+let runtimeMuted = true;
+function setMuted(v) { runtimeMuted = !!v; }
+
 function setDailyLimit(v) {
   daily.setLimit(v);
 }
@@ -426,7 +430,7 @@ async function processCourse(page, course, speed, push) {
     let completionInfo = null;
 
     if (st.kind === 'video') {
-      const found = await player.ensureVideoPlaying(page, runtimeSpeed);
+      const found = await player.ensureVideoPlaying(page, runtimeSpeed, runtimeMuted);
       if (found) {
         log.info(`  播放视频（章节 ${chId}）`);
         const t0 = Date.now();
@@ -436,7 +440,9 @@ async function processCourse(page, course, speed, push) {
         if (ended) {
           completed = true;
           const p = await player.getVideoProgress(page);
-          completionInfo = { type: 'video', dur: p && p.dur ? p.dur : 0 };
+          const dur = p && p.dur ? p.dur : 0;
+          stats.watchedSeconds = (stats.watchedSeconds || 0) + dur;
+          completionInfo = { type: 'video', dur };
         }
       }
     } else if (st.kind === 'doc') {
@@ -536,5 +542,6 @@ module.exports = {
   setSpeed,
   setDocDwell,
   setDailyLimit,
+  setMuted,
   _forceCloseContextForTest,
 };

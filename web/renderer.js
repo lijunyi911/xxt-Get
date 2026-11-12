@@ -77,6 +77,20 @@ document.addEventListener('click', (e) => {
   try { localStorage.setItem(FONT_KEY, fb.dataset.font); } catch (err) {}
 });
 
+const optMuted = document.getElementById('optMuted');
+if (optMuted) {
+  optMuted.addEventListener('change', (e) => {
+    try { window.api.setMuted(e.target.checked); } catch (err) {}
+    try { localStorage.setItem('xxt-muted', e.target.checked ? '1' : '0'); } catch (err) {}
+  });
+}
+(function initMuted() {
+  let v = '1';
+  try { v = localStorage.getItem('xxt-muted') || '1'; } catch (e) {}
+  if (optMuted) optMuted.checked = v === '1';
+  try { window.api.setMuted(v === '1'); } catch (e) {}
+})();
+
 // ===== 设置面板开关 =====
 const settingsMask = document.getElementById('settingsMask');
 const btnSettings = document.getElementById('btnSettings');
@@ -488,7 +502,7 @@ window.api.onEvent((ev) => {
     }
   } else if (ev.type === 'summary') {
     setStats(ev);
-    addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；今日已学 ${ev.dailyMinutes} 分钟`);
+    addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；累计观看 ${Math.round((ev.watchedSeconds || 0) / 60)} 分钟；今日已学 ${ev.dailyMinutes} 分钟`);
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
     $('btnPause').disabled = true;
