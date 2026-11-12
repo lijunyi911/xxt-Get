@@ -83,7 +83,8 @@ async function getVideoProgress(page) {
       const p = await frame.evaluate(() => {
         const v = document.querySelector('video');
         if (!v || !v.duration) return null;
-        return { cur: Math.round(v.currentTime), dur: Math.round(v.duration) };
+        const cur = Math.min(v.currentTime, v.duration);
+        return { cur: Math.round(cur), dur: Math.round(v.duration) };
       });
       if (p) return p;
     } catch (e) {}

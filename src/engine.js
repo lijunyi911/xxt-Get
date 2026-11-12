@@ -174,13 +174,31 @@ async function getCoursesInner(push) {
   return courseMod.listCourses(page);
 }
 
+/** 页面导航（失败自动重试 1 次） */
+async function gotoWithRetry(page, url, retries = 2) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
+      return true;
+    } catch (e) {
+      if (i === retries - 1) {
+        log.warn(`页面加载失败（${url}）：${e.message}`);
+        return false;
+      }
+      log.warn(`页面加载失败，2 秒后重试：${url}`);
+      await page.waitForTimeout(2000);
+    }
+  }
+  return false;
+}
+
 /**
  * 进入课程页，读取目录里每个小节的完成状态。
  * 学习通目录圆点：绿色 em.openlock = 已完成；橙色 em.orange = 未完成。
  * @returns [{ url, chId, title, done }]
  */
 async function getChapterList(page, course) {
-  await page.goto(course.href, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
+  await gotoWithRetry(page, course.href);
   await page.waitForTimeout(2500);
 
   return page.evaluate(() => {
@@ -286,7 +304,7 @@ async function openChapterWithStatus(page, chUrl, chId) {
   for (let attempt = 0; attempt < 2; attempt++) {
     await humanize.jitterMouse(page);
     await humanize.sleep(page);
-    await page.goto(chUrl, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
+    await gotoWithRetry(page, chUrl);
     await page.waitForTimeout(1200);
     await humanize.jitterMouse(page);
     await humanize.sleep(page, 300, 1200);

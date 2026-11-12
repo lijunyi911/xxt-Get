@@ -45,6 +45,11 @@ async function doLaunch() {
  * 若上次异常退出残留锁，清理后重试一次。
  */
 async function launch() {
+  if (!fs.existsSync(cfg.edgePath)) {
+    const err = new Error(`未找到 Edge 浏览器：${cfg.edgePath}`);
+    log.error(err.message);
+    throw err;
+  }
   fs.mkdirSync(cfg.profileDir, { recursive: true });
   try {
     const ctx = await doLaunch();
