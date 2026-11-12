@@ -24,6 +24,13 @@ const stats = {
 function requestStop() { stopFlag = true; }
 function resetStop() { stopFlag = false; }
 
+// 运行时可动态调整的倍速
+let runtimeSpeed = cfg.defaultSpeed;
+function setSpeed(v) {
+  const n = parseFloat(v);
+  if (n > 0) runtimeSpeed = n;
+}
+
 // ===== 操作串行队列：同一时间只跑一个浏览器操作，新请求自动取代旧请求 =====
 let opChain = Promise.resolve();
 let opSeq = 0;
@@ -258,7 +265,8 @@ async function waitVideoEnd(page, push, speed = cfg.defaultSpeed) {
     if (p && Date.now() - lastLog > 5000) {
       lastLog = Date.now();
       const pct = p.dur > 0 ? Math.round((p.cur / p.dur) * 100) : 0;
-      if (push) push({ type: 'progress', text: `视频 ${p.cur}/${p.dur}s`, pct });
+      const remainMin = p.dur > 0 ? Math.ceil((p.dur - p.cur) / 60) : 0;
+      if (push) push({ type: 'progress', text: `视频 ${p.cur}/${p.dur}s（剩余 ${remainMin} 分钟）`, pct });
     }
     await page.waitForTimeout(cfg.pollIntervalMs);
   }
@@ -369,11 +377,11 @@ async function processCourse(page, course, speed, push) {
     let completionInfo = null;
 
     if (st.kind === 'video') {
-      const found = await player.ensureVideoPlaying(page, speed);
+      const found = await player.ensureVideoPlaying(page, runtimeSpeed);
       if (found) {
         log.info(`  播放视频（章节 ${chId}）`);
         const t0 = Date.now();
-        const ended = await waitVideoEnd(page, push, speed);
+        const ended = await waitVideoEnd(page, push, runtimeSpeed);
         daily.add((Date.now() - t0) / 1000);
         pushStats(push);
         if (ended) {
@@ -417,6 +425,7 @@ async function runCoursesInner(courses, speed, push) {
   stateData = state.load(cfg.stateFile);
 
   stats.done = 0; stats.skipped = 0; stats.quiz = 0; stats.failed = 0; stats.total = 0; stats.current = 0;
+  runtimeSpeed = speed;
   pushStats(push);
 
   const { page } = await ensureSession(push);
@@ -473,5 +482,6 @@ module.exports = {
   resetStop,
   isLoggedIn,
   shutdown,
+  setSpeed,
   _forceCloseContextForTest,
 };

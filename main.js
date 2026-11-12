@@ -85,6 +85,12 @@ ipcMain.handle('stop', () => {
   return { ok: true };
 });
 
+ipcMain.handle('set-speed', (_e, v) => {
+  engine.setSpeed(v);
+  log.info(`倍速已调整为 ${v}x`);
+  return { ok: true };
+});
+
 ipcMain.handle('clear-state', () => {
   try {
     const b = state.clear(cfg.stateFile);

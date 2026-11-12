@@ -80,6 +80,7 @@ $('speedRow').addEventListener('click', (e) => {
   const sp = parseFloat(btn.dataset.speed);
   applySpeed(sp);
   try { localStorage.setItem(SPEED_KEY, String(sp)); } catch (err) {}
+  try { window.api.setSpeed(sp); } catch (err) {}
 });
 
 applySpeed(loadSpeed());
