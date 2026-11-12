@@ -63,19 +63,29 @@ const ANIM_KEY = 'xxt-anim';
 
 function applyFont(v) {
   document.documentElement.style.setProperty('--base-font', v + 'px');
-  document.querySelectorAll('.theme-opt button[data-font]').forEach((b) => {
+  document.querySelectorAll('button[data-font]').forEach((b) => {
     b.classList.toggle('active', b.dataset.font === String(v));
   });
 }
 function applyCompact(on) { document.body.classList.toggle('compact', !!on); }
 function applyAnim(on) { document.body.classList.toggle('no-anim', !on); }
 
-if (themePop) {
-  themePop.addEventListener('click', (e) => {
-    const fb = e.target.closest('button[data-font]');
-    if (!fb) return;
-    applyFont(fb.dataset.font);
-    try { localStorage.setItem(FONT_KEY, fb.dataset.font); } catch (err) {}
+document.addEventListener('click', (e) => {
+  const fb = e.target.closest('button[data-font]');
+  if (!fb) return;
+  applyFont(fb.dataset.font);
+  try { localStorage.setItem(FONT_KEY, fb.dataset.font); } catch (err) {}
+});
+
+// ===== 设置面板开关 =====
+const settingsMask = document.getElementById('settingsMask');
+const btnSettings = document.getElementById('btnSettings');
+if (btnSettings && settingsMask) {
+  btnSettings.addEventListener('click', () => settingsMask.classList.add('show'));
+  const closeBtn = document.getElementById('btnSettingsClose');
+  if (closeBtn) closeBtn.addEventListener('click', () => settingsMask.classList.remove('show'));
+  settingsMask.addEventListener('click', (e) => {
+    if (e.target === settingsMask) settingsMask.classList.remove('show');
   });
 }
 

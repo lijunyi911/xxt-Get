@@ -256,24 +256,96 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .speed-row { display: flex; gap: 6px; }
 .spd { flex: 1; }
 
-/* 文档停留：无极调节 */
-.dwell-row { display: flex; gap: 8px; align-items: center; }
+/* 文档停留：大控件 */
+.dwell-row { display: flex; gap: 12px; align-items: center; }
 .dwell-row input[type="range"] {
   flex: 1;
+  height: 34px;
   accent-color: var(--accent);
   cursor: pointer;
 }
 .dwell-row input[type="number"] {
-  width: 66px;
+  width: 110px;
   background: var(--panel2);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--text);
-  padding: 4px 6px;
-  font-size: 12px;
+  padding: 9px 10px;
+  font-size: 14px;
   outline: none;
 }
 .dwell-row input[type="number"]:focus { border-color: var(--accent); }
+.set-unit { font-size: 13px; color: var(--muted); white-space: nowrap; }
+
+/* ===== 设置面板 ===== */
+.settings-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100003;
+  padding: 16px;
+}
+.settings-mask.show { display: flex; }
+.settings-panel {
+  width: 440px;
+  max-width: 94vw;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-line);
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  padding: 18px;
+}
+.settings-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.settings-body { display: flex; flex-direction: column; gap: 16px; }
+.set-label { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+.set-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.set-btn { padding: 8px 18px; font-size: 13px; border-radius: 8px; }
+.set-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+.set-select {
+  width: 100%;
+  padding: 9px 10px;
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+.set-select:focus { border-color: var(--accent); }
+.set-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel2);
+}
+.set-check input { accent-color: var(--accent); }
+.settings-foot { display: flex; gap: 10px; margin-top: 18px; }
+.settings-foot button { flex: 1; padding: 9px; }
 .spd.active {
   background: var(--accent);
   border-color: var(--accent);
