@@ -248,6 +248,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .course-item:hover { background: var(--hover-bg); }
 .course-item input { accent-color: var(--accent); }
 .course-item .cname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.course-item .cnum { color: var(--muted); font-size: 11px; min-width: 26px; text-align: right; }
 .empty { color: var(--muted); text-align: center; padding: 14px; font-size: 12px; }
 
 /* 倍速 */

@@ -84,17 +84,22 @@ $('speedRow').addEventListener('click', (e) => {
 
 applySpeed(loadSpeed());
 
-// 加载课程
+// 加载课程（失败自动重试一次）
 $('btnLoad').addEventListener('click', async () => {
   $('btnLoad').disabled = true;
   $('loadHint').textContent = '正在打开 Edge 并读取...';
   addLog('[INFO] 正在启动 Edge / 读取课程列表...');
   try {
-    const res = await window.api.loadCourses();
+    let res = await window.api.loadCourses();
+    if (!res.ok) {
+      addLog('[WARN] 读取失败，1.5 秒后自动重试一次...');
+      await new Promise((r) => setTimeout(r, 1500));
+      res = await window.api.loadCourses();
+    }
     if (res.ok) {
       courses = res.courses || [];
       renderCourses(courses);
-      $('loadHint').textContent = `共 ${courses.length} 门`;
+      updateCourseCount();
       addLog(`[INFO] 读取到 ${courses.length} 门课程`);
     } else {
       $('loadHint').textContent = '读取失败';
@@ -124,6 +129,7 @@ $('btnAll').addEventListener('click', () => {
   const allChecked = boxes.every((b) => b.checked);
   boxes.forEach((b) => { b.checked = !allChecked; });
   $('btnAll').textContent = allChecked ? '全选' : '取消全选';
+  updateCourseCount();
   addLog(`[INFO] ${allChecked ? '已取消全选' : '已全选'} ${boxes.length} 门课程`);
 });
 
@@ -135,15 +141,24 @@ function renderCourses(list) {
     $('btnAll').textContent = '全选';
     return;
   }
-  box.innerHTML = list.map((c) => `
+  box.innerHTML = list.map((c, i) => `
     <label class="course-item">
       <input type="checkbox" data-cid="${c.courseId}" />
+      <span class="cnum">${i + 1}.</span>
       <span class="cname" title="${escapeHtml(c.title)}">${escapeHtml(c.title)}</span>
     </label>
   `).join('');
   $('btnAll').disabled = false;
   $('btnAll').textContent = '全选';
 }
+
+// 已选/总数徽章
+function updateCourseCount() {
+  const total = document.querySelectorAll('#courseList input[type="checkbox"]').length;
+  const sel = document.querySelectorAll('#courseList input:checked').length;
+  $('loadHint').textContent = total ? `已选 ${sel} / 共 ${total}` : '';
+}
+$('courseList').addEventListener('change', updateCourseCount);
 
 /** 收起课程列表，回到初始状态 */
 function resetCourseList() {
