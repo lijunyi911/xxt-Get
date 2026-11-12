@@ -99,9 +99,8 @@ if (optMuted) {
   try { window.api.setMuted(v === '1'); } catch (e) {}
 })();
 
-// 启动淡入
-requestAnimationFrame(() => document.body.classList.add('ready'));
-setTimeout(() => document.body.classList.add('ready'), 1500);
+// 启动淡入（用 CSS 动画，不依赖初始透明度）
+document.body.classList.add('ready');
 
 // ===== 提示音 =====
 let audioCtx = null;

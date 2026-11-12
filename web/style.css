@@ -111,10 +111,8 @@ html, body {
   font-size: var(--base-font, 13px);
   overflow: hidden;
   user-select: none;
-  opacity: 0;
-  transition: background-color .3s ease, color .3s ease, opacity .28s ease;
+  transition: background-color .3s ease, color .3s ease;
 }
-body.ready { opacity: 1; }
 
 /* 标题栏 */
 .titlebar {
@@ -193,6 +191,12 @@ body.ready { opacity: 1; }
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+.left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
 }
 .body::-webkit-scrollbar { width: 8px; }
 .body::-webkit-scrollbar-thumb { background: var(--scroll); border-radius: 4px; }
@@ -523,7 +527,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   justify-content: space-between;
   gap: 8px;
 }
-.log-tools { display: flex; gap: 6px; align-items: center; }
+.log-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .log-auto {
   display: flex;
   align-items: center;
@@ -576,7 +580,36 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .mini:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
 .mini.active { color: var(--accent); border-color: var(--accent); font-weight: 700; }
 
-/* 统计行 */
+/* 统计网格 */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.stat-cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background: var(--panel2);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.stat-cell b { color: var(--accent3); font-weight: 700; }
+.daily-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.daily-line b { color: var(--accent3); font-weight: 700; }
+
+/* 统计行（兼容旧结构） */
 .stat-line {
   display: flex;
   gap: 10px;
@@ -748,25 +781,27 @@ body.no-focus #cursor-glow { opacity: 0 !important; }
 /* ===== 全屏 / 宽屏：两栏布局 ===== */
 @media (min-width: 900px) {
   .body {
-    display: grid;
-    grid-template-columns: 430px 1fr;
-    grid-template-rows: auto auto auto auto 1fr;
-    gap: 14px;
-    align-items: start;
-    padding: 14px;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
+    overflow: hidden;
   }
-  .section.courses { grid-column: 1; grid-row: 1; }
-  .section.speed { grid-column: 1; grid-row: 2; }
-  .section.actions { grid-column: 1; grid-row: 3; }
-  .section.status { grid-column: 1; grid-row: 4; }
+  .left-col {
+    flex: 0 0 400px;
+    width: 400px;
+    overflow-y: auto;
+    gap: 12px;
+    padding-right: 2px;
+  }
   .section.log-wrap {
-    grid-column: 2;
-    grid-row: 1 / span 5;
-    height: 100%;
+    flex: 1;
+    min-width: 0;
+    height: auto;
     min-height: 0;
   }
   .log { max-height: none; font-size: 12px; }
-  .course-list { max-height: 340px; }
+  .course-list { max-height: 320px; }
   .section { transform: none; }
   .titlebar { padding-left: 18px; }
 }

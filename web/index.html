@@ -25,6 +25,7 @@
   </div>
 
   <div class="body">
+    <div class="left-col">
     <div class="section courses">
       <div class="row">
         <button id="btnLoad" class="primary">读取我的课程</button>
@@ -40,7 +41,7 @@
       </div>
     </div>
 
-    <div class="section speed">
+    <div class="section control">
       <div class="label">倍速</div>
       <div class="speed-row" id="speedRow">
         <button class="spd" data-speed="0.5">0.5x</button>
@@ -48,10 +49,7 @@
         <button class="spd" data-speed="1.5">1.5x</button>
         <button class="spd active" data-speed="2">2x</button>
       </div>
-    </div>
-
-    <div class="section actions">
-      <div class="row">
+      <div class="row" style="margin-top:10px;">
         <button id="btnStart" class="primary">开始刷课</button>
         <button id="btnPause" class="mini" disabled>暂停</button>
         <button id="btnStop" class="danger" disabled>停止</button>
@@ -65,17 +63,21 @@
     <div class="section status">
       <div class="status-line"><span class="st-label">状态</span><span id="stage">准备就绪</span></div>
       <div class="progress"><div class="bar" id="bar"></div></div>
-      <div class="stat-line">
-        <span>课程 <b id="stCourse">0/0</b></span>
-        <span>完成 <b id="stDone">0</b></span>
-        <span>跳过 <b id="stSkip">0</b></span>
-        <span>测验 <b id="stQuiz">0</b></span>
-        <span>失败 <b id="stFail">0</b></span>
-        <span>用时 <b id="stRunTime">0:00</b></span>
-        <span>今日 <b id="stDaily">0</b>/<span id="stLimit">∞</span>分</span>
+      <div class="stat-grid">
+        <div class="stat-cell"><span>课程</span><b id="stCourse">0/0</b></div>
+        <div class="stat-cell"><span>完成</span><b id="stDone">0</b></div>
+        <div class="stat-cell"><span>跳过</span><b id="stSkip">0</b></div>
+        <div class="stat-cell"><span>测验</span><b id="stQuiz">0</b></div>
+        <div class="stat-cell"><span>失败</span><b id="stFail">0</b></div>
+        <div class="stat-cell"><span>用时</span><b id="stRunTime">0:00</b></div>
+      </div>
+      <div class="daily-line">
+        <span>今日 <b id="stDaily">0</b>/<span id="stLimit">∞</span> 分钟</span>
+        <span id="stRemain"></span>
       </div>
       <div class="progress daily"><div class="bar" id="dailyBar"></div></div>
-      <div class="stat-line remain-line"><span id="stRemain"></span></div>
+    </div>
+
     </div>
 
     <div class="section log-wrap">
