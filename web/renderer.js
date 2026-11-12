@@ -235,6 +235,11 @@ window.api.onEvent((ev) => {
     if (Array.isArray(ev.courses)) courses = ev.courses;
   } else if (ev.type === 'stats') {
     setStats(ev);
+    // 章节整体进度（视频播放时会被视频进度覆盖）
+    if (ev.total > 0) {
+      const pct = Math.max(0, Math.min(100, Math.round(((ev.current || 0) / ev.total) * 100)));
+      $('bar').style.width = pct + '%';
+    }
   } else if (ev.type === 'summary') {
     setStats(ev);
     addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；今日已学 ${ev.dailyMinutes} 分钟`);
