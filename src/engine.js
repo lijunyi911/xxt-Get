@@ -163,12 +163,17 @@ async function ensureSession(push) {
       session.page = session.workPage;
       return session;
     }
-    session.workPage = await session.context.newPage();
-    session.page = session.workPage;
-    return session;
-  }
-
-  if (session) {
+    try {
+      session.workPage = await session.context.newPage();
+      session.page = session.workPage;
+      return session;
+    } catch (e) {
+      // 浏览器其实已经被关掉（isConnected 可能滞后），回收后重新启动
+      log.warn(`工作页重建失败（${e.message}），重启浏览器`);
+      try { await session.context.close(); } catch (e2) {}
+      session = null;
+    }
+  } else if (session) {
     log.warn('检测到 Edge 会话已关闭，重新启动');
     try { await session.context.close(); } catch (e) {}
     session = null;
@@ -188,9 +193,26 @@ async function ensureSession(push) {
   return session;
 }
 
-/** 读取课程列表（对外：串行队列） */
+/** 读取课程列表（对外：串行队列，失败自动重建会话重试一次） */
 async function getCourses(push) {
-  return serialize(() => getCoursesInner(push));
+  return serialize(async () => {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await getCoursesInner(push);
+      } catch (e) {
+        log.warn(`读取课程失败（第 ${attempt + 1} 次）：${e.message}`);
+        // 丢弃坏掉的浏览器会话，下一次 ensureSession 会自动重建
+        if (session) {
+          try { await session.context.close(); } catch (e2) {}
+          session = null;
+        }
+        if (attempt === 1) throw e;
+        if (push) push({ type: 'stage', text: '会话异常，正在重启浏览器重试...' });
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+    return null;
+  });
 }
 
 /** 读取课程列表（内部：不加锁） */
