@@ -181,6 +181,15 @@ ipcMain.handle('set-pace', (_e, v) => {
   return { ok: true };
 });
 
+ipcMain.handle('clear-log-file', () => {
+  try {
+    fs.writeFileSync(cfg.logFile, '', 'utf8');
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
 ipcMain.handle('get-history', () => {
   try {
     const h = daily.history();

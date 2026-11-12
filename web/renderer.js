@@ -657,6 +657,7 @@ $('btnCopyLog').addEventListener('click', async () => {
 });
 $('btnClearLog').addEventListener('click', () => {
   $('log').innerHTML = '';
+  try { window.api.clearLogFile(); } catch (e) {}
 });
 
 // 导出日志
@@ -947,9 +948,13 @@ function addLog(line) {
   div.dataset.level = level;
   if (level !== 'info') div.className = level;
   div.textContent = line;
-  box.appendChild(div);
-  if (!$('logAuto') || $('logAuto').checked) box.scrollTop = box.scrollHeight;
-  while (box.childNodes.length > 500) box.removeChild(box.firstChild);
+  const reverse = $('logReverse') && $('logReverse').checked;
+  if (reverse) box.insertBefore(div, box.firstChild);
+  else box.appendChild(div);
+  if (!$('logAuto') || $('logAuto').checked) {
+    box.scrollTop = reverse ? 0 : box.scrollHeight;
+  }
+  while (box.childNodes.length > 500) box.removeChild(reverse ? box.lastChild : box.firstChild);
   applyLogFilter();
 }
 

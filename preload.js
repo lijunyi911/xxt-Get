@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('api', {
   setOnTop: (v) => ipcRenderer.invoke('set-on-top', v),
   setOpacity: (v) => ipcRenderer.invoke('set-opacity', v),
   setPace: (v) => ipcRenderer.invoke('set-pace', v),
+  clearLogFile: () => ipcRenderer.invoke('clear-log-file'),
   getHistory: () => ipcRenderer.invoke('get-history'),
   exportHistory: () => ipcRenderer.invoke('export-history'),
   clearState: () => ipcRenderer.invoke('clear-state'),
