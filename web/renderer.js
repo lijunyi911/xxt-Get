@@ -198,6 +198,19 @@ $('btnClear').addEventListener('click', async () => {
   }
 });
 
+// 快捷键
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'Enter') {
+    e.preventDefault();
+    if (!$('btnStart').disabled) $('btnStart').click();
+  } else if (e.key === 'Escape') {
+    if (!$('btnStop').disabled) $('btnStop').click();
+  } else if (e.ctrlKey && (e.key === 'l' || e.key === 'L')) {
+    e.preventDefault();
+    if (!$('btnLoad').disabled) $('btnLoad').click();
+  }
+});
+
 // 窗口按钮
 $('btnMin').addEventListener('click', () => window.api.minimize());
 $('btnClose').addEventListener('click', () => window.api.close());
