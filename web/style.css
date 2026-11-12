@@ -111,8 +111,10 @@ html, body {
   font-size: var(--base-font, 13px);
   overflow: hidden;
   user-select: none;
-  transition: background-color .3s ease, color .3s ease;
+  opacity: 0;
+  transition: background-color .3s ease, color .3s ease, opacity .28s ease;
 }
+body.ready { opacity: 1; }
 
 /* 标题栏 */
 .titlebar {
@@ -236,6 +238,7 @@ button {
   transition: .15s;
 }
 button:hover:not(:disabled) { border-color: var(--accent); color: var(--hover-text); }
+button:active:not(:disabled) { transform: scale(0.96); }
 button:disabled { opacity: .45; cursor: not-allowed; }
 
 .primary {

@@ -99,6 +99,10 @@ if (optMuted) {
   try { window.api.setMuted(v === '1'); } catch (e) {}
 })();
 
+// 启动淡入
+requestAnimationFrame(() => document.body.classList.add('ready'));
+setTimeout(() => document.body.classList.add('ready'), 1500);
+
 // ===== 提示音 =====
 let audioCtx = null;
 let soundOn = true;
