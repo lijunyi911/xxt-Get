@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('api', {
   setMuted: (v) => ipcRenderer.invoke('set-muted', v),
   setOnTop: (v) => ipcRenderer.invoke('set-on-top', v),
   setOpacity: (v) => ipcRenderer.invoke('set-opacity', v),
+  setPace: (v) => ipcRenderer.invoke('set-pace', v),
   getHistory: () => ipcRenderer.invoke('get-history'),
   exportHistory: () => ipcRenderer.invoke('export-history'),
   clearState: () => ipcRenderer.invoke('clear-state'),

@@ -175,6 +175,12 @@ ipcMain.handle('set-opacity', (_e, v) => {
   return { ok: true };
 });
 
+ipcMain.handle('set-pace', (_e, v) => {
+  engine.setPace(v);
+  log.info(`节奏已调整为 ${v}`);
+  return { ok: true };
+});
+
 ipcMain.handle('get-history', () => {
   try {
     const h = daily.history();

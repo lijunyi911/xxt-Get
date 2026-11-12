@@ -55,6 +55,22 @@ function setDocDwell(v) {
 let runtimeMuted = true;
 function setMuted(v) { runtimeMuted = !!v; }
 
+// 刷课节奏：慢 / 中 / 快
+function setPace(level) {
+  const map = {
+    slow: { gapMin: 2000, gapMax: 6000, delayMin: 1000, delayMax: 3000 },
+    normal: { gapMin: 1000, gapMax: 3000, delayMin: 500, delayMax: 2000 },
+    fast: { gapMin: 400, gapMax: 1200, delayMin: 150, delayMax: 700 },
+  };
+  const p = map[level] || map.normal;
+  if (cfg.antiBan) {
+    cfg.antiBan.chapterGapMinMs = p.gapMin;
+    cfg.antiBan.chapterGapMaxMs = p.gapMax;
+    cfg.antiBan.minDelayMs = p.delayMin;
+    cfg.antiBan.maxDelayMs = p.delayMax;
+  }
+}
+
 function setDailyLimit(v) {
   daily.setLimit(v);
 }
@@ -550,5 +566,6 @@ module.exports = {
   setDocDwell,
   setDailyLimit,
   setMuted,
+  setPace,
   _forceCloseContextForTest,
 };

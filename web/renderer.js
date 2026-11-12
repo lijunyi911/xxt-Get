@@ -248,6 +248,26 @@ window.addEventListener('online', () => {
   playBeep(880, 0.2, 0.08);
 });
 
+// ===== 节奏 =====
+const PACE_KEY = 'xxt-pace';
+function applyPace(v) {
+  document.querySelectorAll('button[data-pace]').forEach((b) => {
+    b.classList.toggle('active', b.dataset.pace === v);
+  });
+  try { window.api.setPace(v); } catch (e) {}
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-pace]');
+  if (!b) return;
+  applyPace(b.dataset.pace);
+  try { localStorage.setItem(PACE_KEY, b.dataset.pace); } catch (err) {}
+});
+(function initPace() {
+  let v = 'normal';
+  try { v = localStorage.getItem(PACE_KEY) || 'normal'; } catch (e) {}
+  applyPace(v);
+})();
+
 // ===== 窗口置顶 / 透明度 =====
 const optOnTop = document.getElementById('optOnTop');
 const optOpacity = document.getElementById('optOpacity');
