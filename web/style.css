@@ -290,6 +290,15 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   gap: 8px;
 }
 .log-tools { display: flex; gap: 6px; align-items: center; }
+.log-auto {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.log-auto input { accent-color: var(--accent); }
 .log-filter {
   background: var(--panel2);
   color: var(--text);

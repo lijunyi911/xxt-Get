@@ -10,5 +10,6 @@ contextBridge.exposeInMainWorld('api', {
   toggleMax: () => ipcRenderer.invoke('win-toggle-max'),
   notify: (payload) => ipcRenderer.invoke('notify', payload),
   exportLog: () => ipcRenderer.invoke('export-log'),
+  copyText: (text) => ipcRenderer.invoke('copy-text', text),
   onEvent: (cb) => ipcRenderer.on('event', (_e, data) => cb(data)),
 });

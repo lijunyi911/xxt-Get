@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Notification, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, dialog, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const engine = require('./src/engine');
@@ -114,6 +114,15 @@ ipcMain.handle('notify', (_e, payload) => {
       }).show();
     }
   } catch (e) {}
+});
+
+ipcMain.handle('copy-text', (_e, text) => {
+  try {
+    clipboard.writeText(String(text || ''));
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
 });
 
 ipcMain.handle('export-log', async () => {

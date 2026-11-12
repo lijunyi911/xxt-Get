@@ -208,6 +208,21 @@ $('btnClear').addEventListener('click', async () => {
   }
 });
 
+// 日志：复制 / 清空 / 自动滚动
+$('btnCopyLog').addEventListener('click', async () => {
+  const text = [...document.querySelectorAll('#log > div')].map((d) => d.textContent).join('\n');
+  try {
+    const r = await window.api.copyText(text);
+    if (r && r.ok) addLog('[INFO] 日志已复制到剪贴板');
+    else addLog('[ERROR] 复制失败');
+  } catch (e) {
+    addLog('[ERROR] 复制失败：' + e.message);
+  }
+});
+$('btnClearLog').addEventListener('click', () => {
+  $('log').innerHTML = '';
+});
+
 // 导出日志
 $('btnExportLog').addEventListener('click', async () => {
   try {
@@ -470,8 +485,8 @@ function addLog(line) {
   if (level !== 'info') div.className = level;
   div.textContent = line;
   box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-  while (box.childNodes.length > 400) box.removeChild(box.firstChild);
+  if (!$('logAuto') || $('logAuto').checked) box.scrollTop = box.scrollHeight;
+  while (box.childNodes.length > 500) box.removeChild(box.firstChild);
   applyLogFilter();
 }
 

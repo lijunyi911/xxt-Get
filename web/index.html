@@ -68,11 +68,14 @@
       <div class="log-head">
         <span>运行日志</span>
         <span class="log-tools">
+          <label class="log-auto"><input type="checkbox" id="logAuto" checked /> 自动</label>
           <select id="logFilter" class="log-filter">
             <option value="all">全部</option>
             <option value="warn">警告</option>
             <option value="error">错误</option>
           </select>
+          <button id="btnCopyLog" class="mini" title="复制日志">复制</button>
+          <button id="btnClearLog" class="mini" title="清空日志">清空</button>
           <button id="btnExportLog" class="mini" title="导出日志到文件">导出</button>
         </span>
       </div>
