@@ -2,7 +2,7 @@
   "name": "xxt-auto",
   "productName": "xxt-Get",
   "version": "1.1.0",
-  "description": "瀛︿範閫氳嚜鍔ㄥ埛璇惧姪鎵嬶紙鎮诞缃《灏忕獥鎺у埗锛?,
+  "description": "学习通自动刷课助手（悬浮置顶小窗控制）",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -46,18 +46,8 @@
     "asar": true,
     "win": {
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
       ],
       "icon": "build/icon.png"
     },
@@ -67,10 +57,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "xxt-Get 瀛︿範閫氬埛璇惧姪鎵?,
-      "installerLanguages": [
-        "zh_CN"
-      ],
+      "shortcutName": "xxt-Get 学习通刷课助手",
+      "installerLanguages": ["zh_CN"],
       "language": "2052",
       "deleteAppDataOnUninstall": false,
       "artifactName": "xxt-Get-Setup-${version}.exe"
@@ -79,10 +67,7 @@
       "artifactName": "xxt-Get-Portable-${version}.exe"
     },
     "mac": {
-      "target": [
-        "dmg",
-        "zip"
-      ],
+      "target": ["dmg", "zip"],
       "icon": "build/icon.png",
       "category": "public.app-category.education",
       "identity": null,
@@ -93,4 +78,3 @@
     }
   }
 }
-
