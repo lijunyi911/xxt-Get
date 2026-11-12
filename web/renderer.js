@@ -633,6 +633,7 @@ setInterval(() => {
 // 开始刷课
 $('btnStart').addEventListener('click', async () => {
   const selected = [...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid);
+  if ($('btnRetry')) $('btnRetry').style.display = 'none';
   const scope = selected.length ? `${selected.length} 门` : '全部课程';
   if (!confirm(`即将开始刷课\n课程：${scope}\n倍速：${currentSpeed}x\n\n确定开始？`)) return;
   $('btnStart').disabled = true;
@@ -648,6 +649,14 @@ $('btnStart').addEventListener('click', async () => {
   }
   await window.api.start(selected, currentSpeed);
 });
+
+// 重试
+if ($('btnRetry')) {
+  $('btnRetry').addEventListener('click', () => {
+    $('btnRetry').style.display = 'none';
+    $('btnStart').click();
+  });
+}
 
 // 停止
 $('btnStop').addEventListener('click', async () => {
@@ -802,6 +811,7 @@ window.api.onEvent((ev) => {
     isPaused = false;
     $('btnPause').textContent = '暂停';
     runStart = 0;
+    if ($('btnRetry')) $('btnRetry').style.display = '';
   } else if (ev.type === 'challenge') {
     playBeep(880, 0.4, 0.12);
     addLog('[WARN] ⚠ 检测到人工验证：' + (ev.text || '') + '，已自动停止，请手动完成');
