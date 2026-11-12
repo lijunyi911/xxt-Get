@@ -284,7 +284,7 @@ if (btnResetOpt) {
 const btnAbout = document.getElementById('btnAbout');
 if (btnAbout) {
   btnAbout.addEventListener('click', () => {
-    alert('学习通刷课助手 v1.0.0\n\nhttps://github.com/lijunyi911/xxt-Get\n\n快捷键：\nCtrl+Enter 开始\nEsc 停止\nCtrl+L 读取课程');
+    alert('学习通刷课助手 v1.1.0\n\nhttps://github.com/lijunyi911/xxt-Get\n\n快捷键：\nCtrl+Enter 开始\nEsc 停止\nCtrl+L 读取课程');
   });
 }
 

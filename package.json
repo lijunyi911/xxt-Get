@@ -1,8 +1,8 @@
-{
+﻿{
   "name": "xxt-auto",
   "productName": "xxt-Get",
-  "version": "1.0.0",
-  "description": "学习通自动刷课助手（悬浮置顶小窗控制）",
+  "version": "1.1.0",
+  "description": "瀛︿範閫氳嚜鍔ㄥ埛璇惧姪鎵嬶紙鎮诞缃《灏忕獥鎺у埗锛?,
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -67,7 +67,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "xxt-Get 学习通刷课助手",
+      "shortcutName": "xxt-Get 瀛︿範閫氬埛璇惧姪鎵?,
       "installerLanguages": [
         "zh_CN"
       ],
@@ -93,3 +93,4 @@
     }
   }
 }
+
