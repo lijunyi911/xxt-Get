@@ -1,5 +1,6 @@
 const cfg = require('../config');
 const log = require('./log');
+const path = require('path');
 const state = require('./state');
 const profile = require('./profile');
 const courseMod = require('./course');
@@ -506,6 +507,14 @@ async function runCoursesInner(courses, speed, push) {
     if (push) push({ type: 'stage', text: stopFlag ? '已停止' : '全部完成' });
   } catch (e) {
     log.error(`运行异常: ${e.message}`);
+    // 异常时自动截图，便于排查
+    try {
+      if (session && session.page && !session.page.isClosed()) {
+        const file = path.join(cfg.dataDir, `error-${Date.now()}.png`);
+        await session.page.screenshot({ path: file });
+        log.info(`异常截图已保存: ${file}`);
+      }
+    } catch (e2) {}
     if (push) push({ type: 'error', text: e.message });
   } finally {
     if (push) {

@@ -164,6 +164,22 @@ document.addEventListener('click', (e) => {
   applyRadius(r);
 })();
 
+// ===== 网络状态检测 =====
+window.addEventListener('offline', () => {
+  addLog('[WARN] 网络已断开，已自动暂停');
+  playBeep(300, 0.4, 0.12);
+  if (!isPaused) {
+    isPaused = true;
+    try { window.api.setPaused(true); } catch (e) {}
+    $('btnPause').textContent = '继续';
+    $('btnPause').classList.add('active');
+  }
+});
+window.addEventListener('online', () => {
+  addLog('[INFO] 网络已恢复，点击「继续」可继续刷课');
+  playBeep(880, 0.2, 0.08);
+});
+
 // ===== 学习历史 =====
 async function loadHistory() {
   try {
