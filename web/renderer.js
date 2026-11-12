@@ -166,6 +166,8 @@ function applyAccentHex(hex) {
   const accent2 = isLight ? mixHex(hex, '#000000', 0.22) : mixHex(hex, '#000000', 0.12);
   const accent3 = isLight ? mixHex(hex, '#000000', 0.32) : mixHex(hex, '#ffffff', 0.40);
   const onAccent = luminance(hex) > 0.55 ? '#111111' : '#ffffff';
+  const rgb = hexToRgb(hex);
+  const rgbStr = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
 
   const root = document.documentElement.style;
   root.setProperty('--accent', accent);
@@ -173,6 +175,12 @@ function applyAccentHex(hex) {
   root.setProperty('--accent3', accent3);
   root.setProperty('--on-accent', onAccent);
   root.setProperty('--hover-text', accent3);
+  // 光效跟随主题色
+  root.setProperty('--accent-rgb', rgbStr);
+  root.setProperty('--glow-1', `rgba(${rgbStr}, ${isLight ? 0.14 : 0.20})`);
+  root.setProperty('--glow-2', `rgba(${rgbStr}, ${isLight ? 0.06 : 0.09})`);
+  root.setProperty('--bg-glow-1', `rgba(${rgbStr}, ${isLight ? 0.10 : 0.07})`);
+  root.setProperty('--bg-glow-2', `rgba(${rgbStr}, ${isLight ? 0.06 : 0.05})`);
 
   document.querySelectorAll('.color-dot').forEach((b) => {
     const p = ACCENT_PRESETS[b.dataset.accent];
