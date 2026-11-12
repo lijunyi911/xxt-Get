@@ -341,6 +341,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .stat-line b { color: var(--accent3); font-weight: 700; }
 .stat-line span:last-child { margin-left: auto; color: var(--accent3); }
 
+/* 今日学习进度 */
+.progress.daily { height: 4px; margin-top: 8px; }
+.progress.daily .bar { background: linear-gradient(90deg, #4dd4ac, #7bdff2); }
+.remain-line { margin-top: 6px; }
+.remain-line span { color: var(--muted); }
+
 /* 全绿庆祝：UI 渐隐 + 全屏烟花渐显 */
 body.celebrating .titlebar,
 body.celebrating .body {

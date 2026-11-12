@@ -340,6 +340,13 @@ function setStats(s) {
   if (s.courseIndex != null && s.courseTotal != null) {
     $('stCourse').textContent = `${s.courseIndex}/${s.courseTotal}`;
   }
+  // 今日学习进度
+  const dm = s.dailyMinutes != null ? s.dailyMinutes : 0;
+  const dl = s.dailyLimit || 240;
+  if ($('dailyBar')) {
+    $('dailyBar').style.width = Math.min(100, dl > 0 ? (dm / dl) * 100 : 0) + '%';
+    $('stRemain').textContent = `今日剩余额度 ${Math.max(0, dl - dm)} 分钟`;
+  }
 }
 
 // 事件接收
