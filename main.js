@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Notification, dialog, clipboard } = require('electron');
+const { app, BrowserWindow, ipcMain, Notification, dialog, clipboard, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const engine = require('./src/engine');
@@ -7,6 +7,37 @@ const log = require('./src/log');
 const cfg = require('./config');
 
 let win = null;
+let tray = null;
+let isQuitting = false;
+
+// 系统托盘
+function createTray() {
+  try {
+    const iconPath = path.join(__dirname, 'build', 'icon.png');
+    const icon = nativeImage.createFromPath(iconPath).resize({ width: 16, height: 16 });
+    tray = new Tray(icon);
+    tray.setToolTip('学习通刷课助手');
+    const menu = Menu.buildFromTemplate([
+      { label: '显示主窗口', click: () => showMainWindow() },
+      { label: '隐藏窗口', click: () => { if (win) win.hide(); } },
+      { type: 'separator' },
+      { label: '退出', click: () => { isQuitting = true; app.quit(); } },
+    ]);
+    tray.setContextMenu(menu);
+    tray.on('double-click', () => showMainWindow());
+  } catch (e) {
+    log.warn(`托盘创建失败: ${e.message}`);
+  }
+}
+
+function showMainWindow() {
+  if (win && !win.isDestroyed()) {
+    win.show();
+    win.focus();
+  } else {
+    createWindow();
+  }
+}
 
 // 窗口位置/大小记忆
 const winStateFile = path.join(cfg.dataDir, 'window.json');
@@ -54,7 +85,13 @@ function createWindow() {
   win.setAlwaysOnTop(true, 'screen-saver');
   win.loadFile(path.join(__dirname, 'web', 'index.html'));
 
-  win.on('close', saveWinState);
+  win.on('close', (e) => {
+    saveWinState();
+    if (!isQuitting) {
+      e.preventDefault();
+      win.hide();
+    }
+  });
   win.on('closed', () => { win = null; });
 }
 
@@ -159,6 +196,7 @@ app.whenReady().then(() => {
   log.setSink((line) => send({ type: 'log', text: line }));
   log.info(`启动，日志保留 ${cfg.logRetentionDays} 天`);
   createWindow();
+  createTray();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -166,9 +204,11 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  app.quit();
+  // 有托盘时常驻，不自动退出；无托盘才退出
+  if (!tray) app.quit();
 });
 
 app.on('before-quit', async () => {
+  isQuitting = true;
   try { await engine.shutdown(); } catch (e) {}
 });
