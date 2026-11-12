@@ -271,6 +271,10 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-size: 12px;
 }
 .course-item:hover { background: var(--hover-bg); }
+.course-item:has(input:checked) {
+  border-color: rgba(255, 140, 26, 0.45);
+  background: rgba(255, 140, 26, 0.09);
+}
 .course-item input { accent-color: var(--accent); }
 .course-item .cname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .course-item .cnum { color: var(--muted); font-size: 11px; min-width: 26px; text-align: right; }

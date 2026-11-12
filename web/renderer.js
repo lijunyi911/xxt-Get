@@ -266,18 +266,47 @@ function renderCourses(list) {
     box.innerHTML = '<div class="empty">没有读到课程，请确认已登录</div>';
     $('btnAll').disabled = true;
     $('btnAll').textContent = '全选';
+    $('btnSort').disabled = true;
     return;
   }
-  box.innerHTML = list.map((c, i) => `
+  // 排序时保留本次已勾选状态
+  const checked = new Set([...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid));
+  const arr = sortByName
+    ? [...list].sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'zh'))
+    : list;
+  box.innerHTML = arr.map((c, i) => `
     <label class="course-item">
       <input type="checkbox" data-cid="${c.courseId}" />
       <span class="cnum">${i + 1}.</span>
       <span class="cname" title="${escapeHtml(c.title)}">${escapeHtml(c.title)}</span>
     </label>
   `).join('');
+  document.querySelectorAll('#courseList input[type="checkbox"]').forEach((inp) => {
+    if (checked.has(inp.dataset.cid)) inp.checked = true;
+  });
   $('btnAll').disabled = false;
   $('btnAll').textContent = '全选';
+  $('btnSort').disabled = false;
 }
+
+// 排序
+let sortByName = false;
+$('btnSort').addEventListener('click', () => {
+  sortByName = !sortByName;
+  $('btnSort').textContent = sortByName ? '名称↓' : '排序';
+  if (courses.length) renderCourses(courses);
+});
+
+// 双击课程项切换勾选
+$('courseList').addEventListener('dblclick', (e) => {
+  const item = e.target.closest('.course-item');
+  if (!item) return;
+  const inp = item.querySelector('input');
+  if (inp) {
+    inp.checked = !inp.checked;
+    updateCourseCount();
+  }
+});
 
 // 已选/总数徽章
 function updateCourseCount() {
