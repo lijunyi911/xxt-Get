@@ -700,9 +700,14 @@ function applyLogFilter() {
   const sel = $('logFilter');
   if (!sel) return;
   const f = sel.value;
+  const q = ($('logSearch') ? ($('logSearch').value || '').trim().toLowerCase() : '');
   document.querySelectorAll('#log > div').forEach((d) => {
     const lv = d.dataset.level || 'info';
-    d.style.display = f === 'all' || lv === f ? '' : 'none';
+    const text = (d.textContent || '').toLowerCase();
+    const okLevel = f === 'all' || lv === f;
+    const okSearch = !q || text.includes(q);
+    d.style.display = okLevel && okSearch ? '' : 'none';
   });
 }
 $('logFilter').addEventListener('change', applyLogFilter);
+if ($('logSearch')) $('logSearch').addEventListener('input', applyLogFilter);

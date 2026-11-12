@@ -429,6 +429,18 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   outline: none;
 }
 .log-filter:focus { border-color: var(--accent); }
+.log-search {
+  width: 88px;
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11px;
+  padding: 3px 6px;
+  outline: none;
+}
+.log-search:focus { border-color: var(--accent); }
+.log > div:hover { background: rgba(255, 140, 26, 0.06); }
 .log {
   flex: 1; overflow-y: auto;
   font-family: Consolas, monospace; font-size: 11px; line-height: 1.55;
