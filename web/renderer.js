@@ -179,13 +179,13 @@ const dwellNum = $('docDwellNum');
 const dwellVal = $('docDwellVal');
 
 function setDwellSec(sec) {
-  let s = Math.round(Number(sec));
-  if (!Number.isFinite(s)) s = 30;
-  s = Math.max(1, Math.min(300, s));
-  dwellRange.value = String(Math.min(120, s));
+  let s = Number(sec);
+  if (!Number.isFinite(s) || s <= 0) s = 30;
+  s = Math.max(0.1, Math.round(s * 10) / 10);
+  dwellRange.value = String(Math.min(60, s));
   dwellNum.value = String(s);
   dwellVal.textContent = String(s);
-  try { window.api.setDocDwell(s * 1000); } catch (e) {}
+  try { window.api.setDocDwell(Math.round(s * 1000)); } catch (e) {}
   try { localStorage.setItem(DOC_KEY, String(s)); } catch (e) {}
 }
 
@@ -195,8 +195,8 @@ dwellNum.addEventListener('change', () => setDwellSec(dwellNum.value));
 (function initDocDwell() {
   let s = 30;
   try {
-    s = parseInt(localStorage.getItem(DOC_KEY), 10) || 30;
-    if (s > 300) s = Math.round(s / 1000); // 兼容旧版毫秒数据
+    s = parseFloat(localStorage.getItem(DOC_KEY)) || 30;
+    if (s > 300) s = s / 1000; // 兼容旧版毫秒数据
   } catch (e) {}
   setDwellSec(s);
 })();

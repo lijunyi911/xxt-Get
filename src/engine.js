@@ -34,8 +34,8 @@ function setSpeed(v) {
 // 运行时可动态调整的文档停留时长
 let runtimeDocDwell = cfg.docJumpDwellMs;
 function setDocDwell(v) {
-  const n = parseInt(v, 10);
-  if (n > 0) runtimeDocDwell = n;
+  const n = parseFloat(v);
+  if (Number.isFinite(n) && n > 0) runtimeDocDwell = Math.round(n);
 }
 
 function setDailyLimit(v) {
