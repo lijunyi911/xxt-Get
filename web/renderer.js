@@ -164,6 +164,10 @@ document.addEventListener('click', (e) => {
   applyRadius(r);
 })();
 
+// ===== 失焦省电：窗口不在前台时隐藏光晕 =====
+window.addEventListener('blur', () => document.body.classList.add('no-focus'));
+window.addEventListener('focus', () => document.body.classList.remove('no-focus'));
+
 // ===== 网络状态检测 =====
 window.addEventListener('offline', () => {
   addLog('[WARN] 网络已断开，已自动暂停');
@@ -400,8 +404,9 @@ function renderCourses(list) {
     $('btnSort').disabled = true;
     return;
   }
-  // 排序时保留本次已勾选状态
+  // 排序时保留本次勾选状态
   const checked = new Set([...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid));
+  const keepScroll = box.scrollTop;
   const arr = sortByName
     ? [...list].sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'zh'))
     : list;
@@ -415,6 +420,7 @@ function renderCourses(list) {
   document.querySelectorAll('#courseList input[type="checkbox"]').forEach((inp) => {
     if (checked.has(inp.dataset.cid)) inp.checked = true;
   });
+  box.scrollTop = keepScroll;
   $('btnAll').disabled = false;
   $('btnAll').textContent = '全选';
   $('btnSort').disabled = false;

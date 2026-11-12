@@ -13,7 +13,7 @@ function cleanup(days) {
   let removed = 0;
   try {
     fs.readdirSync(dir).forEach((f) => {
-      if (!/^(run-\d{8}-\d{6}\.log|debug_.*\.html|electron_.*\.txt|.*\.tmp)$/.test(f)) return;
+      if (!/^(run-\d{8}-\d{6}\.log|debug_.*\.html|electron_.*\.txt|error-.*\.png|.*\.tmp)$/.test(f)) return;
       const fp = path.join(dir, f);
       try {
         if (fs.statSync(fp).mtimeMs < cutoff) {

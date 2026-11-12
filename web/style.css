@@ -682,6 +682,7 @@ body.compact .course-list { max-height: 260px; }
 /* 动画开关 */
 body.no-anim .section { transform: none !important; transition: none !important; }
 body.no-anim #cursor-glow { display: none; }
+body.no-focus #cursor-glow { opacity: 0 !important; }
 
 /* ===== 全屏 / 宽屏：两栏布局 ===== */
 @media (min-width: 900px) {
