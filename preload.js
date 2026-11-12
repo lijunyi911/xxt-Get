@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('api', {
   start: (courses, speed) => ipcRenderer.invoke('start', { courses, speed }),
   stop: () => ipcRenderer.invoke('stop'),
   setSpeed: (v) => ipcRenderer.invoke('set-speed', v),
+  setDocDwell: (v) => ipcRenderer.invoke('set-doc-dwell', v),
   clearState: () => ipcRenderer.invoke('clear-state'),
   minimize: () => ipcRenderer.invoke('win-minimize'),
   close: () => ipcRenderer.invoke('win-close'),

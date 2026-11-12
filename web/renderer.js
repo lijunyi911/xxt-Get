@@ -85,6 +85,27 @@ $('speedRow').addEventListener('click', (e) => {
 
 applySpeed(loadSpeed());
 
+// 文档停留时长
+const DOC_KEY = 'xxt-doc-dwell';
+function applyDocDwell(v) {
+  document.querySelectorAll('#docDwellRow .spd').forEach((b) => {
+    b.classList.toggle('active', parseInt(b.dataset.dwell, 10) === v);
+  });
+  try { window.api.setDocDwell(v); } catch (e) {}
+}
+$('docDwellRow').addEventListener('click', (e) => {
+  const b = e.target.closest('.spd');
+  if (!b) return;
+  const v = parseInt(b.dataset.dwell, 10);
+  applyDocDwell(v);
+  try { localStorage.setItem(DOC_KEY, String(v)); } catch (err) {}
+});
+(function initDocDwell() {
+  let v = 30000;
+  try { v = parseInt(localStorage.getItem(DOC_KEY), 10) || 30000; } catch (e) {}
+  applyDocDwell(v);
+})();
+
 // 加载课程（失败自动重试一次）
 $('btnLoad').addEventListener('click', async () => {
   $('btnLoad').disabled = true;

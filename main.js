@@ -91,6 +91,12 @@ ipcMain.handle('set-speed', (_e, v) => {
   return { ok: true };
 });
 
+ipcMain.handle('set-doc-dwell', (_e, v) => {
+  engine.setDocDwell(v);
+  log.info(`文档停留已调整为 ${v}ms`);
+  return { ok: true };
+});
+
 ipcMain.handle('clear-state', () => {
   try {
     const b = state.clear(cfg.stateFile);

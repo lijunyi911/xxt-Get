@@ -31,6 +31,13 @@ function setSpeed(v) {
   if (n > 0) runtimeSpeed = n;
 }
 
+// 运行时可动态调整的文档停留时长
+let runtimeDocDwell = cfg.docJumpDwellMs;
+function setDocDwell(v) {
+  const n = parseInt(v, 10);
+  if (n > 0) runtimeDocDwell = n;
+}
+
 // ===== 操作串行队列：同一时间只跑一个浏览器操作，新请求自动取代旧请求 =====
 let opChain = Promise.resolve();
 let opSeq = 0;
@@ -393,11 +400,11 @@ async function processCourse(page, course, speed, push) {
     } else if (st.kind === 'doc') {
       log.info(`  文档/PPT（章节 ${chId}），直接跳到最后一页`);
       if (push) push({ type: 'stage', text: `文档 ${chId}：跳到最后一页` });
-      await player.jumpDocumentToEnd(page, cfg.docJumpDwellMs);
-      daily.add(cfg.docJumpDwellMs / 1000);
+      await player.jumpDocumentToEnd(page, runtimeDocDwell);
+      daily.add(runtimeDocDwell / 1000);
       pushStats(push);
       completed = true;
-      completionInfo = { type: 'doc', dwell: cfg.docJumpDwellMs };
+      completionInfo = { type: 'doc', dwell: runtimeDocDwell };
     }
 
     if (completed && !stopFlag && completionInfo) {
@@ -483,5 +490,6 @@ module.exports = {
   isLoggedIn,
   shutdown,
   setSpeed,
+  setDocDwell,
   _forceCloseContextForTest,
 };
