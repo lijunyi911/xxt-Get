@@ -164,6 +164,34 @@ document.addEventListener('click', (e) => {
   applyRadius(r);
 })();
 
+// ===== 学习历史 =====
+async function loadHistory() {
+  try {
+    const r = await window.api.getHistory();
+    const box = $('historyList');
+    if (!box) return;
+    if (r && r.ok && r.days.length) {
+      box.innerHTML = r.days.map((d) => `
+        <div class="history-row"><span>${d.date}</span><b>${Math.round(d.seconds / 60)} 分钟</b></div>
+      `).join('');
+    } else {
+      box.innerHTML = '<div class="empty">暂无记录</div>';
+    }
+  } catch (e) {}
+}
+if ($('btnSettings')) $('btnSettings').addEventListener('click', loadHistory);
+if ($('btnExportHistory')) {
+  $('btnExportHistory').addEventListener('click', async () => {
+    try {
+      const r = await window.api.exportHistory();
+      if (r && r.ok) addLog(`[INFO] 统计已导出：${r.path}`);
+      else if (r && r.error) addLog(`[ERROR] 导出失败：${r.error}`);
+    } catch (e) {
+      addLog(`[ERROR] 导出失败：${e.message}`);
+    }
+  });
+}
+
 // ===== 设置面板开关 =====
 const settingsMask = document.getElementById('settingsMask');
 const btnSettings = document.getElementById('btnSettings');

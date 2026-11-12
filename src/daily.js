@@ -3,6 +3,15 @@ const path = require('path');
 const cfg = require('../config');
 
 const file = path.join(cfg.dataDir, 'daily.json');
+const historyFile = path.join(cfg.dataDir, 'history.json');
+
+function loadHistory() {
+  try { return JSON.parse(fs.readFileSync(historyFile, 'utf8')); } catch (e) { return {}; }
+}
+function saveHistory(h) {
+  try { fs.writeFileSync(historyFile, JSON.stringify(h, null, 2), 'utf8'); } catch (e) {}
+}
+function history() { return loadHistory(); }
 
 function today() {
   const d = new Date();
@@ -25,6 +34,12 @@ function add(sec) {
   const d = load();
   d.seconds += Math.max(0, Math.round(sec));
   save(d);
+  // 同步写入历史（按日期）
+  try {
+    const h = loadHistory();
+    h[d.date] = d.seconds;
+    saveHistory(h);
+  } catch (e) {}
   return d;
 }
 
@@ -43,4 +58,4 @@ function exceeded() {
   return runtimeLimit > 0 && load().seconds >= runtimeLimit * 60;
 }
 
-module.exports = { load, save, add, minutes, exceeded, today, setLimit };
+module.exports = { load, save, add, minutes, exceeded, today, setLimit, history };

@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const engine = require('./src/engine');
 const state = require('./src/state');
+const daily = require('./src/daily');
 const log = require('./src/log');
 const cfg = require('./config');
 
@@ -160,6 +161,34 @@ ipcMain.handle('set-daily-limit', (_e, v) => {
 ipcMain.handle('set-muted', (_e, v) => {
   engine.setMuted(v);
   return { ok: true };
+});
+
+ipcMain.handle('get-history', () => {
+  try {
+    const h = daily.history();
+    const days = Object.keys(h).sort().slice(-7);
+    return { ok: true, days: days.map((d) => ({ date: d, seconds: h[d] })) };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('export-history', async () => {
+  try {
+    const { canceled, filePath } = await dialog.showSaveDialog(win, {
+      title: '导出学习统计',
+      defaultPath: `xxt-history-${Date.now()}.csv`,
+      filters: [{ name: 'CSV', extensions: ['csv'] }],
+    });
+    if (canceled || !filePath) return { ok: false };
+    const h = daily.history();
+    const lines = ['日期,学习分钟数'];
+    Object.keys(h).sort().forEach((d) => lines.push(`${d},${Math.round(h[d] / 60)}`));
+    fs.writeFileSync(filePath, '\ufeff' + lines.join('\r\n'), 'utf8');
+    return { ok: true, path: filePath };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
 });
 
 ipcMain.handle('clear-state', () => {
