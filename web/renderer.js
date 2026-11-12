@@ -123,8 +123,8 @@ if (optDailyLimit) {
   });
 }
 (function initLimit() {
-  let v = '240';
-  try { v = localStorage.getItem(LIMIT_KEY) || '240'; } catch (e) {}
+  let v = '0';
+  try { v = localStorage.getItem(LIMIT_KEY) || '0'; } catch (e) {}
   applyDailyLimit(v);
 })();
 
@@ -371,16 +371,21 @@ function setStats(s) {
   $('stQuiz').textContent = s.quiz ?? 0;
   $('stFail').textContent = s.failed ?? 0;
   if (s.dailyMinutes != null) $('stDaily').textContent = s.dailyMinutes;
-  if (s.dailyLimit != null) $('stLimit').textContent = s.dailyLimit;
+  if (s.dailyLimit != null) $('stLimit').textContent = s.dailyLimit > 0 ? s.dailyLimit : '∞';
   if (s.courseIndex != null && s.courseTotal != null) {
     $('stCourse').textContent = `${s.courseIndex}/${s.courseTotal}`;
   }
   // 今日学习进度
   const dm = s.dailyMinutes != null ? s.dailyMinutes : 0;
-  const dl = s.dailyLimit || 240;
+  const dl = s.dailyLimit != null ? s.dailyLimit : 0;
   if ($('dailyBar')) {
-    $('dailyBar').style.width = Math.min(100, dl > 0 ? (dm / dl) * 100 : 0) + '%';
-    $('stRemain').textContent = `今日剩余额度 ${Math.max(0, dl - dm)} 分钟`;
+    if (dl > 0) {
+      $('dailyBar').style.width = Math.min(100, (dm / dl) * 100) + '%';
+      $('stRemain').textContent = `今日剩余额度 ${Math.max(0, dl - dm)} 分钟`;
+    } else {
+      $('dailyBar').style.width = '0%';
+      $('stRemain').textContent = '今日不限时长';
+    }
   }
 }
 

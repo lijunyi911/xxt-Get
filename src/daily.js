@@ -36,7 +36,7 @@ function minutes() {
 let runtimeLimit = (cfg.antiBan && cfg.antiBan.dailyLimitMinutes) || 0;
 function setLimit(v) {
   const n = parseInt(v, 10);
-  if (n > 0) runtimeLimit = n;
+  if (Number.isFinite(n) && n >= 0) runtimeLimit = n; // 0 = 不限
 }
 
 function exceeded() {
