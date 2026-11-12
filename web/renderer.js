@@ -56,6 +56,58 @@ if (themeBtn && themePop) {
 lightMedia.addEventListener('change', () => { if (themeMode === 'system') applyTheme(); });
 applyTheme();
 
+// ===== 外观设置：字号 / 紧凑 / 动画 =====
+const FONT_KEY = 'xxt-font';
+const COMPACT_KEY = 'xxt-compact';
+const ANIM_KEY = 'xxt-anim';
+
+function applyFont(v) {
+  document.documentElement.style.setProperty('--base-font', v + 'px');
+  document.querySelectorAll('.theme-opt button[data-font]').forEach((b) => {
+    b.classList.toggle('active', b.dataset.font === String(v));
+  });
+}
+function applyCompact(on) { document.body.classList.toggle('compact', !!on); }
+function applyAnim(on) { document.body.classList.toggle('no-anim', !on); }
+
+if (themePop) {
+  themePop.addEventListener('click', (e) => {
+    const fb = e.target.closest('button[data-font]');
+    if (!fb) return;
+    applyFont(fb.dataset.font);
+    try { localStorage.setItem(FONT_KEY, fb.dataset.font); } catch (err) {}
+  });
+}
+
+const optCompact = document.getElementById('optCompact');
+const optAnim = document.getElementById('optAnim');
+if (optCompact) {
+  optCompact.addEventListener('change', (e) => {
+    applyCompact(e.target.checked);
+    try { localStorage.setItem(COMPACT_KEY, e.target.checked ? '1' : '0'); } catch (err) {}
+  });
+}
+if (optAnim) {
+  optAnim.addEventListener('change', (e) => {
+    applyAnim(e.target.checked);
+    try { localStorage.setItem(ANIM_KEY, e.target.checked ? '1' : '0'); } catch (err) {}
+  });
+}
+
+(function initAppearance() {
+  let f = '13', c = '0', a = '1';
+  try {
+    f = localStorage.getItem(FONT_KEY) || '13';
+    c = localStorage.getItem(COMPACT_KEY) || '0';
+    a = localStorage.getItem(ANIM_KEY) || '1';
+  } catch (e) {}
+  applyFont(f);
+  applyCompact(c === '1');
+  applyAnim(a === '1');
+  if (optCompact) optCompact.checked = c === '1';
+  if (optAnim) optAnim.checked = a === '1';
+})();
+
 let currentSpeed = 2;
 let courses = [];
 

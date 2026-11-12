@@ -84,7 +84,7 @@ html, body {
     var(--bg);
   color: var(--text);
   font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-  font-size: 13px;
+  font-size: var(--base-font, 13px);
   overflow: hidden;
   user-select: none;
   transition: background-color .3s ease, color .3s ease;
@@ -452,6 +452,44 @@ body.celebrating #cursor-glow { opacity: 0; }
   color: var(--accent);
   font-weight: 700;
 }
+.theme-sep { height: 1px; background: var(--line); margin: 4px 2px; }
+.theme-opt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.theme-opt > span { flex: 0 0 26px; }
+.theme-opt button {
+  padding: 3px 6px;
+  font-size: 11px;
+  border-radius: 5px;
+  flex: 1;
+}
+.theme-opt button.active {
+  background: rgba(255, 140, 26, 0.2);
+  color: var(--accent);
+  font-weight: 700;
+}
+.theme-opt label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  flex: 1;
+}
+.theme-opt input { accent-color: var(--accent); }
+
+/* 紧凑模式 */
+body.compact .body { gap: 6px; padding: 6px; }
+body.compact .section { padding: 6px; }
+body.compact .course-list { max-height: 260px; }
+
+/* 动画开关 */
+body.no-anim .section { transform: none !important; transition: none !important; }
+body.no-anim #cursor-glow { display: none; }
 
 /* ===== 全屏 / 宽屏：两栏布局 ===== */
 @media (min-width: 900px) {
