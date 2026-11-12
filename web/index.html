@@ -163,9 +163,26 @@
             <button class="color-dot" data-accent="blue" style="--dot:#3d9bff" title="蓝"></button>
             <button class="color-dot" data-accent="green" style="--dot:#2fbf71" title="绿"></button>
             <button class="color-dot" data-accent="purple" style="--dot:#a06bff" title="紫"></button>
-            <div class="color-wheel-wrap" title="自定义颜色（点击选色）">
+            <div class="color-wheel-wrap" id="colorWheel" title="自定义颜色（点击展开调色板）">
               <div class="color-wheel-ring"></div>
-              <input type="color" id="accentPicker" class="color-wheel-input" value="#ff8c1a" />
+            </div>
+          </div>
+
+          <div class="color-panel" id="colorPanel">
+            <div class="color-panel-head">
+              <div class="color-preview" id="colorPreview"></div>
+              <input type="text" id="hexInput" class="hex-input" value="#ff8c1a" maxlength="7" spellcheck="false" />
+            </div>
+            <div class="hue-slider">
+              <input type="range" id="hueRange" min="0" max="360" step="1" value="30" />
+            </div>
+            <div class="sl-row">
+              <span>饱和</span>
+              <input type="range" id="satRange" min="0" max="100" step="1" value="90" />
+            </div>
+            <div class="sl-row">
+              <span>亮度</span>
+              <input type="range" id="lightRange" min="0" max="100" step="1" value="50" />
             </div>
           </div>
         </div>

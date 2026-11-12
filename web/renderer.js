@@ -178,8 +178,7 @@ function applyAccentHex(hex) {
     const p = ACCENT_PRESETS[b.dataset.accent];
     b.classList.toggle('active', !!p && p.toLowerCase() === String(hex).toLowerCase());
   });
-  const picker = document.getElementById('accentPicker');
-  if (picker) picker.value = hex;
+  if (typeof syncColorPanel === 'function') syncColorPanel(hex);
 }
 
 function applyRadius(v) {
@@ -205,17 +204,82 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// 颜色轮盘：任意颜色
-const accentPicker = document.getElementById('accentPicker');
-if (accentPicker) {
-  accentPicker.addEventListener('input', (e) => {
-    currentAccentHex = e.target.value;
+// 颜色轮盘：点击展开橙黑主题调色板
+const colorWheel = document.getElementById('colorWheel');
+const colorPanel = document.getElementById('colorPanel');
+const colorPreview = document.getElementById('colorPreview');
+const hexInput = document.getElementById('hexInput');
+const hueRange = document.getElementById('hueRange');
+const satRange = document.getElementById('satRange');
+const lightRange = document.getElementById('lightRange');
+
+function hexToHsl(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const rn = r / 255, gn = g / 255, bn = b / 255;
+  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === rn) h = ((gn - bn) / d + (gn < bn ? 6 : 0)) * 60;
+    else if (max === gn) h = ((bn - rn) / d + 2) * 60;
+    else h = ((rn - gn) / d + 4) * 60;
+  }
+  return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+
+function hslToHex(h, s, l) {
+  s /= 100; l /= 100;
+  const k = (n) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const toHex = (x) => Math.round(255 * x).toString(16).padStart(2, '0');
+  return '#' + toHex(f(0)) + toHex(f(8)) + toHex(f(4));
+}
+
+function syncColorPanel(hex) {
+  const hsl = hexToHsl(hex);
+  const hue = document.getElementById('hueRange');
+  const sat = document.getElementById('satRange');
+  const light = document.getElementById('lightRange');
+  const hexEl = document.getElementById('hexInput');
+  const preview = document.getElementById('colorPreview');
+  if (hue) hue.value = hsl.h;
+  if (sat) sat.value = hsl.s;
+  if (light) light.value = hsl.l;
+  if (hexEl) hexEl.value = hex;
+  if (preview) preview.style.background = hex;
+}
+
+if (colorWheel && colorPanel) {
+  colorWheel.addEventListener('click', () => colorPanel.classList.toggle('show'));
+}
+
+function applyFromHsl() {
+  const h = Number(hueRange.value) || 0;
+  const s = Number(satRange.value) || 0;
+  const l = Number(lightRange.value) || 0;
+  const hex = hslToHex(h, s, l);
+  currentAccentHex = hex;
+  applyAccentHex(hex);
+  try { localStorage.setItem(ACCENT_KEY, hex); } catch (e) {}
+}
+[hueRange, satRange, lightRange].forEach((r) => {
+  if (r) r.addEventListener('input', applyFromHsl);
+});
+
+if (hexInput) {
+  hexInput.addEventListener('change', () => {
+    let v = String(hexInput.value || '').trim();
+    if (!v.startsWith('#')) v = '#' + v;
+    if (!/^#[0-9a-fA-F]{6}$/.test(v)) {
+      hexInput.value = currentAccentHex;
+      return;
+    }
+    currentAccentHex = v.toLowerCase();
     applyAccentHex(currentAccentHex);
-  });
-  accentPicker.addEventListener('change', (e) => {
-    currentAccentHex = e.target.value;
-    applyAccentHex(currentAccentHex);
-    try { localStorage.setItem(ACCENT_KEY, currentAccentHex); } catch (err) {}
+    try { localStorage.setItem(ACCENT_KEY, currentAccentHex); } catch (e) {}
   });
 }
 
