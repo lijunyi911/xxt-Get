@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const engine = require('./src/engine');
 const state = require('./src/state');
 const log = require('./src/log');
@@ -7,16 +8,33 @@ const cfg = require('./config');
 
 let win = null;
 
+// 窗口位置/大小记忆
+const winStateFile = path.join(cfg.dataDir, 'window.json');
+
+function loadWinState() {
+  try { return JSON.parse(fs.readFileSync(winStateFile, 'utf8')); } catch (e) { return {}; }
+}
+
+function saveWinState() {
+  if (!win || win.isDestroyed()) return;
+  try {
+    const b = win.getBounds();
+    fs.mkdirSync(cfg.dataDir, { recursive: true });
+    fs.writeFileSync(winStateFile, JSON.stringify({ ...b, maximized: win.isMaximized() }), 'utf8');
+  } catch (e) {}
+}
+
 function send(data) {
   if (win && !win.isDestroyed()) win.webContents.send('event', data);
 }
 
 function createWindow() {
+  const st = loadWinState();
   win = new BrowserWindow({
-    width: 370,
-    height: 620,
-    x: 24,
-    y: 90,
+    width: st.width || 370,
+    height: st.height || 620,
+    x: typeof st.x === 'number' ? st.x : 24,
+    y: typeof st.y === 'number' ? st.y : 90,
     frame: false,
     resizable: true,
     alwaysOnTop: true,
@@ -31,9 +49,12 @@ function createWindow() {
     },
   });
 
+  if (st.maximized) win.maximize();
+
   win.setAlwaysOnTop(true, 'screen-saver');
   win.loadFile(path.join(__dirname, 'web', 'index.html'));
 
+  win.on('close', saveWinState);
   win.on('closed', () => { win = null; });
 }
 
