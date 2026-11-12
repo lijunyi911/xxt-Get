@@ -190,6 +190,36 @@ ipcMain.handle('clear-log-file', () => {
   }
 });
 
+ipcMain.handle('export-settings', async (_e, json) => {
+  try {
+    const { canceled, filePath } = await dialog.showSaveDialog(win, {
+      title: '导出设置',
+      defaultPath: `xxt-settings-${Date.now()}.json`,
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    });
+    if (canceled || !filePath) return { ok: false };
+    fs.writeFileSync(filePath, String(json || '{}'), 'utf8');
+    return { ok: true, path: filePath };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('import-settings', async () => {
+  try {
+    const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+      title: '导入设置',
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+      properties: ['openFile'],
+    });
+    if (canceled || !filePaths.length) return { ok: false };
+    const content = fs.readFileSync(filePaths[0], 'utf8');
+    return { ok: true, content };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
 ipcMain.handle('get-history', () => {
   try {
     const h = daily.history();

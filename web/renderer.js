@@ -248,6 +248,38 @@ window.addEventListener('online', () => {
   playBeep(880, 0.2, 0.08);
 });
 
+// ===== 设置导出 / 导入 =====
+if ($('btnExportSettings')) {
+  $('btnExportSettings').addEventListener('click', async () => {
+    const data = {};
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('xxt-')) data[k] = localStorage.getItem(k);
+      }
+    } catch (e) {}
+    const r = await window.api.exportSettings(JSON.stringify(data, null, 2));
+    if (r && r.ok) addLog(`[INFO] 设置已导出：${r.path}`);
+    else if (r && r.error) addLog(`[ERROR] 导出失败：${r.error}`);
+  });
+}
+if ($('btnImportSettings')) {
+  $('btnImportSettings').addEventListener('click', async () => {
+    const r = await window.api.importSettings();
+    if (!r || !r.ok) return;
+    try {
+      const data = JSON.parse(r.content);
+      Object.keys(data).forEach((k) => {
+        if (k.startsWith('xxt-')) localStorage.setItem(k, data[k]);
+      });
+      alert('设置已导入，即将刷新');
+      location.reload();
+    } catch (e) {
+      alert('导入失败：' + e.message);
+    }
+  });
+}
+
 // ===== 节奏 =====
 const PACE_KEY = 'xxt-pace';
 function applyPace(v) {
