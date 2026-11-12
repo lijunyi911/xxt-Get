@@ -65,7 +65,17 @@
     </div>
 
     <div class="section log-wrap">
-      <div class="log-head">运行日志<button id="btnExportLog" class="mini" title="导出日志到文件">导出</button></div>
+      <div class="log-head">
+        <span>运行日志</span>
+        <span class="log-tools">
+          <select id="logFilter" class="log-filter">
+            <option value="all">全部</option>
+            <option value="warn">警告</option>
+            <option value="error">错误</option>
+          </select>
+          <button id="btnExportLog" class="mini" title="导出日志到文件">导出</button>
+        </span>
+      </div>
       <div id="log" class="log"></div>
     </div>
   </div>

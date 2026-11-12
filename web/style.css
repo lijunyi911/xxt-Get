@@ -288,6 +288,17 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   justify-content: space-between;
   gap: 8px;
 }
+.log-tools { display: flex; gap: 6px; align-items: center; }
+.log-filter {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11px;
+  padding: 3px 6px;
+  outline: none;
+}
+.log-filter:focus { border-color: var(--accent); }
 .log {
   flex: 1; overflow-y: auto;
   font-family: Consolas, monospace; font-size: 11px; line-height: 1.55;

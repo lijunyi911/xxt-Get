@@ -453,10 +453,26 @@ document.querySelectorAll('.section').forEach((el) => {
 function addLog(line) {
   const box = $('log');
   const div = document.createElement('div');
-  if (/\[WARN\]/.test(line)) div.className = 'warn';
-  if (/\[ERROR\]/.test(line)) div.className = 'error';
+  let level = 'info';
+  if (/\[WARN\]/.test(line)) level = 'warn';
+  if (/\[ERROR\]/.test(line)) level = 'error';
+  div.dataset.level = level;
+  if (level !== 'info') div.className = level;
   div.textContent = line;
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
   while (box.childNodes.length > 400) box.removeChild(box.firstChild);
+  applyLogFilter();
 }
+
+// 日志过滤
+function applyLogFilter() {
+  const sel = $('logFilter');
+  if (!sel) return;
+  const f = sel.value;
+  document.querySelectorAll('#log > div').forEach((d) => {
+    const lv = d.dataset.level || 'info';
+    d.style.display = f === 'all' || lv === f ? '' : 'none';
+  });
+}
+$('logFilter').addEventListener('change', applyLogFilter);
