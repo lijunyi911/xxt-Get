@@ -143,28 +143,7 @@ function renderCourses(list) {
   `).join('');
   $('btnAll').disabled = false;
   $('btnAll').textContent = '全选';
-
-  // 恢复上次勾选
-  const saved = loadSelected();
-  if (saved.length) {
-    document.querySelectorAll('#courseList input[type="checkbox"]').forEach((inp) => {
-      if (saved.includes(inp.dataset.cid)) inp.checked = true;
-    });
-  }
 }
-
-// 课程选择记忆
-const SELECT_KEY = 'xxt-selected';
-function loadSelected() {
-  try { return JSON.parse(localStorage.getItem(SELECT_KEY) || '[]'); } catch (e) { return []; }
-}
-function saveSelected() {
-  try {
-    const ids = [...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid);
-    localStorage.setItem(SELECT_KEY, JSON.stringify(ids));
-  } catch (e) {}
-}
-$('courseList').addEventListener('change', saveSelected);
 
 /** 收起课程列表，回到初始状态 */
 function resetCourseList() {
