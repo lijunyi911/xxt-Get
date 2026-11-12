@@ -108,6 +108,41 @@ if (optAnim) {
   if (optAnim) optAnim.checked = a === '1';
 })();
 
+// ===== 每日上限 / 恢复默认 / 关于 =====
+const LIMIT_KEY = 'xxt-daily-limit';
+const optDailyLimit = document.getElementById('optDailyLimit');
+function applyDailyLimit(v) {
+  if (optDailyLimit) optDailyLimit.value = String(v);
+  try { window.api.setDailyLimit(v); } catch (e) {}
+}
+if (optDailyLimit) {
+  optDailyLimit.addEventListener('change', (e) => {
+    const v = e.target.value;
+    applyDailyLimit(v);
+    try { localStorage.setItem(LIMIT_KEY, v); } catch (err) {}
+  });
+}
+(function initLimit() {
+  let v = '240';
+  try { v = localStorage.getItem(LIMIT_KEY) || '240'; } catch (e) {}
+  applyDailyLimit(v);
+})();
+
+const btnResetOpt = document.getElementById('btnResetOpt');
+if (btnResetOpt) {
+  btnResetOpt.addEventListener('click', () => {
+    if (!confirm('恢复所有设置到默认值？')) return;
+    try { localStorage.clear(); } catch (e) {}
+    location.reload();
+  });
+}
+const btnAbout = document.getElementById('btnAbout');
+if (btnAbout) {
+  btnAbout.addEventListener('click', () => {
+    alert('学习通刷课助手 v1.0.0\n\nhttps://github.com/lijunyi911/xxt-Get\n\n快捷键：\nCtrl+Enter 开始\nEsc 停止\nCtrl+L 读取课程');
+  });
+}
+
 let currentSpeed = 2;
 let courses = [];
 

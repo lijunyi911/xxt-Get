@@ -32,9 +32,15 @@ function minutes() {
   return Math.round(load().seconds / 60);
 }
 
-function exceeded() {
-  const limit = (cfg.antiBan && cfg.antiBan.dailyLimitMinutes) || 0;
-  return limit > 0 && load().seconds >= limit * 60;
+// 运行时可调整的每日上限
+let runtimeLimit = (cfg.antiBan && cfg.antiBan.dailyLimitMinutes) || 0;
+function setLimit(v) {
+  const n = parseInt(v, 10);
+  if (n > 0) runtimeLimit = n;
 }
 
-module.exports = { load, save, add, minutes, exceeded, today };
+function exceeded() {
+  return runtimeLimit > 0 && load().seconds >= runtimeLimit * 60;
+}
+
+module.exports = { load, save, add, minutes, exceeded, today, setLimit };

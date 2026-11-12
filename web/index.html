@@ -110,6 +110,21 @@
       <label><input type="checkbox" id="optCompact" /> 紧凑</label>
       <label><input type="checkbox" id="optAnim" checked /> 动画</label>
     </div>
+    <div class="theme-sep"></div>
+    <div class="theme-opt">
+      <span>每日上限</span>
+      <select id="optDailyLimit" class="log-filter">
+        <option value="120">120分</option>
+        <option value="180">180分</option>
+        <option value="240" selected>240分</option>
+        <option value="300">300分</option>
+        <option value="500">500分</option>
+      </select>
+    </div>
+    <div class="theme-opt">
+      <button id="btnResetOpt" class="mini" style="flex:1">恢复默认</button>
+      <button id="btnAbout" class="mini" style="flex:1">关于</button>
+    </div>
   </div>
 
   <script src="renderer.js"></script>

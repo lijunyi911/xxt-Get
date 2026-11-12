@@ -134,6 +134,12 @@ ipcMain.handle('set-doc-dwell', (_e, v) => {
   return { ok: true };
 });
 
+ipcMain.handle('set-daily-limit', (_e, v) => {
+  engine.setDailyLimit(v);
+  log.info(`每日上限已调整为 ${v} 分钟`);
+  return { ok: true };
+});
+
 ipcMain.handle('clear-state', () => {
   try {
     const b = state.clear(cfg.stateFile);

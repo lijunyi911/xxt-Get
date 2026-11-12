@@ -38,6 +38,10 @@ function setDocDwell(v) {
   if (n > 0) runtimeDocDwell = n;
 }
 
+function setDailyLimit(v) {
+  daily.setLimit(v);
+}
+
 // ===== 操作串行队列：同一时间只跑一个浏览器操作，新请求自动取代旧请求 =====
 let opChain = Promise.resolve();
 let opSeq = 0;
@@ -509,5 +513,6 @@ module.exports = {
   shutdown,
   setSpeed,
   setDocDwell,
+  setDailyLimit,
   _forceCloseContextForTest,
 };
