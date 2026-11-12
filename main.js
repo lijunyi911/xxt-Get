@@ -1,11 +1,32 @@
 const { app, BrowserWindow, ipcMain, Notification, dialog, clipboard, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const engine = require('./src/engine');
 const state = require('./src/state');
 const daily = require('./src/daily');
 const log = require('./src/log');
 const cfg = require('./config');
+
+// 引擎依赖 playwright-core，较重，改为按需加载以加快启动
+let engineModule = null;
+function engine() {
+  if (!engineModule) engineModule = require('./src/engine');
+  return engineModule;
+}
+
+// 单实例：重复双击时立即唤出已有窗口，不再冷启动
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+  process.exit(0);
+}
+app.on('second-instance', () => {
+  if (win && !win.isDestroyed()) {
+    if (win.isMinimized()) win.restore();
+    win.show();
+    win.focus();
+  } else {
+    createWindow();
+  }
+});
 
 let win = null;
 let tray = null;
@@ -72,11 +93,13 @@ function send(data) {
 
 function createWindow() {
   const st = loadWinState();
+  const t0 = Date.now();
   win = new BrowserWindow({
     width: st.width || 370,
     height: st.height || 620,
     x: typeof st.x === 'number' ? st.x : 24,
     y: typeof st.y === 'number' ? st.y : 90,
+    show: false,
     frame: false,
     resizable: true,
     alwaysOnTop: true,
@@ -91,10 +114,14 @@ function createWindow() {
     },
   });
 
-  if (st.maximized) win.maximize();
-
   win.setAlwaysOnTop(true, 'screen-saver');
   win.loadFile(path.join(__dirname, 'web', 'index.html'));
+
+  win.once('ready-to-show', () => {
+    if (st.maximized) win.maximize();
+    win.show();
+    log.info(`窗口已显示，耗时 ${Date.now() - t0}ms`);
+  });
 
   win.on('close', (e) => {
     saveWinState();
@@ -108,9 +135,9 @@ function createWindow() {
 }
 
 ipcMain.handle('load-courses', async () => {
-  engine.requestStop(); // 若正在刷课/读取，先中止旧操作
+  engine().requestStop(); // 若正在刷课/读取，先中止旧操作
   try {
-    const courses = await engine.getCourses(send);
+    const courses = await engine().getCourses(send);
     if (!courses) return { ok: false, error: '已被新的操作取代' };
     return { ok: true, courses };
   } catch (e) {
@@ -121,45 +148,45 @@ ipcMain.handle('load-courses', async () => {
 
 ipcMain.handle('start', async (_e, payload) => {
   const { courses, speed } = payload || {};
-  engine.requestStop(); // 若正在读取/刷课，先中止旧操作
+  engine().requestStop(); // 若正在读取/刷课，先中止旧操作
   // 不 await，立即返回，进度通过事件推送
-  engine.runCourses(courses || [], speed || cfg.defaultSpeed, send)
+  engine().runCourses(courses || [], speed || cfg.defaultSpeed, send)
     .catch((e) => send({ type: 'error', text: e.message }));
   return { ok: true };
 });
 
 ipcMain.handle('stop', () => {
-  engine.requestStop();
+  engine().requestStop();
   log.info('已请求停止');
   return { ok: true };
 });
 
 ipcMain.handle('toggle-pause', (_e, v) => {
-  engine.setPaused(v);
+  engine().setPaused(v);
   log.info(v ? '已暂停' : '已继续');
   return { ok: true, paused: !!v };
 });
 
 ipcMain.handle('set-speed', (_e, v) => {
-  engine.setSpeed(v);
+  engine().setSpeed(v);
   log.info(`倍速已调整为 ${v}x`);
   return { ok: true };
 });
 
 ipcMain.handle('set-doc-dwell', (_e, v) => {
-  engine.setDocDwell(v);
+  engine().setDocDwell(v);
   log.info(`文档停留已调整为 ${v}ms`);
   return { ok: true };
 });
 
 ipcMain.handle('set-daily-limit', (_e, v) => {
-  engine.setDailyLimit(v);
+  engine().setDailyLimit(v);
   log.info(`每日上限已调整为 ${v} 分钟`);
   return { ok: true };
 });
 
 ipcMain.handle('set-muted', (_e, v) => {
-  engine.setMuted(v);
+  engine().setMuted(v);
   return { ok: true };
 });
 
@@ -176,7 +203,7 @@ ipcMain.handle('set-opacity', (_e, v) => {
 });
 
 ipcMain.handle('set-pace', (_e, v) => {
-  engine.setPace(v);
+  engine().setPace(v);
   log.info(`节奏已调整为 ${v}`);
   return { ok: true };
 });
@@ -347,7 +374,8 @@ app.whenReady().then(() => {
   log.setSink((line) => send({ type: 'log', text: line }));
   log.info(`启动，日志保留 ${cfg.logRetentionDays} 天`);
   createWindow();
-  createTray();
+  // 托盘延后创建，优先让窗口尽快显示
+  setTimeout(() => createTray(), 600);
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -361,5 +389,5 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', async () => {
   isQuitting = true;
-  try { await engine.shutdown(); } catch (e) {}
+  try { await engine().shutdown(); } catch (e) {}
 });
