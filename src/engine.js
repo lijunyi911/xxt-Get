@@ -24,6 +24,18 @@ const stats = {
 function requestStop() { stopFlag = true; }
 function resetStop() { stopFlag = false; }
 
+// 暂停/继续
+let paused = false;
+function setPaused(v) {
+  paused = !!v;
+  try {
+    if (session && session.page) {
+      if (paused) player.pauseVideo(session.page);
+      else player.resumeVideo(session.page);
+    }
+  } catch (e) {}
+}
+
 // 运行时可动态调整的倍速
 let runtimeSpeed = cfg.defaultSpeed;
 function setSpeed(v) {
@@ -245,6 +257,10 @@ async function waitVideoEnd(page, push, speed = cfg.defaultSpeed) {
   let retries = 0;
   while (Date.now() - start < cfg.videoWaitTimeoutMs) {
     if (stopFlag) return false;
+    if (paused) {
+      await page.waitForTimeout(800);
+      continue;
+    }
 
     // 平台每日上限提示 → 立即停止
     const limitHit = await player.detectLimitHint(page);
@@ -350,6 +366,10 @@ async function processCourse(page, course, speed, push) {
 
   for (let i = 0; i < todo.length; i++) {
     if (stopFlag) break;
+    while (paused && !stopFlag) {
+      await page.waitForTimeout(500);
+    }
+    if (stopFlag) break;
 
     // 单日学习时长上限保护
     if (daily.exceeded()) {
@@ -451,6 +471,7 @@ async function runCourses(courses, speed, push) {
 /** 开始刷课（内部：不加锁） */
 async function runCoursesInner(courses, speed, push) {
   resetStop();
+  paused = false;
   stateData = state.load(cfg.stateFile);
 
   stats.done = 0; stats.skipped = 0; stats.quiz = 0; stats.failed = 0; stats.total = 0; stats.current = 0;
@@ -509,6 +530,7 @@ module.exports = {
   getChapterList,
   requestStop,
   resetStop,
+  setPaused,
   isLoggedIn,
   shutdown,
   setSpeed,

@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('api', {
   loadCourses: () => ipcRenderer.invoke('load-courses'),
   start: (courses, speed) => ipcRenderer.invoke('start', { courses, speed }),
   stop: () => ipcRenderer.invoke('stop'),
+  setPaused: (v) => ipcRenderer.invoke('toggle-pause', v),
   setSpeed: (v) => ipcRenderer.invoke('set-speed', v),
   setDocDwell: (v) => ipcRenderer.invoke('set-doc-dwell', v),
   setDailyLimit: (v) => ipcRenderer.invoke('set-daily-limit', v),

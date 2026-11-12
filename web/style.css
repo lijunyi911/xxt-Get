@@ -448,6 +448,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   color: var(--muted);
 }
 .mini:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
+.mini.active { color: var(--accent); border-color: var(--accent); font-weight: 700; }
 
 /* 统计行 */
 .stat-line {

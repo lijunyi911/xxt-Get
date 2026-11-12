@@ -329,6 +329,21 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
+// 暂停 / 继续 + 运行计时
+let isPaused = false;
+let runStart = 0;
+$('btnPause').addEventListener('click', async () => {
+  isPaused = !isPaused;
+  try { await window.api.setPaused(isPaused); } catch (e) {}
+  $('btnPause').textContent = isPaused ? '继续' : '暂停';
+  $('btnPause').classList.toggle('active', isPaused);
+});
+setInterval(() => {
+  if (!runStart) return;
+  const sec = Math.floor((Date.now() - runStart) / 1000);
+  $('stRunTime').textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+}, 1000);
+
 // 开始刷课
 $('btnStart').addEventListener('click', async () => {
   const selected = [...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid);
@@ -336,6 +351,10 @@ $('btnStart').addEventListener('click', async () => {
   if (!confirm(`即将开始刷课\n课程：${scope}\n倍速：${currentSpeed}x\n\n确定开始？`)) return;
   $('btnStart').disabled = true;
   $('btnStop').disabled = false;
+  $('btnPause').disabled = false;
+  $('btnPause').textContent = '暂停';
+  isPaused = false;
+  runStart = Date.now();
   if (!selected.length) {
     addLog('[WARN] 未勾选课程，将刷全部课程');
   } else {
@@ -351,6 +370,10 @@ $('btnStop').addEventListener('click', async () => {
   addLog('[INFO] 已发送停止指令');
   $('btnStop').disabled = true;
   $('btnStart').disabled = false;
+  $('btnPause').disabled = true;
+  isPaused = false;
+  $('btnPause').textContent = '暂停';
+  runStart = 0;
 });
 
 // 清除断点重刷
@@ -468,6 +491,10 @@ window.api.onEvent((ev) => {
     addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；今日已学 ${ev.dailyMinutes} 分钟`);
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
+    $('btnPause').disabled = true;
+    isPaused = false;
+    $('btnPause').textContent = '暂停';
+    runStart = 0;
     // 正常刷完（非手动停止）→ 收起课程列表，回到初始状态
     if (ev.finished) {
       resetCourseList();
@@ -483,6 +510,10 @@ window.api.onEvent((ev) => {
     addLog('[ERROR] ' + (ev.text || ''));
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
+    $('btnPause').disabled = true;
+    isPaused = false;
+    $('btnPause').textContent = '暂停';
+    runStart = 0;
   } else if (ev.type === 'challenge') {
     addLog('[WARN] ⚠ 检测到人工验证：' + (ev.text || '') + '，已自动停止，请手动完成');
     $('stage').textContent = '需要人工验证，已暂停';

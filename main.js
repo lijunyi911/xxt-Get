@@ -122,6 +122,12 @@ ipcMain.handle('stop', () => {
   return { ok: true };
 });
 
+ipcMain.handle('toggle-pause', (_e, v) => {
+  engine.setPaused(v);
+  log.info(v ? '已暂停' : '已继续');
+  return { ok: true, paused: !!v };
+});
+
 ipcMain.handle('set-speed', (_e, v) => {
   engine.setSpeed(v);
   log.info(`倍速已调整为 ${v}x`);
