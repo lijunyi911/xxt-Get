@@ -212,6 +212,22 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
 .hint { color: var(--muted); font-size: 11px; }
 
+/* 课程搜索 */
+.search-row { margin-top: 8px; }
+.search-row input {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--panel2);
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+  transition: .15s;
+}
+.search-row input:focus { border-color: var(--accent); }
+.search-row input::placeholder { color: var(--muted); }
+
 /* 课程列表 */
 .course-list {
   margin-top: 8px;

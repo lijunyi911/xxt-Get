@@ -92,6 +92,15 @@ $('btnLoad').addEventListener('click', async () => {
   }
 });
 
+// 课程搜索
+$('courseSearch').addEventListener('input', (e) => {
+  const q = (e.target.value || '').trim().toLowerCase();
+  document.querySelectorAll('#courseList .course-item').forEach((el) => {
+    const name = (el.querySelector('.cname')?.textContent || '').toLowerCase();
+    el.style.display = !q || name.includes(q) ? '' : 'none';
+  });
+});
+
 // 全选 / 反选
 $('btnAll').addEventListener('click', () => {
   const boxes = [...document.querySelectorAll('#courseList input[type="checkbox"]')];
