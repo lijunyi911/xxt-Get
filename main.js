@@ -57,6 +57,16 @@ function saveWinState() {
 
 function send(data) {
   if (win && !win.isDestroyed()) win.webContents.send('event', data);
+  if (tray && data) {
+    try {
+      if (data.type === 'stage') tray.setToolTip(`学习通刷课 - ${(data.text || '').slice(0, 40)}`);
+      else if (data.type === 'challenge') tray.setToolTip('学习通刷课 - 需要人工验证');
+      else if (data.type === 'summary') tray.setToolTip('学习通刷课 - 已完成');
+    } catch (e) {}
+  }
+  if (win && data && data.type === 'challenge') {
+    try { win.flashFrame(true); } catch (e) {}
+  }
 }
 
 function createWindow() {
@@ -92,6 +102,7 @@ function createWindow() {
       win.hide();
     }
   });
+  win.on('focus', () => { try { win.flashFrame(false); } catch (e) {} });
   win.on('closed', () => { win = null; });
 }
 

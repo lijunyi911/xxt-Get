@@ -91,6 +91,38 @@ if (optMuted) {
   try { window.api.setMuted(v === '1'); } catch (e) {}
 })();
 
+// ===== 提示音 =====
+let audioCtx = null;
+let soundOn = true;
+function playBeep(freq, dur, vol = 0.08) {
+  if (!soundOn) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = freq;
+    g.gain.value = vol;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+const optSound = document.getElementById('optSound');
+if (optSound) {
+  optSound.addEventListener('change', (e) => {
+    soundOn = e.target.checked;
+    try { localStorage.setItem('xxt-sound', soundOn ? '1' : '0'); } catch (err) {}
+  });
+}
+(function initSound() {
+  let v = '1';
+  try { v = localStorage.getItem('xxt-sound') || '1'; } catch (e) {}
+  soundOn = v === '1';
+  if (optSound) optSound.checked = soundOn;
+})();
+
 // ===== 主题色 / 圆角 =====
 const ACCENT_KEY = 'xxt-accent';
 const RADIUS_KEY = 'xxt-radius';
@@ -542,6 +574,7 @@ window.api.onEvent((ev) => {
       $('bar').style.width = pct + '%';
     }
   } else if (ev.type === 'summary') {
+    playBeep(660, 0.3, 0.08);
     setStats(ev);
     addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；累计观看 ${Math.round((ev.watchedSeconds || 0) / 60)} 分钟；今日已学 ${ev.dailyMinutes} 分钟`);
     $('btnStart').disabled = false;
@@ -570,11 +603,13 @@ window.api.onEvent((ev) => {
     $('btnPause').textContent = '暂停';
     runStart = 0;
   } else if (ev.type === 'challenge') {
+    playBeep(880, 0.4, 0.12);
     addLog('[WARN] ⚠ 检测到人工验证：' + (ev.text || '') + '，已自动停止，请手动完成');
     $('stage').textContent = '需要人工验证，已暂停';
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
   } else if (ev.type === 'limit') {
+    playBeep(440, 0.5, 0.12);
     addLog('[WARN] ⚠ 平台提示：' + (ev.text || '') + '，已停止');
     $('stage').textContent = '已达平台上限，已停止';
     $('btnStart').disabled = false;
@@ -582,6 +617,7 @@ window.api.onEvent((ev) => {
   } else if (ev.type === 'quiz') {
     addLog('[WARN] ' + (ev.text || '') + (ev.file ? `（截图：${ev.file}）` : ''));
   } else if (ev.type === 'courseDone') {
+    playBeep(1100, 0.2, 0.08);
     showCourseDone(ev.title || '');
     try {
       window.api.notify({ title: '课程完成', body: `《${ev.title}》已全部刷完` });
