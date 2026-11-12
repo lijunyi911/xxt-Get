@@ -294,7 +294,6 @@ async function getChapterList(page, course) {
 async function waitVideoEnd(page, push, speed = cfg.defaultSpeed) {
   const start = Date.now();
   let lastLog = 0;
-  let lastPauseCheck = 0;
   let lastPos = -1;
   let lastMoveAt = Date.now();
   let retries = 0;
@@ -325,18 +324,6 @@ async function waitVideoEnd(page, push, speed = cfg.defaultSpeed) {
 
     await player.handleDialogs(page);
     if (await player.isVideoEnded(page)) return true;
-
-    // 模拟真人：每隔约 2 秒判定一次，有概率随机暂停一会儿
-    if (cfg.antiBan && cfg.antiBan.enabled && Date.now() - lastPauseCheck > 2000) {
-      lastPauseCheck = Date.now();
-      if (Math.random() < cfg.antiBan.randomPauseChance) {
-        log.info('模拟真人：随机暂停一会儿');
-        await player.pauseVideo(page);
-        await humanize.sleep(page, 3000, 9000);
-        await player.resumeVideo(page);
-        await humanize.jitterMouse(page);
-      }
-    }
 
     const p = await player.getVideoProgress(page);
     if (p) {

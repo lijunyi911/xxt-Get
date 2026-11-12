@@ -68,7 +68,6 @@ module.exports = {
     minDelayMs: 500,
     maxDelayMs: 2000,
     mouseJitter: true,
-    randomPauseChance: 0.2,
     dailyLimitMinutes: 0, // 0 = 不限；可设 120/180/240/300/500
     chapterGapMinMs: 1000,
     chapterGapMaxMs: 3000,
