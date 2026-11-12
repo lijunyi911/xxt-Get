@@ -431,9 +431,12 @@ async function runCoursesInner(courses, speed, push) {
       return;
     }
     log.info(`准备刷 ${chosen.length} 门课程`);
-    for (const c of chosen) {
+    for (let ci = 0; ci < chosen.length; ci++) {
       if (stopFlag) break;
-      await processCourse(page, c, speed, push);
+      stats.courseIndex = ci + 1;
+      stats.courseTotal = chosen.length;
+      pushStats(push);
+      await processCourse(page, chosen[ci], speed, push);
     }
     if (push) push({ type: 'stage', text: stopFlag ? '已停止' : '全部完成' });
   } catch (e) {

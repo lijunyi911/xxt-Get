@@ -176,6 +176,8 @@ function escapeHtml(s) {
 // 开始刷课
 $('btnStart').addEventListener('click', async () => {
   const selected = [...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid);
+  const scope = selected.length ? `${selected.length} 门` : '全部课程';
+  if (!confirm(`即将开始刷课\n课程：${scope}\n倍速：${currentSpeed}x\n\n确定开始？`)) return;
   $('btnStart').disabled = true;
   $('btnStop').disabled = false;
   if (!selected.length) {
@@ -188,6 +190,7 @@ $('btnStart').addEventListener('click', async () => {
 
 // 停止
 $('btnStop').addEventListener('click', async () => {
+  if (!confirm('确定要停止刷课吗？')) return;
   await window.api.stop();
   addLog('[INFO] 已发送停止指令');
   $('btnStop').disabled = true;
@@ -260,6 +263,9 @@ function setStats(s) {
   $('stFail').textContent = s.failed ?? 0;
   if (s.dailyMinutes != null) $('stDaily').textContent = s.dailyMinutes;
   if (s.dailyLimit != null) $('stLimit').textContent = s.dailyLimit;
+  if (s.courseIndex != null && s.courseTotal != null) {
+    $('stCourse').textContent = `${s.courseIndex}/${s.courseTotal}`;
+  }
 }
 
 // 事件接收
