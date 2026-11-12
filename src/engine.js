@@ -441,9 +441,7 @@ async function processCourse(page, course, speed, push) {
         if (ended) {
           completed = true;
           const p = await player.getVideoProgress(page);
-          const dur = p && p.dur ? p.dur : 0;
-          stats.watchedSeconds = (stats.watchedSeconds || 0) + dur;
-          completionInfo = { type: 'video', dur };
+          completionInfo = { type: 'video', dur: p && p.dur ? p.dur : 0 };
         }
       }
     } else if (st.kind === 'doc') {

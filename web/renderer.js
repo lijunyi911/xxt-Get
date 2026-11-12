@@ -690,7 +690,7 @@ window.api.onEvent((ev) => {
   } else if (ev.type === 'summary') {
     playBeep(660, 0.3, 0.08);
     setStats(ev);
-    addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；累计观看 ${Math.round((ev.watchedSeconds || 0) / 60)} 分钟；今日已学 ${ev.dailyMinutes} 分钟`);
+    addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；今日已学 ${ev.dailyMinutes} 分钟`);
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
     $('btnPause').disabled = true;
