@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('api', {
   setOpacity: (v) => ipcRenderer.invoke('set-opacity', v),
   setPace: (v) => ipcRenderer.invoke('set-pace', v),
   clearLogFile: () => ipcRenderer.invoke('clear-log-file'),
+  getStateInfo: () => ipcRenderer.invoke('get-state-info'),
+  exportState: () => ipcRenderer.invoke('export-state'),
   exportSettings: (json) => ipcRenderer.invoke('export-settings', json),
   importSettings: () => ipcRenderer.invoke('import-settings'),
   getHistory: () => ipcRenderer.invoke('get-history'),

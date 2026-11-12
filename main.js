@@ -190,6 +190,32 @@ ipcMain.handle('clear-log-file', () => {
   }
 });
 
+ipcMain.handle('get-state-info', () => {
+  try {
+    const data = state.load(cfg.stateFile);
+    return { ok: true, count: Object.keys(data || {}).length };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('export-state', async () => {
+  try {
+    const { canceled, filePath } = await dialog.showSaveDialog(win, {
+      title: '导出断点数据',
+      defaultPath: `xxt-state-${Date.now()}.json`,
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+    });
+    if (canceled || !filePath) return { ok: false };
+    let content = '{}';
+    try { content = fs.readFileSync(cfg.stateFile, 'utf8'); } catch (e) {}
+    fs.writeFileSync(filePath, content, 'utf8');
+    return { ok: true, path: filePath };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
 ipcMain.handle('export-settings', async (_e, json) => {
   try {
     const { canceled, filePath } = await dialog.showSaveDialog(win, {

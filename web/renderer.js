@@ -248,6 +248,28 @@ window.addEventListener('online', () => {
   playBeep(880, 0.2, 0.08);
 });
 
+// ===== 断点数据 =====
+async function loadStateInfo() {
+  try {
+    const r = await window.api.getStateInfo();
+    const el = $('stateCount');
+    if (!el) return;
+    el.textContent = r && r.ok ? `${r.count} 条记录` : '读取失败';
+  } catch (e) {}
+}
+if ($('btnSettings')) $('btnSettings').addEventListener('click', loadStateInfo);
+if ($('btnExportState')) {
+  $('btnExportState').addEventListener('click', async () => {
+    try {
+      const r = await window.api.exportState();
+      if (r && r.ok) addLog(`[INFO] 断点已导出：${r.path}`);
+      else if (r && r.error) addLog(`[ERROR] 导出失败：${r.error}`);
+    } catch (e) {
+      addLog(`[ERROR] 导出失败：${e.message}`);
+    }
+  });
+}
+
 // ===== 设置导出 / 导入 =====
 if ($('btnExportSettings')) {
   $('btnExportSettings').addEventListener('click', async () => {
