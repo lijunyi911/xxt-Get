@@ -37,4 +37,4 @@ async function jitterMouse(page) {
   } catch (e) {}
 }
 
-module.exports = { rand, sleep, jitterMouse };
+module.exports = { sleep, jitterMouse };

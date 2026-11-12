@@ -548,24 +548,15 @@ async function shutdown() {
   session = null;
 }
 
-/** 仅供自检：强制关闭底层浏览器但保留 session，模拟“Edge 被关掉”的故障场景 */
-async function _forceCloseContextForTest() {
-  try { if (session && session.context) await session.context.close(); } catch (e) {}
-}
-
 module.exports = {
   getCourses,
   runCourses,
-  getChapterList,
   requestStop,
-  resetStop,
   setPaused,
-  isLoggedIn,
   shutdown,
   setSpeed,
   setDocDwell,
   setDailyLimit,
   setMuted,
   setPace,
-  _forceCloseContextForTest,
 };

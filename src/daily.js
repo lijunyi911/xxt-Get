@@ -58,4 +58,4 @@ function exceeded() {
   return runtimeLimit > 0 && load().seconds >= runtimeLimit * 60;
 }
 
-module.exports = { load, save, add, minutes, exceeded, today, setLimit, history };
+module.exports = { load, save, add, minutes, exceeded, setLimit, history };

@@ -106,4 +106,4 @@ function clear(file) {
   return null;
 }
 
-module.exports = { load, save, isDone, markDone, clear, isValidEntry, VERSION };
+module.exports = { load, save, isDone, markDone, clear };

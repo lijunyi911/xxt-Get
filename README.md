@@ -145,9 +145,7 @@ xxt-Get/
 │   ├── humanize.js      # 人类化延迟与鼠标抖动
 │   ├── daily.js         # 单日学习时长统计
 │   ├── state.js         # 断点续跑与校验
-│   ├── log.js           # 日志与清理
-│   ├── quiz_capture.js  # 作业采题截图
-│   └── quiz_submit.js   # 作业答案回填
+│   └── log.js           # 日志与清理
 ├── web/                 # 悬浮窗界面
 │   ├── index.html
 │   ├── renderer.js

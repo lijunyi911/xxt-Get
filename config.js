@@ -42,12 +42,10 @@ const EDGE_PATH = (() => {
 module.exports = {
   ROOT,
   isPackaged,
-  baseDir: BASE,
 
   dataDir: path.join(BASE, 'data'),
   quizDir: path.join(BASE, 'quiz'),
   stateFile: path.join(BASE, 'data', 'state.json'),
-  answersFile: path.join(BASE, 'data', 'answers.json'),
   logFile: path.join(BASE, 'data', 'run.log'),
 
   // 专用 Edge profile（开发时沿用原路径；打包后放用户数据目录）
@@ -57,16 +55,11 @@ module.exports = {
   // 学习通入口
   chaoxingHome: 'https://i.chaoxing.com',
 
-  // 倍速档位（上限 2x）
-  speeds: [0.5, 1, 1.5, 2],
   defaultSpeed: 2,
 
   // 时间参数
-  actionDelayMs: 600,
   videoWaitTimeoutMs: 60 * 60 * 1000, // 单视频最长等待 1h
-  docDwellMs: 30000,                  // 未知文档兜底停留 30s（渐进滚动，仅兜底用）
   docJumpDwellMs: 1000,               // 文档/PPT 直接跳最后一页后的停留（1 秒）
-  docFallbackMs: 6000,                // 未知任务点短暂兜底滚动
   pollIntervalMs: 1000,
 
   // 防封策略（降低自动化特征）
