@@ -368,6 +368,13 @@ async function loadHistory() {
     } else {
       box.innerHTML = '<div class="empty">暂无记录</div>';
     }
+    const wt = $('weekTotal');
+    if (wt && r && r.ok) {
+      const sec = r.weekTotal || 0;
+      const hh = Math.floor(sec / 3600);
+      const mm = Math.round((sec % 3600) / 60);
+      wt.textContent = `本周累计 ${hh > 0 ? hh + ' 小时 ' : ''}${mm} 分钟`;
+    }
   } catch (e) {}
 }
 if ($('btnSettings')) $('btnSettings').addEventListener('click', loadHistory);

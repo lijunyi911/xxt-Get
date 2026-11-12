@@ -250,7 +250,18 @@ ipcMain.handle('get-history', () => {
   try {
     const h = daily.history();
     const days = Object.keys(h).sort().slice(-7);
-    return { ok: true, days: days.map((d) => ({ date: d, seconds: h[d] })) };
+    // 本周（周一起）总时长
+    const now = new Date();
+    const day = now.getDay() || 7;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - (day - 1));
+    monday.setHours(0, 0, 0, 0);
+    let weekTotal = 0;
+    Object.keys(h).forEach((d) => {
+      const t = new Date(d + 'T00:00:00');
+      if (t >= monday) weekTotal += h[d];
+    });
+    return { ok: true, days: days.map((d) => ({ date: d, seconds: h[d] })), weekTotal };
   } catch (e) {
     return { ok: false, error: e.message };
   }
