@@ -49,7 +49,7 @@
         { "target": "nsis", "arch": ["x64"] },
         { "target": "portable", "arch": ["x64"] }
       ],
-      "icon": "build/icon.png"
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -58,6 +58,11 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "xxt-Get 学习通刷课助手",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "license": "LICENSE",
+      "runAfterFinish": true,
       "installerLanguages": ["zh_CN"],
       "language": "2052",
       "deleteAppDataOnUninstall": false,
