@@ -8,10 +8,14 @@
 
 ## ⬇️ 下载
 
-| 版本 | 下载 |
-|---|---|
-| Windows 安装版（中文向导 + 卸载程序） | [xxt-Get-Setup-1.0.0.exe](https://github.com/lijunyi911/xxt-Get/releases/download/v1.0.0/xxt-Get-Setup-1.0.0.exe) |
-| Windows 便携版（免安装，可放 U 盘） | [xxt-Get-Portable-1.0.0.exe](https://github.com/lijunyi911/xxt-Get/releases/download/v1.0.0/xxt-Get-Portable-1.0.0.exe) |
+最新版本：**v1.2.0**（[发布说明](https://github.com/lijunyi911/xxt-Get/releases/tag/v1.2.0)）
+
+| 平台 | 文件 | 说明 |
+|---|---|---|
+| Windows | [xxt-Get-Setup-1.2.0.exe](https://github.com/lijunyi911/xxt-Get/releases/download/v1.2.0/xxt-Get-Setup-1.2.0.exe) | **安装版**：中文向导 + 卸载程序 |
+| Windows | [xxt-Get-Portable-1.2.0.exe](https://github.com/lijunyi911/xxt-Get/releases/download/v1.2.0/xxt-Get-Portable-1.2.0.exe) | **便携版**：免安装，可放 U 盘 |
+| macOS | [xxt-Get-1.2.0-arm64.dmg](https://github.com/lijunyi911/xxt-Get/releases/download/v1.2.0/xxt-Get-1.2.0-arm64.dmg) | Apple 芯片，拖入 Applications |
+| macOS | [xxt-Get-1.2.0-arm64.zip](https://github.com/lijunyi911/xxt-Get/releases/download/v1.2.0/xxt-Get-1.2.0-arm64.zip) | 压缩版备选 |
 
 全部版本见 [Releases](https://github.com/lijunyi911/xxt-Get/releases)。
 
@@ -23,9 +27,9 @@
 - **课程多选**：自动读取「我的课程」列表，勾选要刷的课程。
 - **视频自动播放**：支持 0.5x / 1x / 1.5x / 2x 倍速，自动处理 iframe 播放器与「继续观看」弹窗。
 - **按真实状态跳过**：逐章节读取页面状态，已完成的直接跳过，不做任何多余操作。
-- **文档渐进滚动**：文档类任务自动滚动阅读（默认 30 秒）。
+- **文档跳转阅读**：PPT/文档直接跳到最后一页，停留时长可调（默认 30 秒，0.1 秒精度）。
 - **断点续跑**：记录完成断点，支持中断后继续；自动识别并清理脏断点。
-- **防封策略**：人类化随机延迟、鼠标轨迹抖动、播放中随机暂停、人工验证检测、单日学习时长上限。
+- **防封策略**：人类化随机延迟、鼠标轨迹抖动、人工验证检测、可配置每日上限（默认不限）。
 - **日志管理**：运行日志自动轮转，保留 7 天后自动清理。
 
 ---
