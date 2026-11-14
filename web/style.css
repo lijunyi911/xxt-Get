@@ -588,6 +588,14 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   gap: 8px;
 }
 .log-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.log-head > span:first-child { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 899px) {
+  .log-head { gap: 6px; }
+  .log-search { width: 68px; }
+  .log-tools { gap: 4px; flex-wrap: nowrap; }
+  .log-tools .mini { padding: 3px 7px; }
+  .log-filter { max-width: 72px; }
+}
 .log-auto {
   display: flex;
   align-items: center;
