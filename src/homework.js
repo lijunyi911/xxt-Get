@@ -2,47 +2,75 @@ const log = require('./log');
 
 /** 读取某门课的作业列表 */
 async function listWorks(page, course) {
-  await page.goto(course.href, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
-  await page.waitForTimeout(2500);
+  const cur = page.url() || '';
+  const onWorkList = /work\/(getAllWork|list)/.test(cur);
 
-  const workUrl = await page.evaluate(() => {
-    for (const a of document.querySelectorAll('a[href*="work/list"]')) return a.href;
-    for (const a of document.querySelectorAll('a')) {
-      const t = (a.textContent || '').trim();
-      if (t === '作业' || /^\d+\s*作业/.test(t)) {
-        const h = a.href || '';
-        if (/work/i.test(h)) return h;
+  if (!onWorkList) {
+    await page.goto(course.href, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
+    await page.waitForTimeout(2500);
+
+    const workUrl = await page.evaluate(() => {
+      const byHref = (pat) => {
+        const a = document.querySelector(`a[href*="${pat}"]`);
+        return a ? a.href : null;
+      };
+      const direct = byHref('work/getAllWork') || byHref('work/list');
+      if (direct) return direct;
+      for (const a of document.querySelectorAll('a')) {
+        const t = (a.textContent || '').trim();
+        if (t === '作业' && /work/i.test(a.href || '')) return a.href;
       }
+      return null;
+    });
+
+    if (!workUrl) {
+      log.warn(`未找到作业入口（当前页：${cur}）`);
+      return [];
     }
-    return null;
-  });
 
-  if (!workUrl) {
-    log.warn('未找到该课程的作业入口');
-    return [];
+    log.info(`作业入口：${workUrl}`);
+    await page.goto(workUrl, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
+    await page.waitForTimeout(3000);
   }
-
-  await page.goto(workUrl, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
-  await page.waitForTimeout(3000);
 
   const works = await page.evaluate(() => {
     const out = [];
     const seen = new Set();
-    document.querySelectorAll('a[href*="doHomeWorkNew"], a[href*="work/doHomeWork"]').forEach((a) => {
+
+    const add = (a) => {
       const href = a.href || '';
       if (!href || seen.has(href)) return;
+      if (!/doHomeWork|work\/doWork|workId=/.test(href)) return;
       seen.add(href);
-      const title = (a.getAttribute('title') || a.textContent || '').trim().replace(/\s+/g, ' ');
+
+      const card = a.closest('.work-item, li, tr, .workContent, .workList, div');
+      const titleEl = card ? card.querySelector('h3, h4, .title, .work-title, .workName') : null;
+      let title = titleEl ? titleEl.textContent : '';
+      if (!title) title = a.getAttribute('title') || a.textContent || '';
+      title = title.trim().replace(/\s+/g, ' ');
+      if (!title || /^(做作业|查看|查看作业)$/.test(title)) {
+        const box = card ? card.textContent || '' : '';
+        const m = box.match(/[^\s]{2,30}(专项|作业|练习|测验|复习|收集|截图)/);
+        if (m) title = m[0];
+      }
       if (!title) return;
-      const box = a.closest('li, tr, .workContent, .work-list-item') || a.parentElement;
-      const text = box ? box.textContent || '' : '';
-      const done = /已交|已完成|已批阅|已提交/.test(text);
+
+      const text = card ? card.textContent || '' : '';
+      const done = /待批阅|已批阅|已完成|已交|已提交/.test(text);
       out.push({ title, url: href, done });
-    });
+    };
+
+    document.querySelectorAll('a[href*="doHomeWork"], a[href*="work/doWork"]').forEach(add);
+    if (!out.length) {
+      document.querySelectorAll('a').forEach((a) => {
+        const t = (a.textContent || '').trim();
+        if (/^(做作业|查看|查看作业)$/.test(t)) add(a);
+      });
+    }
     return out;
   });
 
-  log.info(`课程 ${course.title} 共 ${works.length} 个作业`);
+  log.info(`读取到 ${works.length} 个作业`);
   return works;
 }
 
