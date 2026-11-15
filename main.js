@@ -29,6 +29,11 @@ app.on('second-instance', () => {
   }
 });
 
+// Windows 任务栏需要 AppUserModelID，否则会显示 electron.exe 的默认图标
+if (process.platform === 'win32') {
+  try { app.setAppUserModelId('com.lijunyi.xxtget'); } catch (e) {}
+}
+
 let win = null;
 let tray = null;
 let isQuitting = false;
@@ -116,7 +121,7 @@ function createWindow() {
     skipTaskbar: false,
     title: '学习通刷课助手',
     backgroundColor: '#12161c',
-    icon: path.join(__dirname, 'build', 'icon.png'),
+    icon: path.join(__dirname, 'build', 'icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
