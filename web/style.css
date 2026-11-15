@@ -831,6 +831,86 @@ body.celebrating #cursor-glow { opacity: 0; }
 }
 .confirm-btns button { min-width: 82px; padding: 8px 14px; }
 
+/* 作业答题面板 */
+.hw-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100005;
+  padding: 16px;
+}
+.hw-mask.show { display: flex; }
+.hw-panel {
+  width: 580px;
+  max-width: 94vw;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-line);
+  border-radius: 14px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  padding: 16px;
+}
+.hw-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.hw-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hw-step { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.hw-list { display: flex; flex-direction: column; gap: 6px; max-height: 190px; overflow-y: auto; }
+.hw-item {
+  padding: 8px 10px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hw-item:hover { border-color: var(--accent); }
+.hw-item.done { opacity: .55; }
+.hw-item .st { color: var(--muted); flex: 0 0 auto; }
+.hw-questions { display: flex; flex-direction: column; gap: 8px; }
+.hw-q {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  background: var(--panel2);
+}
+.hw-q .stem { color: var(--text); line-height: 1.6; margin-bottom: 6px; }
+.hw-q .ans-line { display: flex; gap: 6px; align-items: center; }
+.hw-q input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 5px 8px;
+  font-size: 12px;
+  outline: none;
+}
+.hw-q input:focus { border-color: var(--accent); }
+
 /* 紧凑模式 */
 body.compact .body { gap: 6px; padding: 6px; }
 body.compact .section { padding: 6px; }

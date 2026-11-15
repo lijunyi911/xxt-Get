@@ -4,6 +4,7 @@ const fs = require('fs');
 const state = require('./src/state');
 const daily = require('./src/daily');
 const log = require('./src/log');
+const ai = require('./src/ai');
 const cfg = require('./config');
 
 // 引擎依赖 playwright-core，较重，改为按需加载以加快启动
@@ -223,6 +224,68 @@ ipcMain.handle('refresh-session', async () => {
     return r || { ok: true };
   } catch (e) {
     log.error(`刷新会话失败: ${e.message}`);
+    return { ok: false, error: e.message };
+  }
+});
+
+// ===== 作业答题 =====
+ipcMain.handle('ai-config', (_e, conf) => {
+  ai.setConfig(conf);
+  return { ok: true, hasKey: ai.hasKey() };
+});
+
+ipcMain.handle('homework-list', async (_e, course) => {
+  try {
+    const works = await engine().listHomework(course);
+    return { ok: true, works };
+  } catch (e) {
+    log.error(`读取作业失败: ${e.message}`);
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('homework-open', async (_e, url) => {
+  try {
+    await engine().openHomework(url);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('homework-parse', async () => {
+  try {
+    const questions = await engine().parseHomework();
+    return { ok: true, questions };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('homework-answer', async (_e, questions) => {
+  try {
+    const answers = await ai.answer(questions);
+    return { ok: true, answers };
+  } catch (e) {
+    log.error(`AI 答题失败: ${e.message}`);
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('homework-fill', async (_e, answers) => {
+  try {
+    const result = await engine().fillHomework(answers);
+    return { ok: true, result };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('homework-submit', async () => {
+  try {
+    const clicked = await engine().submitHomework();
+    return { ok: true, clicked };
+  } catch (e) {
     return { ok: false, error: e.message };
   }
 });

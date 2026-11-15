@@ -56,8 +56,9 @@
         <button id="btnRetry" class="mini" style="display:none;">重试</button>
       </div>
       <div class="row" style="margin-top:8px;">
-        <button id="btnClear" class="ghost">清除断点重刷</button>
-        <button id="btnRefresh" class="ghost" title="卡住时重置浏览器并重新读取">刷新</button>
+        <button id="btnHomework" class="ghost">作业答题</button>
+        <button id="btnClear" class="ghost">清除断点</button>
+        <button id="btnRefresh" class="ghost">刷新</button>
       </div>
     </div>
 
@@ -223,6 +224,15 @@
         </div>
 
         <div class="set-item">
+          <div class="set-label">AI 答题（DeepSeek）</div>
+          <input id="aiKey" type="password" class="hex-input" placeholder="sk-... 填入 DeepSeek API Key" spellcheck="false" />
+          <select id="aiModel" class="set-select" style="margin-top:8px;">
+            <option value="deepseek-chat">deepseek-chat（快速）</option>
+            <option value="deepseek-reasoner">deepseek-reasoner（更强）</option>
+          </select>
+        </div>
+
+        <div class="set-item">
           <div class="set-label">日志</div>
           <div class="set-row">
             <label class="set-check"><input type="checkbox" id="logAuto" checked /> 自动滚动</label>
@@ -248,6 +258,28 @@
       <div class="settings-foot">
         <button id="btnResetOpt" class="ghost">恢复默认</button>
         <button id="btnAbout" class="ghost">关于</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hw-mask" id="hwMask">
+    <div class="hw-panel">
+      <div class="hw-head">
+        <span>作业答题</span>
+        <button class="wbtn close set-close" id="hwClose">✕</button>
+      </div>
+      <div class="hw-body">
+        <div class="hw-step">
+          <button id="hwListBtn" class="primary">读取作业列表</button>
+          <span class="hint" id="hwHint">使用当前勾选的课程</span>
+        </div>
+        <div id="hwList" class="hw-list"><div class="empty">点上方按钮读取作业</div></div>
+        <div class="hw-step">
+          <button id="hwAnswerBtn" class="primary" disabled>AI 答题</button>
+          <button id="hwFillBtn" class="mini" disabled>填写答案</button>
+          <button id="hwSubmitBtn" class="mini" disabled>提交</button>
+        </div>
+        <div id="hwQuestions" class="hw-questions"></div>
       </div>
     </div>
   </div>

@@ -828,6 +828,187 @@ if ($('btnRefresh')) {
   });
 }
 
+// ===== 作业答题 =====
+let hwWorks = [];
+let hwQuestions = [];
+let hwAnswers = [];
+
+function hwCurrentCourse() {
+  const checked = document.querySelector('#courseList input:checked');
+  if (checked) {
+    const c = courses.find((x) => x.courseId === checked.dataset.cid);
+    if (c) return c;
+  }
+  return courses[0] || null;
+}
+
+function renderHwWorks() {
+  const box = $('hwList');
+  if (!box) return;
+  if (!hwWorks.length) { box.innerHTML = '<div class="empty">没有读取到作业</div>'; return; }
+  box.innerHTML = hwWorks.map((w, i) => `
+    <div class="hw-item ${w.done ? 'done' : ''}" data-i="${i}">
+      <span>${escapeHtml(w.title)}</span>
+      <span class="st">${w.done ? '已提交' : '未提交'}</span>
+    </div>
+  `).join('');
+}
+
+function renderHwQuestions() {
+  const box = $('hwQuestions');
+  if (!box) return;
+  if (!hwQuestions.length) { box.innerHTML = ''; return; }
+  box.innerHTML = hwQuestions.map((q, i) => {
+    const ans = hwAnswers.find((a) => a.index === q.index);
+    return `<div class="hw-q">
+      <div class="stem">${q.index}. ${escapeHtml(q.stem)}</div>
+      <div class="ans-line"><input data-qi="${i}" value="${ans ? escapeHtml(ans.answer) : ''}" placeholder="${q.type === 'essay' || q.hasTextarea ? '简答题答案' : '选项字母，如 A 或 AC'}" /></div>
+    </div>`;
+  }).join('');
+}
+
+if ($('btnHomework')) {
+  $('btnHomework').addEventListener('click', () => {
+    $('hwMask').classList.add('show');
+    if (!courses.length) addLog('[WARN] 请先「读取我的课程」');
+  });
+}
+if ($('hwClose')) $('hwClose').addEventListener('click', () => $('hwMask').classList.remove('show'));
+
+if ($('hwListBtn')) {
+  $('hwListBtn').addEventListener('click', async () => {
+    const course = hwCurrentCourse();
+    if (!course) { addLog('[WARN] 没有课程，请先读取'); return; }
+    if ($('hwHint')) $('hwHint').textContent = `课程：${course.title}`;
+    addLog(`[INFO] 读取作业列表：${course.title}`);
+    try {
+      const r = await window.api.homeworkList(course);
+      if (r.ok) {
+        hwWorks = r.works || [];
+        renderHwWorks();
+        addLog(`[INFO] 共 ${hwWorks.length} 个作业`);
+      } else {
+        addLog(`[ERROR] ${r.error}`);
+      }
+    } catch (e) { addLog(`[ERROR] ${e.message}`); }
+  });
+}
+
+if ($('hwList')) {
+  $('hwList').addEventListener('click', async (e) => {
+    const item = e.target.closest('.hw-item');
+    if (!item) return;
+    const w = hwWorks[Number(item.dataset.i)];
+    if (!w) return;
+    addLog(`[INFO] 打开作业：${w.title}`);
+    try {
+      const r = await window.api.homeworkOpen(w.url);
+      if (!r.ok) { addLog(`[ERROR] ${r.error}`); return; }
+      const p = await window.api.homeworkParse();
+      if (p.ok) {
+        hwQuestions = p.questions || [];
+        hwAnswers = [];
+        renderHwQuestions();
+        $('hwAnswerBtn').disabled = hwQuestions.length === 0;
+        $('hwFillBtn').disabled = true;
+        $('hwSubmitBtn').disabled = true;
+        addLog(`[INFO] 抓到 ${hwQuestions.length} 道题`);
+      } else {
+        addLog(`[ERROR] ${p.error}`);
+      }
+    } catch (e) { addLog(`[ERROR] ${e.message}`); }
+  });
+}
+
+if ($('hwAnswerBtn')) {
+  $('hwAnswerBtn').addEventListener('click', async () => {
+    if (!hwQuestions.length) return;
+    $('hwAnswerBtn').disabled = true;
+    $('hwAnswerBtn').textContent = '答题中...';
+    try {
+      const r = await window.api.homeworkAnswer(hwQuestions);
+      if (r.ok) {
+        hwAnswers = r.answers || [];
+        renderHwQuestions();
+        $('hwFillBtn').disabled = false;
+        addLog(`[INFO] AI 已给出 ${hwAnswers.length} 个答案`);
+      } else {
+        addLog(`[ERROR] ${r.error}`);
+      }
+    } catch (e) { addLog(`[ERROR] ${e.message}`); }
+    $('hwAnswerBtn').disabled = false;
+    $('hwAnswerBtn').textContent = 'AI 答题';
+  });
+}
+
+if ($('hwQuestions')) {
+  $('hwQuestions').addEventListener('input', (e) => {
+    const inp = e.target.closest('input[data-qi]');
+    if (!inp) return;
+    const q = hwQuestions[Number(inp.dataset.qi)];
+    if (!q) return;
+    const idx = hwAnswers.findIndex((a) => a.index === q.index);
+    if (idx >= 0) hwAnswers[idx].answer = inp.value;
+    else hwAnswers.push({ index: q.index, answer: inp.value });
+  });
+}
+
+if ($('hwFillBtn')) {
+  $('hwFillBtn').addEventListener('click', async () => {
+    if (!hwAnswers.length) return;
+    try {
+      const r = await window.api.homeworkFill(hwAnswers);
+      if (r.ok) {
+        addLog(`[INFO] 已填写 ${r.result.filled} 题，失败 ${r.result.failed} 题`);
+        $('hwSubmitBtn').disabled = false;
+      } else {
+        addLog(`[ERROR] ${r.error}`);
+      }
+    } catch (e) { addLog(`[ERROR] ${e.message}`); }
+  });
+}
+
+if ($('hwSubmitBtn')) {
+  $('hwSubmitBtn').addEventListener('click', async () => {
+    if (!(await showConfirm('确定提交作业吗？提交后通常无法修改。'))) return;
+    try {
+      const r = await window.api.homeworkSubmit();
+      if (r.ok && r.clicked) addLog('[INFO] 已点击提交，请在 Edge 中确认结果');
+      else addLog('[WARN] 未找到提交按钮，请在 Edge 中手动提交');
+    } catch (e) { addLog(`[ERROR] ${e.message}`); }
+  });
+}
+
+// AI 配置
+const AI_KEY = 'xxt-ai-key';
+const AI_MODEL = 'xxt-ai-model';
+const aiKeyEl = document.getElementById('aiKey');
+const aiModelEl = document.getElementById('aiModel');
+
+function applyAiConfig() {
+  let key = '', model = 'deepseek-chat';
+  try {
+    key = localStorage.getItem(AI_KEY) || '';
+    model = localStorage.getItem(AI_MODEL) || 'deepseek-chat';
+  } catch (e) {}
+  if (aiKeyEl) aiKeyEl.value = key;
+  if (aiModelEl) aiModelEl.value = model;
+  try { window.api.aiConfig({ apiKey: key, model }); } catch (e) {}
+}
+if (aiKeyEl) {
+  aiKeyEl.addEventListener('change', () => {
+    try { localStorage.setItem(AI_KEY, aiKeyEl.value.trim()); } catch (e) {}
+    applyAiConfig();
+  });
+}
+if (aiModelEl) {
+  aiModelEl.addEventListener('change', () => {
+    try { localStorage.setItem(AI_MODEL, aiModelEl.value); } catch (e) {}
+    applyAiConfig();
+  });
+}
+applyAiConfig();
+
 // 清除断点重刷
 $('btnClear').addEventListener('click', async () => {
   try {

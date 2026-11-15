@@ -2,6 +2,7 @@ const cfg = require('../config');
 const log = require('./log');
 const path = require('path');
 const state = require('./state');
+const homework = require('./homework');
 const profile = require('./profile');
 const courseMod = require('./course');
 const player = require('./player');
@@ -568,6 +569,50 @@ async function refreshSession() {
   return { ok: true };
 }
 
+/** 读取某门课的作业列表 */
+async function listHomework(course) {
+  return serialize(async () => {
+    const { page } = await ensureSession();
+    await page.bringToFront();
+    return homework.listWorks(page, course);
+  });
+}
+
+/** 打开作业页 */
+async function openHomework(url) {
+  return serialize(async () => {
+    const { page } = await ensureSession();
+    await page.bringToFront();
+    await gotoWithRetry(page, url);
+    await page.waitForTimeout(2500);
+    return true;
+  });
+}
+
+/** 抓取当前作业页题目 */
+async function parseHomework() {
+  return serialize(async () => {
+    const { page } = await ensureSession();
+    return homework.parseQuestions(page);
+  });
+}
+
+/** 填写答案（不提交） */
+async function fillHomework(answers) {
+  return serialize(async () => {
+    const { page } = await ensureSession();
+    return homework.fillAnswers(page, answers);
+  });
+}
+
+/** 点击提交（需人工确认） */
+async function submitHomework() {
+  return serialize(async () => {
+    const { page } = await ensureSession();
+    return homework.submitWork(page);
+  });
+}
+
 module.exports = {
   getCourses,
   runCourses,
@@ -580,4 +625,9 @@ module.exports = {
   setMuted,
   setPace,
   refreshSession,
+  listHomework,
+  openHomework,
+  parseHomework,
+  fillHomework,
+  submitHomework,
 };
