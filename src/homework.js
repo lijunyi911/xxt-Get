@@ -9,7 +9,7 @@ async function listWorks(page, course) {
     await page.goto(course.href, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
     await page.waitForTimeout(2500);
 
-    const workUrl = await page.evaluate(() => {
+    let workUrl = await page.evaluate(() => {
       const byHref = (pat) => {
         const a = document.querySelector(`a[href*="${pat}"]`);
         return a ? a.href : null;
@@ -22,6 +22,24 @@ async function listWorks(page, course) {
       }
       return null;
     });
+
+    // 兜底：用课程页 URL 参数直接构造作业列表地址
+    if (!workUrl) {
+      try {
+        const u = new URL(page.url());
+        const courseId = u.searchParams.get('courseId');
+        const classId = u.searchParams.get('clazzid') || u.searchParams.get('classId');
+        if (courseId && classId) {
+          const p = new URLSearchParams({ classId, courseId, isdisplaytable: '2', mooc: '1' });
+          ['ut', 'enc', 'cpi', 'openc'].forEach((k) => {
+            const v = u.searchParams.get(k);
+            if (v) p.set(k, v);
+          });
+          workUrl = `https://mooc1-2.chaoxing.com/mooc-ans/work/getAllWork?${p.toString()}`;
+          log.info(`用课程参数构造作业入口：${workUrl}`);
+        }
+      } catch (e) {}
+    }
 
     if (!workUrl) {
       log.warn(`未找到作业入口（当前页：${cur}）`);
