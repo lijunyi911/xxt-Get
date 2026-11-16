@@ -801,6 +801,21 @@ function updateCourseCount() {
   $('loadHint').textContent = total ? `已选 ${sel} / 共 ${total}` : '';
 }
 $('courseList').addEventListener('change', updateCourseCount);
+$('btnInvert').addEventListener('click', () => {
+  document.querySelectorAll('#courseList .course-item').forEach((item) => {
+    if (item.style.display === 'none') return;
+    const inp = item.querySelector('input');
+    if (inp) inp.checked = !inp.checked;
+  });
+  updateCourseCount();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && (e.key === 'a' || e.key === 'A')) {
+    if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+    e.preventDefault();
+    if (!$('btnAll').disabled) $('btnAll').click();
+  }
+});
 
 /** 收起课程列表，回到初始状态 */
 function resetCourseList() {
