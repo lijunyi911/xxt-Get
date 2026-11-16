@@ -1110,6 +1110,23 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+// 日志过滤/搜索状态恢复
+(function restoreLogFilters() {
+  try {
+    const f = localStorage.getItem('xxt-logfilter');
+    if (f && $('logFilter')) $('logFilter').value = f;
+    const s = localStorage.getItem('xxt-logsearch');
+    if (s && $('logSearch')) $('logSearch').value = s;
+  } catch (e) {}
+  if ($('logFilter')) $('logFilter').addEventListener('change', () => {
+    try { localStorage.setItem('xxt-logfilter', $('logFilter').value); } catch (e) {}
+  });
+  if ($('logSearch')) $('logSearch').addEventListener('input', () => {
+    try { localStorage.setItem('xxt-logsearch', $('logSearch').value); } catch (e) {}
+  });
+  setTimeout(applyLogFilter, 50);
+})();
+
 // ===== 作业答题 =====
 let hwWorks = [];
 let hwQuestions = [];
