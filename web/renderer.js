@@ -1116,6 +1116,9 @@ function renderRunHistory() {
   `).join('');
 }
 
+// 初始化历史列表
+setTimeout(renderRunHistory, 100);
+
 // ===== 通知中心 =====
 let notifications = [];
 try { notifications = JSON.parse(localStorage.getItem('xxt-notify') || '[]'); } catch (e) {}
