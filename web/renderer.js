@@ -964,9 +964,14 @@ function renderHwQuestions() {
   if (!hwQuestions.length) { box.innerHTML = ''; return; }
   box.innerHTML = hwQuestions.map((q, i) => {
     const ans = hwAnswers.find((a) => a.index === q.index);
+    const val = ans ? escapeHtml(ans.answer) : '';
+    const isEssay = q.type === 'essay' || q.hasTextarea;
+    const field = isEssay
+      ? `<textarea class="hw-ans" data-qi="${i}" rows="2" placeholder="简答题答案">${val}</textarea>`
+      : `<input class="hw-ans" data-qi="${i}" value="${val}" placeholder="选项字母，如 A 或 AC" />`;
     return `<div class="hw-q">
       <div class="stem">${q.index}. ${escapeHtml(q.stem)}</div>
-      <div class="ans-line"><input data-qi="${i}" value="${ans ? escapeHtml(ans.answer) : ''}" placeholder="${q.type === 'essay' || q.hasTextarea ? '简答题答案' : '选项字母，如 A 或 AC'}" /></div>
+      <div class="ans-line">${field}</div>
     </div>`;
   }).join('');
 }

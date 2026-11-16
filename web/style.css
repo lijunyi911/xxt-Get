@@ -1013,6 +1013,20 @@ body.celebrating #cursor-glow { opacity: 0; }
   font-size: 12px;
   outline: none;
 }
+.hw-q textarea.hw-ans {
+  width: 100%;
+  resize: vertical;
+  min-height: 44px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+.hw-q textarea.hw-ans:focus { border-color: var(--accent); }
 .hw-q input:focus { border-color: var(--accent); }
 
 /* 紧凑模式 */
