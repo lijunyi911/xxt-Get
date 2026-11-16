@@ -219,6 +219,11 @@ ipcMain.handle('set-on-top', (_e, v) => {
   return { ok: true };
 });
 
+ipcMain.handle('set-skip-taskbar', (_e, v) => {
+  try { if (win) win.setSkipTaskbar(!!v); } catch (e) {}
+  return { ok: true };
+});
+
 ipcMain.handle('set-opacity', (_e, v) => {
   try {
     if (win) win.setOpacity(Math.max(0.4, Math.min(1, Number(v) || 1)));

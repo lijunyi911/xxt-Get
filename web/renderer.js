@@ -1120,6 +1120,22 @@ function renderRunHistory() {
 // 初始化历史列表
 setTimeout(renderRunHistory, 100);
 
+// 任务栏显示开关
+const optTaskbar = document.getElementById('optTaskbar');
+if (optTaskbar) {
+  try {
+    if (localStorage.getItem('xxt-taskbar') === '0') optTaskbar.checked = false;
+  } catch (e) {}
+  const applyTaskbar = () => {
+    try { window.api.setSkipTaskbar(!optTaskbar.checked); } catch (e) {}
+  };
+  applyTaskbar();
+  optTaskbar.addEventListener('change', () => {
+    try { localStorage.setItem('xxt-taskbar', optTaskbar.checked ? '1' : '0'); } catch (e) {}
+    applyTaskbar();
+  });
+}
+
 // ===== 通知中心 =====
 let notifications = [];
 try { notifications = JSON.parse(localStorage.getItem('xxt-notify') || '[]'); } catch (e) {}

@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('api', {
   setDailyLimit: (v) => ipcRenderer.invoke('set-daily-limit', v),
   setMuted: (v) => ipcRenderer.invoke('set-muted', v),
   setOnTop: (v) => ipcRenderer.invoke('set-on-top', v),
+  setSkipTaskbar: (v) => ipcRenderer.invoke('set-skip-taskbar', v),
   setOpacity: (v) => ipcRenderer.invoke('set-opacity', v),
   setPace: (v) => ipcRenderer.invoke('set-pace', v),
   refreshSession: () => ipcRenderer.invoke('refresh-session'),
