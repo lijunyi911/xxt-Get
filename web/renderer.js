@@ -733,10 +733,19 @@ function renderCourses(list) {
 
 // 排序
 let sortByName = false;
+try { sortByName = localStorage.getItem('xxt-sort') === '1'; } catch (e) {}
 $('btnSort').addEventListener('click', () => {
   sortByName = !sortByName;
+  try { localStorage.setItem('xxt-sort', sortByName ? '1' : '0'); } catch (e) {}
   $('btnSort').textContent = sortByName ? '名称↓' : '排序';
   if (courses.length) renderCourses(courses);
+});
+// 搜索框 Esc 清空
+$('courseSearch').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    e.target.value = '';
+    e.target.dispatchEvent(new Event('input', { bubbles: true }));
+  }
 });
 
 // 双击课程项切换勾选
