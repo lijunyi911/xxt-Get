@@ -1530,6 +1530,7 @@ window.api.onEvent((ev) => {
     if (ev.finished) {
       resetCourseList();
       $('stage').textContent = '全部课程已刷完，可再次点击「读取我的课程」';
+      addNotify('全部课程已刷完', 'success');
       try {
         window.api.notify({
           title: '刷课完成',
@@ -1539,6 +1540,7 @@ window.api.onEvent((ev) => {
     }
   } else if (ev.type === 'error') {
     addLog('[ERROR] ' + (ev.text || ''));
+    addNotify('运行错误：' + (ev.text || ''), 'error');
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
     $('btnPause').disabled = true;
@@ -1548,12 +1550,14 @@ window.api.onEvent((ev) => {
     if ($('btnRetry')) $('btnRetry').style.display = '';
   } else if (ev.type === 'challenge') {
     playBeep(880, 0.4, 0.12);
+    addNotify(`检测到人工验证：${ev.text || ''}`, 'warn');
     addLog('[WARN] ⚠ 检测到人工验证：' + (ev.text || '') + '，已自动停止，请手动完成');
     $('stage').textContent = '需要人工验证，已暂停';
     $('btnStart').disabled = false;
     $('btnStop').disabled = true;
   } else if (ev.type === 'limit') {
     playBeep(440, 0.5, 0.12);
+    addNotify(`平台限制：${ev.text || ''}`, 'warn');
     addLog('[WARN] ⚠ 平台提示：' + (ev.text || '') + '，已停止');
     $('stage').textContent = '已达平台上限，已停止';
     $('btnStart').disabled = false;
@@ -1562,6 +1566,7 @@ window.api.onEvent((ev) => {
     addLog('[WARN] ' + (ev.text || '') + (ev.file ? `（截图：${ev.file}）` : ''));
   } else if (ev.type === 'courseDone') {
     playBeep(1100, 0.2, 0.08);
+    addNotify(`《${ev.title || '课程'}》已全部刷完`, 'success');
     showCourseDone(ev.title || '');
     try {
       window.api.notify({ title: '课程完成', body: `《${ev.title}》已全部刷完` });
