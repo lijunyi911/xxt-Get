@@ -68,18 +68,26 @@ async function listWorks(page, course) {
       try { btn.setAttribute('data-xxt-hw', String(i)); } catch (e) {}
       const action = (btn.textContent || '').trim();
 
-      // 向上找真正包含作业信息的卡片容器
+      // 向上找包含「作业状态」且只有一个作业信息的卡片容器
       let card = null;
       let el = btn.parentElement;
       let guard = 0;
-      while (el && guard < 8) {
+      while (el && guard < 10) {
         const txt = el.textContent || '';
-        if (/作业状态|开始时间|截止时间/.test(txt) && txt.length < 600) {
-          card = el;
-          break;
-        }
+        const hits = (txt.match(/作业状态/g) || []).length;
+        if (hits === 1 && txt.length < 2000) { card = el; break; }
         el = el.parentElement;
         guard++;
+      }
+      if (!card) {
+        el = btn.parentElement;
+        guard = 0;
+        while (el && guard < 10) {
+          const txt = el.textContent || '';
+          if (/开始时间/.test(txt) && txt.length < 2000) { card = el; break; }
+          el = el.parentElement;
+          guard++;
+        }
       }
       if (!card) card = btn.closest('li, .work-item, .workContent, .workList, tr, div');
 
@@ -87,11 +95,15 @@ async function listWorks(page, course) {
       const titleEl = card
         ? card.querySelector('h1, h2, h3, h4, .title, .work-title, .workName, .work_name, .name')
         : null;
-      if (titleEl) title = titleEl.textContent.trim();
+      if (titleEl) {
+        const t = titleEl.textContent.trim();
+        if (t && !/^(做作业|查看|查看作业)$/.test(t)) title = t;
+      }
       if (!title && card) {
         const raw = (card.textContent || '').replace(/\s+/g, ' ').trim();
         const cut = raw.search(/开始时间|截止时间|作业状态|做作业|查看/);
         title = (cut > 0 ? raw.slice(0, cut) : raw).trim().slice(0, 60);
+        if (/^(做作业|查看|查看作业)$/.test(title)) title = '';
       }
 
       let url = btn.href || '';
