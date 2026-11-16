@@ -1265,7 +1265,11 @@ function showCourseDone(title) {
 
 /** 顶部提示条 */
 let toastTimer = null;
+let lastToast = { text: '', at: 0 };
 function showToast(text, type = 'info') {
+  const now = Date.now();
+  if (text === lastToast.text && now - lastToast.at < 3000) return;
+  lastToast = { text, at: now };
   let t = document.getElementById('toast');
   if (!t) {
     t = document.createElement('div');
