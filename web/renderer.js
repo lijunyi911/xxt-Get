@@ -1135,13 +1135,13 @@ if ($('btnMax')) $('btnMax').addEventListener('click', () => window.api.toggleMa
 
 function setStats(s) {
   if (!s) return;
-  $('stDone').textContent = s.done ?? 0;
-  $('stSkip').textContent = s.skipped ?? 0;
-  $('stQuiz').textContent = s.quiz ?? 0;
-  $('stFail').textContent = s.failed ?? 0;
-  if (s.dailyMinutes != null) $('stDaily').textContent = s.dailyMinutes;
-  if (s.dailyLimit != null) $('stLimit').textContent = s.dailyLimit > 0 ? s.dailyLimit : '∞';
-  if (s.courseIndex != null && s.courseTotal != null) {
+  if ($('stDone')) $('stDone').textContent = s.done ?? 0;
+  if ($('stSkip')) $('stSkip').textContent = s.skipped ?? 0;
+  if ($('stQuiz')) $('stQuiz').textContent = s.quiz ?? 0;
+  if ($('stFail')) $('stFail').textContent = s.failed ?? 0;
+  if (s.dailyMinutes != null && $('stDaily')) $('stDaily').textContent = s.dailyMinutes;
+  if (s.dailyLimit != null && $('stLimit')) $('stLimit').textContent = s.dailyLimit > 0 ? s.dailyLimit : '∞';
+  if (s.courseIndex != null && s.courseTotal != null && $('stCourse')) {
     $('stCourse').textContent = `${s.courseIndex}/${s.courseTotal}`;
   }
   // 预计剩余时间 + 剩余章节
