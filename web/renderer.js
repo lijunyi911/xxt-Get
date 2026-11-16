@@ -972,10 +972,15 @@ document.addEventListener('click', (e) => {
 if ($('setSearch')) {
   $('setSearch').addEventListener('input', (e) => {
     const q = (e.target.value || '').trim().toLowerCase();
+    let visible = 0;
     document.querySelectorAll('.settings-body .set-item').forEach((item) => {
       const t = (item.textContent || '').toLowerCase();
-      item.style.display = !q || t.includes(q) ? '' : 'none';
+      const show = !q || t.includes(q);
+      item.style.display = show ? '' : 'none';
+      if (show) visible++;
     });
+    const tip = $('setNoResult');
+    if (tip) tip.style.display = q && visible === 0 ? '' : 'none';
   });
 }
 document.addEventListener('keydown', (e) => {
