@@ -1576,6 +1576,7 @@ window.api.onEvent((ev) => {
   } else if (ev.type === 'progress') {
     if (ev.pct != null) {
       $('bar').style.width = Math.min(100, ev.pct) + '%';
+      $('bar').style.background = ev.pct >= 70 ? '' : (ev.pct >= 30 ? 'linear-gradient(90deg,#ffb020,#ffd166)' : 'linear-gradient(90deg,#e5484d,#ff8a80)');
       if ($('bar').parentElement) $('bar').parentElement.title = `进度 ${ev.pct}%`;
     } else {
       const m = (ev.text || '').match(/(\d+)\s*\/\s*(\d+)/);
