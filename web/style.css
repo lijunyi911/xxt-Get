@@ -317,6 +317,29 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-variant-numeric: tabular-nums;
 }
 .empty { color: var(--muted); text-align: center; padding: 14px; font-size: 12px; }
+.empty::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 8px;
+  border: 2px dashed var(--line);
+  border-radius: 8px;
+}
+.st-label::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.toast.success { border-color: #2fbf71; }
+.toast.warn { border-color: #ffb020; }
+.toast.error { border-color: #e5484d; }
+.progress .bar { transition: width .3s ease; }
 
 /* 倍速 */
 .label { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
