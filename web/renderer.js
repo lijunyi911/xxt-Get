@@ -1198,7 +1198,8 @@ $('btnClear').addEventListener('click', async () => {
 
 // 日志：复制 / 清空 / 自动滚动
 $('btnCopyLog').addEventListener('click', async () => {
-  const text = [...document.querySelectorAll('#log > div')].map((d) => d.textContent).join('\n');
+  const body = [...document.querySelectorAll('#log > div')].map((d) => d.textContent).join('\n');
+  const text = `学习通刷课助手 运行日志\n导出时间：${new Date().toLocaleString()}\n${'─'.repeat(30)}\n${body}`;
   try {
     const r = await window.api.copyText(text);
     if (r && r.ok) addLog('[INFO] 日志已复制到剪贴板');
