@@ -788,6 +788,7 @@ $('btnPause').addEventListener('click', async () => {
   try { await window.api.setPaused(isPaused); } catch (e) {}
   $('btnPause').textContent = isPaused ? '继续' : '暂停';
   $('btnPause').classList.toggle('active', isPaused);
+  if ($('stage')) $('stage').textContent = isPaused ? '已暂停' : '继续刷课中...';
 });
 setInterval(() => {
   if (!runStart) return;
