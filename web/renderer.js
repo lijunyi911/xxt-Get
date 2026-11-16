@@ -958,6 +958,15 @@ if ($('btnHomework')) {
 }
 if ($('hwClose')) $('hwClose').addEventListener('click', () => $('hwMask').classList.remove('show'));
 
+if ($('hwSearch')) {
+  $('hwSearch').addEventListener('input', (e) => {
+    const q = (e.target.value || '').trim().toLowerCase();
+    document.querySelectorAll('#hwList .hw-item').forEach((item) => {
+      item.style.display = !q || (item.textContent || '').toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+}
+
 if ($('hwListBtn')) {
   $('hwListBtn').addEventListener('click', async () => {
     const course = hwCurrentCourse();
