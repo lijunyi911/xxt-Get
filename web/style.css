@@ -132,7 +132,16 @@ html, body {
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent);
 }
-.titlebar .title { font-weight: 700; letter-spacing: .5px; flex: 1; color: var(--title); }
+.titlebar .title {
+  font-weight: 700;
+  letter-spacing: .5px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--title);
+}
 .win-btns {
   -webkit-app-region: no-drag;
   display: flex;
@@ -170,14 +179,14 @@ html, body {
 .theme-btn {
   -webkit-app-region: no-drag;
   width: auto;
-  min-width: 56px;
+  min-width: 40px;
   height: 22px;
-  padding: 0 8px;
+  padding: 0 6px;
   border-radius: 5px;
   border: 1px solid var(--line);
   background: transparent;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
   cursor: pointer;
   transition: .15s;
 }
