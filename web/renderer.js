@@ -904,6 +904,11 @@ if ($('hwList')) {
     try {
       const r = await window.api.homeworkOpen(w);
       if (!r.ok) { addLog(`[ERROR] ${r.error}`); return; }
+      if (r.clicked === false) {
+        addLog('[WARN] 未能自动点击「做作业」，请在 Edge 中手动打开');
+        showToast('未能自动打开作业，请在 Edge 中手动点「做作业」');
+        return;
+      }
       const p = await window.api.homeworkParse();
       if (p.ok) {
         hwQuestions = p.questions || [];
@@ -913,6 +918,9 @@ if ($('hwList')) {
         $('hwFillBtn').disabled = true;
         $('hwSubmitBtn').disabled = true;
         addLog(`[INFO] 抓到 ${hwQuestions.length} 道题`);
+        if (hwQuestions.length === 0) {
+          showToast('未抓到题目，请确认 Edge 已打开作业答题页');
+        }
       } else {
         addLog(`[ERROR] ${p.error}`);
       }

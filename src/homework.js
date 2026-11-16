@@ -64,7 +64,8 @@ async function listWorks(page, course) {
       return t && t.length <= 8 && isAction(t);
     });
 
-    nodes.forEach((btn) => {
+    nodes.forEach((btn, i) => {
+      try { btn.setAttribute('data-xxt-hw', String(i)); } catch (e) {}
       const action = (btn.textContent || '').trim();
       const card = btn.closest('li, .work-item, .workContent, .workList, tr, div');
 
@@ -74,8 +75,9 @@ async function listWorks(page, course) {
         : null;
       if (titleEl) title = titleEl.textContent.trim();
       if (!title && card) {
-        const first = (card.textContent || '').split(/\n|\r/).map((s) => s.trim()).filter(Boolean)[0];
-        if (first && !isAction(first)) title = first.slice(0, 60);
+        const raw = (card.textContent || '').replace(/\s+/g, ' ').trim();
+        const m = raw.match(/^(.{2,60}?)\s*(?:开始时间|截止时间|作业状态|做作业|查看)/);
+        if (m) title = m[1].trim();
       }
 
       let url = btn.href || '';
@@ -96,7 +98,7 @@ async function listWorks(page, course) {
       const key = `${title}|${url}|${action}`;
       if (seen.has(key)) return;
       seen.add(key);
-      out.push({ title: title || action, url: url || '', done, action });
+      out.push({ title: title || action, url: url || '', done, action, idx: i });
     });
 
     return out;

@@ -582,7 +582,7 @@ async function listHomework(course) {
 async function openHomework(work) {
   return serialize(async () => {
     const s = await ensureSession();
-    const page = s.page;
+    let page = s.page;
     await page.bringToFront();
 
     if (work && work.url) {
@@ -591,16 +591,31 @@ async function openHomework(work) {
       return true;
     }
 
+    const idx = work && work.idx;
     const action = (work && work.action) || '做作业';
     const before = s.context.pages().length;
-    const clicked = await page.evaluate((act) => {
-      const els = [...document.querySelectorAll('a, button, div, span')];
-      const t = els.find((el) => (el.textContent || '').trim() === act && el.offsetParent !== null);
-      if (t) { t.click(); return true; }
-      return false;
-    }, action);
-    log.info(clicked ? `已点击「${action}」` : `未找到「${action}」按钮`);
-    await page.waitForTimeout(3500);
+
+    let clicked = false;
+    if (typeof idx === 'number' && idx >= 0) {
+      try {
+        await page.click(`[data-xxt-hw="${idx}"]`, { timeout: 6000 });
+        clicked = true;
+        log.info(`已点击作业按钮「${action}」`);
+      } catch (e) {
+        log.warn(`点击作业按钮失败：${e.message.split('\n')[0]}`);
+      }
+    }
+    if (!clicked) {
+      clicked = await page.evaluate((act) => {
+        const els = [...document.querySelectorAll('a, button, div, span')];
+        const t = els.find((el) => (el.textContent || '').trim() === act && el.offsetParent !== null);
+        if (t) { t.click(); return true; }
+        return false;
+      }, action);
+      if (clicked) log.info(`已用 DOM 点击「${action}」`);
+    }
+
+    await page.waitForTimeout(4000);
 
     const pages = s.context.pages();
     if (pages.length > before) {
@@ -608,8 +623,10 @@ async function openHomework(work) {
       await np.waitForLoadState('domcontentloaded').catch(() => {});
       s.workPage = np;
       s.page = np;
+      page = np;
       log.info('已切换到新打开的作业页');
     }
+    try { await page.bringToFront(); } catch (e) {}
     return clicked;
   });
 }
