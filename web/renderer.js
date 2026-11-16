@@ -932,6 +932,76 @@ document.addEventListener('keydown', (e) => {
   });
 })();
 
+// ===== 通知中心 =====
+let notifications = [];
+try { notifications = JSON.parse(localStorage.getItem('xxt-notify') || '[]'); } catch (e) {}
+if (!Array.isArray(notifications)) notifications = [];
+
+function saveNotify() {
+  try { localStorage.setItem('xxt-notify', JSON.stringify(notifications.slice(0, 50))); } catch (e) {}
+}
+function renderNotify() {
+  const unread = notifications.filter((n) => !n.read).length;
+  const badge = $('notifyCount');
+  if (badge) {
+    badge.textContent = String(unread);
+    badge.style.display = unread ? '' : 'none';
+  }
+  const list = $('notifyList');
+  if (!list) return;
+  if (!notifications.length) {
+    list.innerHTML = '<div class="empty">暂无通知</div>';
+    return;
+  }
+  list.innerHTML = notifications.map((n, i) => `
+    <div class="notify-item ${n.type || ''} ${n.read ? 'read' : ''}" data-i="${i}">
+      <span>${escapeHtml(n.text)}</span>
+      <span class="nt-time">${new Date(n.at).toLocaleString()}</span>
+    </div>
+  `).join('');
+}
+function addNotify(text, type = 'info') {
+  notifications.unshift({ text: String(text), type, at: Date.now(), read: false });
+  if (notifications.length > 50) notifications.length = 50;
+  saveNotify();
+  renderNotify();
+}
+
+if ($('btnNotify')) {
+  $('btnNotify').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const pop = $('notifyPop');
+    pop.classList.toggle('show');
+    if (pop.classList.contains('show')) {
+      notifications.forEach((n) => { n.read = true; });
+      saveNotify();
+      setTimeout(renderNotify, 300);
+    }
+  });
+}
+if ($('btnNotifyClear')) {
+  $('btnNotifyClear').addEventListener('click', () => {
+    notifications = [];
+    saveNotify();
+    renderNotify();
+  });
+}
+if ($('notifyList')) {
+  $('notifyList').addEventListener('click', (e) => {
+    const item = e.target.closest('.notify-item');
+    if (!item) return;
+    const n = notifications[Number(item.dataset.i)];
+    if (n) { n.read = true; saveNotify(); renderNotify(); }
+  });
+}
+document.addEventListener('click', (e) => {
+  const pop = $('notifyPop');
+  if (pop && !pop.contains(e.target) && e.target !== $('btnNotify') && !$('btnNotify').contains(e.target)) {
+    pop.classList.remove('show');
+  }
+});
+renderNotify();
+
 // ===== 命令面板（Ctrl+P）=====
 const COMMANDS = [
   { label: '读取我的课程', keys: 'Ctrl+L', run: () => $('btnLoad') && $('btnLoad').click() },

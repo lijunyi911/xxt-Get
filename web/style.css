@@ -430,6 +430,49 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .cmd-item.active { background: var(--accent); color: var(--on-accent); }
 .cmd-item .kbd { color: var(--muted); font-size: 10px; }
 .cmd-item.active .kbd { color: var(--on-accent); opacity: 0.85; }
+/* 通知中心 */
+.notify-pop {
+  position: fixed;
+  top: 44px;
+  right: 10px;
+  width: 280px;
+  max-height: 360px;
+  background: var(--panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-line);
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  z-index: 100030;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+.notify-pop.show { display: flex; }
+.notify-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+.notify-list { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; max-height: 290px; }
+.notify-item {
+  padding: 7px 9px;
+  border-radius: 7px;
+  background: var(--panel2);
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.5;
+  cursor: pointer;
+  border-left: 3px solid var(--accent);
+}
+.notify-item.warn { border-left-color: #ffb020; }
+.notify-item.error { border-left-color: #e5484d; }
+.notify-item.read { opacity: 0.6; border-left-color: var(--line); }
+.notify-item .nt-time { display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
 .empty::before {
   content: '';
   display: block;
