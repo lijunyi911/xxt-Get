@@ -957,7 +957,11 @@ if ($('btnHomework')) {
     if (!courses.length) addLog('[WARN] 请先「读取我的课程」');
   });
 }
-if ($('hwClose')) $('hwClose').addEventListener('click', () => $('hwMask').classList.remove('show'));
+if ($('hwClose')) $('hwClose').addEventListener('click', () => {
+  $('hwMask').classList.remove('show');
+  if ($('hwSearch')) $('hwSearch').value = '';
+  document.querySelectorAll('#hwList .hw-item').forEach((i) => { i.style.display = ''; });
+});
 
 if ($('hwSearch')) {
   $('hwSearch').addEventListener('input', (e) => {
