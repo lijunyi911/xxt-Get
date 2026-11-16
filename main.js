@@ -55,12 +55,21 @@ function createTray() {
     tray.setToolTip('学习通刷课助手');
     const menu = Menu.buildFromTemplate([
       { label: '显示主窗口', click: () => showMainWindow() },
+      {
+        label: '暂停 / 继续',
+        click: () => { try { win.webContents.send('event', { type: 'toggle-pause' }); } catch (e) {} },
+      },
+      {
+        label: '刷新会话',
+        click: () => { try { engine().refreshSession(); } catch (e) {} },
+      },
       { label: '隐藏窗口', click: () => { if (win) win.hide(); } },
       { type: 'separator' },
       { label: '退出', click: () => { isQuitting = true; app.quit(); } },
     ]);
     tray.setContextMenu(menu);
     tray.on('double-click', () => showMainWindow());
+    tray.on('click', () => showMainWindow());
     log.info(`托盘图标已加载（${icon.getSize().width}x${icon.getSize().height}）`);
   } catch (e) {
     log.warn(`托盘创建失败: ${e.message}`);

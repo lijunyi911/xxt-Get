@@ -1213,6 +1213,8 @@ window.api.onEvent((ev) => {
       }
     }
     if (ev.text) $('stage').textContent = ev.text;
+  } else if (ev.type === 'toggle-pause') {
+    if (!$('btnPause').disabled) $('btnPause').click();
   } else if (ev.type === 'log') {
     addLog(ev.text || '');
   } else if (ev.type === 'courses') {
