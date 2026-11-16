@@ -763,7 +763,10 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   border-radius: 6px;
   font-size: 11px;
   color: var(--muted);
+  transition: background .15s;
 }
+.stat-cell:hover { background: rgba(255, 140, 26, 0.12); }
+.hw-questions { max-height: 320px; overflow-y: auto; padding-right: 2px; }
 .stat-cell b {
   color: var(--accent3);
   font-weight: 700;
