@@ -1087,6 +1087,26 @@ document.addEventListener('keydown', (e) => {
   });
 })();
 
+function getRunHistory() {
+  try { return JSON.parse(localStorage.getItem('xxt-run-history') || '[]'); } catch (e) { return []; }
+}
+function addRunHistory(rec) {
+  const h = getRunHistory();
+  h.unshift(rec);
+  if (h.length > 30) h.length = 30;
+  try { localStorage.setItem('xxt-run-history', JSON.stringify(h)); } catch (e) {}
+  renderRunHistory();
+}
+function renderRunHistory() {
+  const box = $('runHistoryList');
+  if (!box) return;
+  const h = getRunHistory();
+  if (!h.length) { box.innerHTML = '<div class="empty">暂无记录</div>'; return; }
+  box.innerHTML = h.slice(0, 10).map((r) => `
+    <div class="history-row"><span>${new Date(r.at).toLocaleString()}</span><b>完成 ${r.done} · 跳过 ${r.skipped}</b></div>
+  `).join('');
+}
+
 // ===== 通知中心 =====
 let notifications = [];
 try { notifications = JSON.parse(localStorage.getItem('xxt-notify') || '[]'); } catch (e) {}
@@ -1691,6 +1711,7 @@ window.api.onEvent((ev) => {
     }
   } else if (ev.type === 'summary') {
     playBeep(660, 0.3, 0.08);
+    addRunHistory({ at: Date.now(), done: ev.done || 0, skipped: ev.skipped || 0, failed: ev.failed || 0 });
     setStats(ev);
     addLog(`[INFO] 本次汇总：完成 ${ev.done}，跳过 ${ev.skipped}，章节测验 ${ev.quiz}，失败 ${ev.failed}；今日已学 ${ev.dailyMinutes} 分钟`);
     $('btnStart').disabled = false;
