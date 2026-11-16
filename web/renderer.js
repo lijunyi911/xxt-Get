@@ -53,6 +53,7 @@ if (themeBtn && themePop) {
     updateThemeMenu();
     themePop.classList.remove('show');
     addLog(`[INFO] 主题切换为：${b.textContent.trim()}`);
+    showToast(`主题：${b.textContent.trim()}`, 'success');
   });
 
   document.addEventListener('click', (e) => {
