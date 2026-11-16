@@ -847,6 +847,29 @@ document.addEventListener('click', (e) => {
   applyLogFont(v);
 })();
 
+// 设置项搜索
+if ($('setSearch')) {
+  $('setSearch').addEventListener('input', (e) => {
+    const q = (e.target.value || '').trim().toLowerCase();
+    document.querySelectorAll('.settings-body .set-item').forEach((item) => {
+      const t = (item.textContent || '').toLowerCase();
+      item.style.display = !q || t.includes(q) ? '' : 'none';
+    });
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if ($('settingsMask') && $('settingsMask').classList.contains('show')) {
+      $('settingsMask').classList.remove('show');
+      e.stopPropagation();
+    }
+    if ($('hwMask') && $('hwMask').classList.contains('show')) {
+      $('hwMask').classList.remove('show');
+      e.stopPropagation();
+    }
+  }
+}, true);
+
 // ===== 作业答题 =====
 let hwWorks = [];
 let hwQuestions = [];
