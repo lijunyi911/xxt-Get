@@ -473,6 +473,17 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .notify-item.error { border-left-color: #e5484d; }
 .notify-item.read { opacity: 0.6; border-left-color: var(--line); }
 .notify-item .nt-time { display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
+.course-item .fav-btn {
+  flex: 0 0 auto;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  min-height: 0;
+  cursor: pointer;
+}
+.course-item .fav-btn.on { color: #ffb020; }
 .empty::before {
   content: '';
   display: block;

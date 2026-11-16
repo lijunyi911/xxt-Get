@@ -773,6 +773,16 @@ $('courseSearch').addEventListener('keydown', (e) => {
   }
 });
 
+// 收藏星标点击（阻止触发勾选）
+$('courseList').addEventListener('click', (e) => {
+  const b = e.target.closest('.fav-btn');
+  if (!b) return;
+  e.preventDefault();
+  e.stopPropagation();
+  toggleFav(b.dataset.fav);
+  renderCourses(courses);
+});
+
 // 双击课程项切换勾选
 $('courseList').addEventListener('dblclick', (e) => {
   const item = e.target.closest('.course-item');
