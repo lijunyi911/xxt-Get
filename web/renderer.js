@@ -1151,6 +1151,15 @@ document.addEventListener('keydown', (e) => {
       $('courseSearch').focus();
       $('courseSearch').select();
     }
+  } else if (e.ctrlKey && (e.key === 'd' || e.key === 'D')) {
+    e.preventDefault();
+    if ($('btnHomework')) $('btnHomework').click();
+  } else if (e.ctrlKey && e.key === ',') {
+    e.preventDefault();
+    if ($('btnSettings')) $('btnSettings').click();
+  } else if (e.ctrlKey && (e.key === 'r' || e.key === 'R')) {
+    e.preventDefault();
+    if ($('btnRefresh') && !$('btnRefresh').disabled) $('btnRefresh').click();
   }
 });
 
