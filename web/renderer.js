@@ -123,6 +123,15 @@ function showConfirm(msg) {
   });
 }
 
+// 全局错误捕获
+window.addEventListener('error', (e) => {
+  try { addLog('[ERROR] 界面异常：' + (e.message || '未知')); } catch (err) {}
+});
+window.addEventListener('unhandledrejection', (e) => {
+  const msg = e && e.reason && e.reason.message ? e.reason.message : String(e && e.reason);
+  try { addLog('[ERROR] 未处理异常：' + msg); } catch (err) {}
+});
+
 // ===== 提示音 =====
 let audioCtx = null;
 let soundOn = true;
