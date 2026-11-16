@@ -1111,8 +1111,17 @@ $('btnClearLog').addEventListener('click', async () => {
   if (!(await showConfirm('清空界面日志和日志文件？'))) return;
   $('log').innerHTML = '';
   logErrorCount = 0;
+  logStatsCount.info = 0;
+  logStatsCount.warn = 0;
+  logStatsCount.error = 0;
+  updateLogStats();
   if ($('logErrCount')) $('logErrCount').style.display = 'none';
   try { window.api.clearLogFile(); } catch (e) {}
+});
+$('log').addEventListener('dblclick', (e) => {
+  const d = e.target.closest('div');
+  if (!d) return;
+  try { window.api.copyText(d.textContent); showToast('已复制该行', 'success'); } catch (err) {}
 });
 
 // 导出日志
@@ -1420,6 +1429,12 @@ document.querySelectorAll('.section').forEach((el) => {
 });
 
 let logErrorCount = 0;
+const logStatsCount = { info: 0, warn: 0, error: 0 };
+function updateLogStats() {
+  const el = $('logStats');
+  if (!el) return;
+  el.textContent = `信息 ${logStatsCount.info} · 警告 ${logStatsCount.warn} · 错误 ${logStatsCount.error}`;
+}
 
 function addLog(line) {
   const box = $('log');
@@ -1436,6 +1451,8 @@ function addLog(line) {
     const badge = $('logErrCount');
     if (badge) { badge.textContent = String(logErrorCount); badge.style.display = ''; }
   }
+  logStatsCount[level] = (logStatsCount[level] || 0) + 1;
+  updateLogStats();
   const reverse = $('logReverse') && $('logReverse').checked;
   if (reverse) box.insertBefore(div, box.firstChild);
   else box.appendChild(div);
