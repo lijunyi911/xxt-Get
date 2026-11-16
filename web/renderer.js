@@ -1207,7 +1207,7 @@ function showCourseDone(title) {
 
 /** 顶部提示条 */
 let toastTimer = null;
-function showToast(text) {
+function showToast(text, type = 'info') {
   let t = document.getElementById('toast');
   if (!t) {
     t = document.createElement('div');
@@ -1215,6 +1215,7 @@ function showToast(text) {
     t.className = 'toast';
     document.body.appendChild(t);
   }
+  t.className = `toast ${type}`;
   t.textContent = text;
   // 强制重排后再加 show，保证过渡生效
   void t.offsetWidth;
