@@ -1144,6 +1144,19 @@ function setStats(s) {
   if (s.courseIndex != null && s.courseTotal != null) {
     $('stCourse').textContent = `${s.courseIndex}/${s.courseTotal}`;
   }
+  // 预计剩余时间 + 剩余章节
+  if (s.current != null && s.total) {
+    const remainN = Math.max(0, s.total - (s.current || 0));
+    if ($('stRemainCount')) $('stRemainCount').textContent = String(remainN);
+    if (runStart && s.current > 0) {
+      const per = (Date.now() - runStart) / s.current;
+      const etaMin = Math.round((per * remainN) / 60000);
+      if ($('stEta')) $('stEta').textContent = etaMin > 0 ? `${etaMin} 分` : '-';
+    }
+  }
+  if (s.failed != null && $('stFail')) {
+    $('stFail').classList.toggle('err', Number(s.failed) > 0);
+  }
   // 今日学习进度
   const dm = s.dailyMinutes != null ? s.dailyMinutes : 0;
   const dl = s.dailyLimit != null ? s.dailyLimit : 0;

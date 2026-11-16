@@ -735,6 +735,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+.stat-cell b.err { color: #e5484d; }
 .daily-line {
   display: flex;
   justify-content: space-between;
