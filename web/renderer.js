@@ -971,7 +971,7 @@ function renderHwQuestions() {
       : `<input class="hw-ans" data-qi="${i}" value="${val}" placeholder="选项字母，如 A 或 AC" />`;
     return `<div class="hw-q">
       <div class="stem">${q.index}. ${escapeHtml(q.stem)}</div>
-      <div class="ans-line">${field}</div>
+      <div class="ans-line">${field}<button class="mini hw-copy" data-copy="${i}" title="复制答案">复制</button></div>
     </div>`;
   }).join('');
 }
@@ -1105,6 +1105,16 @@ if ($('hwAnswerBtn')) {
 }
 
 if ($('hwQuestions')) {
+  $('hwQuestions').addEventListener('click', (e) => {
+    const b = e.target.closest('.hw-copy');
+    if (!b) return;
+    const q = hwQuestions[Number(b.dataset.copy)];
+    if (!q) return;
+    const ans = hwAnswers.find((a) => a.index === q.index);
+    if (ans) {
+      try { window.api.copyText(String(ans.answer)); showToast('已复制答案', 'success'); } catch (err) {}
+    }
+  });
   $('hwQuestions').addEventListener('input', (e) => {
     const inp = e.target.closest('input[data-qi], textarea[data-qi]');
     if (!inp) return;
