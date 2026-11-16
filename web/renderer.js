@@ -596,7 +596,7 @@ if (btnResetOpt) {
 const btnAbout = document.getElementById('btnAbout');
 if (btnAbout) {
   btnAbout.addEventListener('click', () => {
-    alert('学习通刷课助手 v1.2.0\n\nhttps://github.com/lijunyi911/xxt-Get\n\n快捷键：\nCtrl+Enter 开始\nEsc 停止\nCtrl+L 读取课程\nCtrl+F 搜索课程');
+    alert('学习通刷课助手 v1.2.1\n\nhttps://github.com/lijunyi911/xxt-Get\n\n快捷键：\nCtrl+Enter 开始\nEsc 停止\nCtrl+L 读取课程\nCtrl+F 搜索课程\nCtrl+D 作业答题\nCtrl+, 设置\nCtrl+R 刷新会话');
   });
 }
 
