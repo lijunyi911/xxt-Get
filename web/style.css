@@ -364,6 +364,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   white-space: nowrap;
   text-align: right;
 }
+.set-ver {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 4px;
+}
 .empty::before {
   content: '';
   display: block;
