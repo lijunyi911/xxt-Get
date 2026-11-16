@@ -67,7 +67,21 @@ async function listWorks(page, course) {
     nodes.forEach((btn, i) => {
       try { btn.setAttribute('data-xxt-hw', String(i)); } catch (e) {}
       const action = (btn.textContent || '').trim();
-      const card = btn.closest('li, .work-item, .workContent, .workList, tr, div');
+
+      // 向上找真正包含作业信息的卡片容器
+      let card = null;
+      let el = btn.parentElement;
+      let guard = 0;
+      while (el && guard < 8) {
+        const txt = el.textContent || '';
+        if (/作业状态|开始时间|截止时间/.test(txt) && txt.length < 600) {
+          card = el;
+          break;
+        }
+        el = el.parentElement;
+        guard++;
+      }
+      if (!card) card = btn.closest('li, .work-item, .workContent, .workList, tr, div');
 
       let title = '';
       const titleEl = card
@@ -76,8 +90,8 @@ async function listWorks(page, course) {
       if (titleEl) title = titleEl.textContent.trim();
       if (!title && card) {
         const raw = (card.textContent || '').replace(/\s+/g, ' ').trim();
-        const m = raw.match(/^(.{2,60}?)\s*(?:开始时间|截止时间|作业状态|做作业|查看)/);
-        if (m) title = m[1].trim();
+        const cut = raw.search(/开始时间|截止时间|作业状态|做作业|查看/);
+        title = (cut > 0 ? raw.slice(0, cut) : raw).trim().slice(0, 60);
       }
 
       let url = btn.href || '';
