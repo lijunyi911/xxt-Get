@@ -975,7 +975,8 @@ body.celebrating #cursor-glow { opacity: 0; }
 }
 .hw-item:hover { border-color: var(--accent); }
 .hw-item.done { opacity: .55; }
-.hw-item .st { color: var(--muted); flex: 0 0 auto; }
+.hw-item .st { color: var(--accent3); flex: 0 0 auto; font-weight: 700; }
+.hw-item.done .st { color: var(--muted); font-weight: 400; }
 .hw-questions { display: flex; flex-direction: column; gap: 8px; }
 .hw-q {
   border: 1px solid var(--line);
