@@ -5,6 +5,7 @@ let config = {
   apiKey: '',
   model: 'deepseek-chat',
   baseUrl: 'https://api.deepseek.com',
+  style: 'concise',
 };
 
 function setConfig(c) {
@@ -12,6 +13,7 @@ function setConfig(c) {
   if (typeof c.apiKey === 'string') config.apiKey = c.apiKey.trim();
   if (typeof c.model === 'string' && c.model) config.model = c.model;
   if (typeof c.baseUrl === 'string' && c.baseUrl) config.baseUrl = c.baseUrl.replace(/\/+$/, '');
+  if (typeof c.style === 'string' && c.style) config.style = c.style;
 }
 
 function hasKey() {
@@ -28,10 +30,15 @@ function buildPrompt(questions) {
     }
     return `第${q.index}题（${q.type === 'multi' ? '多选' : '单选'}）：${q.stem}\n${opts}`;
   }).join('\n\n');
+  const styleTip = config.style === 'detailed'
+    ? '简答题给出详细完整的回答（200 字以内），分点说明。'
+    : config.style === 'english'
+      ? '所有答案使用英文。'
+      : '简答题给出简洁准确的回答（100 字以内）。';
   return `以下是学习通作业题目，请作答。\n\n${list}\n\n` +
     '要求：\n' +
     '1. 选择题给出正确选项字母，多选按字母顺序拼接（如 "AC"）；\n' +
-    '2. 简答题给出简洁、准确的文字答案（100 字以内）；\n' +
+    `2. ${styleTip}\n` +
     '3. 只输出 JSON，格式为 {"answers":[{"index":1,"answer":"B"},{"index":2,"answer":"简述..."}]}，不要输出任何解释。';
 }
 
