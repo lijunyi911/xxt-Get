@@ -389,6 +389,15 @@ if ($('btnCollapseAll')) {
   });
 }
 
+if ($('btnClearRunHistory')) {
+  $('btnClearRunHistory').addEventListener('click', async () => {
+    if (!(await showConfirm('清空刷课历史记录？'))) return;
+    try { localStorage.setItem('xxt-run-history', '[]'); } catch (e) {}
+    renderRunHistory();
+    showToast('刷课历史已清空', 'success');
+  });
+}
+
 if ($('btnCheckSession')) {
   $('btnCheckSession').addEventListener('click', async () => {
     try {
