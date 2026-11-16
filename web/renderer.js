@@ -375,6 +375,20 @@ if ($('btnExportState')) {
     }
   });
 }
+if ($('btnExpandAll')) {
+  $('btnExpandAll').addEventListener('click', () => {
+    document.querySelectorAll('.settings-body .set-item').forEach((it) => it.classList.remove('collapsed'));
+    try { localStorage.setItem('xxt-collapsed', '[]'); } catch (e) {}
+  });
+}
+if ($('btnCollapseAll')) {
+  $('btnCollapseAll').addEventListener('click', () => {
+    document.querySelectorAll('.settings-body .set-item').forEach((it) => it.classList.add('collapsed'));
+    const all = [...document.querySelectorAll('.settings-body .set-item')].map((_, i) => i);
+    try { localStorage.setItem('xxt-collapsed', JSON.stringify(all)); } catch (e) {}
+  });
+}
+
 if ($('btnCheckSession')) {
   $('btnCheckSession').addEventListener('click', async () => {
     try {
