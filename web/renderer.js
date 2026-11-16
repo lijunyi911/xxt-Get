@@ -960,6 +960,27 @@ document.addEventListener('keydown', (e) => {
   });
 })();
 
+// 设置分组折叠
+(function initCollapse() {
+  const KEY = 'xxt-collapsed';
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) {}
+  document.querySelectorAll('.settings-body .set-item').forEach((item, idx) => {
+    const label = item.querySelector('.set-label');
+    if (!label) return;
+    label.classList.add('collapsible');
+    if (saved.includes(idx)) item.classList.add('collapsed');
+    label.addEventListener('click', () => {
+      item.classList.toggle('collapsed');
+      const cur = [];
+      document.querySelectorAll('.settings-body .set-item').forEach((it, i) => {
+        if (it.classList.contains('collapsed')) cur.push(i);
+      });
+      try { localStorage.setItem(KEY, JSON.stringify(cur)); } catch (e) {}
+    });
+  });
+})();
+
 // ===== 通知中心 =====
 let notifications = [];
 try { notifications = JSON.parse(localStorage.getItem('xxt-notify') || '[]'); } catch (e) {}

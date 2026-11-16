@@ -484,6 +484,16 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   cursor: pointer;
 }
 .course-item .fav-btn.on { color: #ffb020; }
+.set-item.collapsed > *:not(.set-label) { display: none; }
+.set-item .set-label.collapsible {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.set-item .set-label.collapsible::after { content: '▾'; font-size: 10px; }
+.set-item.collapsed .set-label.collapsible::after { content: '▸'; }
 .empty::before {
   content: '';
   display: block;
