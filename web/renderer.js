@@ -365,6 +365,23 @@ if ($('btnExportState')) {
     }
   });
 }
+if ($('btnOpenData')) {
+  $('btnOpenData').addEventListener('click', () => {
+    try { window.api.openDataDir(); } catch (e) {}
+  });
+}
+if ($('btnClearHistory')) {
+  $('btnClearHistory').addEventListener('click', async () => {
+    if (!(await showConfirm('清空所有学习历史记录？'))) return;
+    try {
+      const r = await window.api.clearHistory();
+      if (r && r.ok) {
+        addLog('[INFO] 学习历史已清空');
+        loadHistory();
+      }
+    } catch (e) {}
+  });
+}
 
 // ===== 设置导出 / 导入 =====
 if ($('btnExportSettings')) {

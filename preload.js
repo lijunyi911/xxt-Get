@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('api', {
   getHistory: () => ipcRenderer.invoke('get-history'),
   exportHistory: () => ipcRenderer.invoke('export-history'),
   clearState: () => ipcRenderer.invoke('clear-state'),
+  openDataDir: () => ipcRenderer.invoke('open-data-dir'),
+  clearHistory: () => ipcRenderer.invoke('clear-history'),
   minimize: () => ipcRenderer.invoke('win-minimize'),
   close: () => ipcRenderer.invoke('win-close'),
   toggleMax: () => ipcRenderer.invoke('win-toggle-max'),

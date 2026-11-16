@@ -410,6 +410,26 @@ ipcMain.handle('clear-state', () => {
   }
 });
 
+ipcMain.handle('open-data-dir', () => {
+  try {
+    const { shell } = require('electron');
+    shell.openPath(cfg.dataDir);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
+ipcMain.handle('clear-history', () => {
+  try {
+    fs.writeFileSync(path.join(cfg.dataDir, 'history.json'), '{}', 'utf8');
+    log.info('学习历史已清空');
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
 ipcMain.handle('win-minimize', () => { if (win) win.minimize(); });
 ipcMain.handle('win-close', () => { if (win) win.close(); });
 ipcMain.handle('win-toggle-max', () => {
