@@ -496,6 +496,22 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .set-item.collapsed .set-label.collapsible::after { content: '▸'; }
 .log .warn { color: #ffb020; }
 .log .error { color: #e5484d; }
+.course-item .cnote {
+  margin-left: 6px;
+  color: var(--accent3);
+  font-size: 10px;
+  opacity: 0.85;
+}
+.course-item .note-btn {
+  flex: 0 0 auto;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  min-height: 0;
+  cursor: pointer;
+}
 .empty::before {
   content: '';
   display: block;

@@ -735,6 +735,44 @@ $('btnAll').addEventListener('click', () => {
   addLog(`[INFO] ${allChecked ? '已取消全选' : '已全选'} ${boxes.length} 门课程`);
 });
 
+function showPrompt(msg, def = '') {
+  return new Promise((resolve) => {
+    const mask = $('promptMask');
+    if (!mask) { resolve(null); return; }
+    const msgEl = $('promptMsg');
+    const inp = $('promptInput');
+    const ok = $('promptOk');
+    const cancel = $('promptCancel');
+    msgEl.textContent = msg;
+    inp.value = def;
+    mask.classList.add('show');
+    setTimeout(() => inp.focus(), 50);
+    const done = (v) => {
+      mask.classList.remove('show');
+      ok.onclick = null;
+      cancel.onclick = null;
+      inp.onkeydown = null;
+      resolve(v);
+    };
+    ok.onclick = () => done(inp.value.trim());
+    cancel.onclick = () => done(null);
+    inp.onkeydown = (e) => {
+      if (e.key === 'Enter') done(inp.value.trim());
+      if (e.key === 'Escape') done(null);
+    };
+  });
+}
+
+function getNotes() {
+  try { return JSON.parse(localStorage.getItem('xxt-notes') || '{}'); } catch (e) { return {}; }
+}
+function setNote(cid, text) {
+  const n = getNotes();
+  if (text) n[cid] = text;
+  else delete n[cid];
+  try { localStorage.setItem('xxt-notes', JSON.stringify(n)); } catch (e) {}
+}
+
 function getFavs() {
   try { return JSON.parse(localStorage.getItem('xxt-fav') || '[]'); } catch (e) { return []; }
 }
@@ -758,6 +796,7 @@ function renderCourses(list) {
   const checked = new Set([...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid));
   const keepScroll = box.scrollTop;
   const favs = getFavs();
+  const notes = getNotes();
   let arr = sortByName
     ? [...list].sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'zh'))
     : list.slice();
@@ -767,14 +806,17 @@ function renderCourses(list) {
     const fb = favs.includes(b.courseId) ? 0 : 1;
     return fa - fb;
   });
-  box.innerHTML = arr.map((c, i) => `
+  box.innerHTML = arr.map((c, i) => {
+    const note = notes[c.courseId] || '';
+    return `
     <label class="course-item">
       <input type="checkbox" data-cid="${c.courseId}" />
       <span class="cnum">${i + 1}.</span>
-      <span class="cname" title="${escapeHtml(c.title)}">${escapeHtml(c.title)}</span>
+      <span class="cname" title="${escapeHtml(c.title)}">${escapeHtml(c.title)}${note ? `<span class="cnote" title="${escapeHtml(note)}">${escapeHtml(note)}</span>` : ''}</span>
+      <button class="note-btn" data-note="${c.courseId}" title="备注">✎</button>
       <button class="fav-btn ${favs.includes(c.courseId) ? 'on' : ''}" data-fav="${c.courseId}" title="收藏">${favs.includes(c.courseId) ? '★' : '☆'}</button>
-    </label>
-  `).join('');
+    </label>`;
+  }).join('');
   document.querySelectorAll('#courseList input[type="checkbox"]').forEach((inp) => {
     if (checked.has(inp.dataset.cid)) inp.checked = true;
   });
@@ -799,6 +841,20 @@ $('courseSearch').addEventListener('keydown', (e) => {
     e.target.value = '';
     e.target.dispatchEvent(new Event('input', { bubbles: true }));
   }
+});
+
+// 备注按钮
+$('courseList').addEventListener('click', async (e) => {
+  const nb = e.target.closest('.note-btn');
+  if (!nb) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const cid = nb.dataset.note;
+  const notes = getNotes();
+  const text = await showPrompt('课程备注（留空删除）', notes[cid] || '');
+  if (text === null) return;
+  setNote(cid, text);
+  renderCourses(courses);
 });
 
 // 收藏星标点击（阻止触发勾选）
