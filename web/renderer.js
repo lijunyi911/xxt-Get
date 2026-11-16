@@ -1543,6 +1543,7 @@ function addLog(line) {
   if (level !== 'info') div.className = level;
   const text = String(line).length > 500 ? String(line).slice(0, 500) + '…' : String(line);
   div.textContent = text;
+  div.title = String(line);
   if (level === 'error') {
     logErrorCount++;
     const badge = $('logErrCount');
