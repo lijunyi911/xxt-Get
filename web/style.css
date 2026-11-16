@@ -494,6 +494,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 }
 .set-item .set-label.collapsible::after { content: '▾'; font-size: 10px; }
 .set-item.collapsed .set-label.collapsible::after { content: '▸'; }
+.log .warn { color: #ffb020; }
+.log .error { color: #e5484d; }
 .empty::before {
   content: '';
   display: block;
