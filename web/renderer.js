@@ -902,7 +902,7 @@ if ($('hwList')) {
     if (!w) return;
     addLog(`[INFO] 打开作业：${w.title}`);
     try {
-      const r = await window.api.homeworkOpen(w.url);
+      const r = await window.api.homeworkOpen(w);
       if (!r.ok) { addLog(`[ERROR] ${r.error}`); return; }
       const p = await window.api.homeworkParse();
       if (p.ok) {

@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+const cfg = require('../config');
 const log = require('./log');
 
 /** 读取某门课的作业列表 */
@@ -54,39 +57,58 @@ async function listWorks(page, course) {
   const works = await page.evaluate(() => {
     const out = [];
     const seen = new Set();
+    const isAction = (t) => /^(做作业|查看|查看作业|开始答题|继续答题|去完成)$/.test(t);
 
-    const add = (a) => {
-      const href = a.href || '';
-      if (!href || seen.has(href)) return;
-      if (!/doHomeWork|work\/doWork|workId=/.test(href)) return;
-      seen.add(href);
+    const nodes = [...document.querySelectorAll('a, button, div, span')].filter((el) => {
+      const t = (el.textContent || '').trim();
+      return t && t.length <= 8 && isAction(t);
+    });
 
-      const card = a.closest('.work-item, li, tr, .workContent, .workList, div');
-      const titleEl = card ? card.querySelector('h3, h4, .title, .work-title, .workName') : null;
-      let title = titleEl ? titleEl.textContent : '';
-      if (!title) title = a.getAttribute('title') || a.textContent || '';
-      title = title.trim().replace(/\s+/g, ' ');
-      if (!title || /^(做作业|查看|查看作业)$/.test(title)) {
-        const box = card ? card.textContent || '' : '';
-        const m = box.match(/[^\s]{2,30}(专项|作业|练习|测验|复习|收集|截图)/);
-        if (m) title = m[0];
+    nodes.forEach((btn) => {
+      const action = (btn.textContent || '').trim();
+      const card = btn.closest('li, .work-item, .workContent, .workList, tr, div');
+
+      let title = '';
+      const titleEl = card
+        ? card.querySelector('h1, h2, h3, h4, .title, .work-title, .workName, .work_name, .name')
+        : null;
+      if (titleEl) title = titleEl.textContent.trim();
+      if (!title && card) {
+        const first = (card.textContent || '').split(/\n|\r/).map((s) => s.trim()).filter(Boolean)[0];
+        if (first && !isAction(first)) title = first.slice(0, 60);
       }
-      if (!title) return;
 
-      const text = card ? card.textContent || '' : '';
-      const done = /待批阅|已批阅|已完成|已交|已提交/.test(text);
-      out.push({ title, url: href, done });
-    };
+      let url = btn.href || '';
+      if (!url && btn.getAttribute) {
+        url = btn.getAttribute('data-url') || btn.getAttribute('data-href') || '';
+      }
+      if (!url && btn.getAttribute) {
+        const oc = btn.getAttribute('onclick') || '';
+        const m = oc.match(/['"]([^'"]*(?:doHomeWork|workId=)[^'"]*)['"]/);
+        if (m) url = m[1];
+      }
+      if (!url && card) {
+        const a = card.querySelector('a[href*="doHomeWork"], a[href*="workId="]');
+        if (a) url = a.href;
+      }
 
-    document.querySelectorAll('a[href*="doHomeWork"], a[href*="work/doWork"]').forEach(add);
-    if (!out.length) {
-      document.querySelectorAll('a').forEach((a) => {
-        const t = (a.textContent || '').trim();
-        if (/^(做作业|查看|查看作业)$/.test(t)) add(a);
-      });
-    }
+      const done = /查看/.test(action);
+      const key = `${title}|${url}|${action}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push({ title: title || action, url: url || '', done, action });
+    });
+
     return out;
   });
+
+  // 保存一份页面结构，方便排查不同课程模板
+  try {
+    fs.mkdirSync(cfg.dataDir, { recursive: true });
+    const html = await page.content();
+    fs.writeFileSync(path.join(cfg.dataDir, 'homework-dump.html'), html, 'utf8');
+    log.info('作业页结构已保存到 data/homework-dump.html');
+  } catch (e) {}
 
   log.info(`读取到 ${works.length} 个作业`);
   return works;

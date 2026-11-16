@@ -249,10 +249,10 @@ ipcMain.handle('homework-list', async (_e, course) => {
   }
 });
 
-ipcMain.handle('homework-open', async (_e, url) => {
+ipcMain.handle('homework-open', async (_e, work) => {
   try {
-    await engine().openHomework(url);
-    return { ok: true };
+    const clicked = await engine().openHomework(work);
+    return { ok: true, clicked };
   } catch (e) {
     return { ok: false, error: e.message };
   }

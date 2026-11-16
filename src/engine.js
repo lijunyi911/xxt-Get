@@ -578,14 +578,39 @@ async function listHomework(course) {
   });
 }
 
-/** 打开作业页 */
-async function openHomework(url) {
+/** 打开作业页（支持链接或按钮点击，自动接管新标签页） */
+async function openHomework(work) {
   return serialize(async () => {
-    const { page } = await ensureSession();
+    const s = await ensureSession();
+    const page = s.page;
     await page.bringToFront();
-    await gotoWithRetry(page, url);
-    await page.waitForTimeout(2500);
-    return true;
+
+    if (work && work.url) {
+      await gotoWithRetry(page, work.url);
+      await page.waitForTimeout(2500);
+      return true;
+    }
+
+    const action = (work && work.action) || '做作业';
+    const before = s.context.pages().length;
+    const clicked = await page.evaluate((act) => {
+      const els = [...document.querySelectorAll('a, button, div, span')];
+      const t = els.find((el) => (el.textContent || '').trim() === act && el.offsetParent !== null);
+      if (t) { t.click(); return true; }
+      return false;
+    }, action);
+    log.info(clicked ? `已点击「${action}」` : `未找到「${action}」按钮`);
+    await page.waitForTimeout(3500);
+
+    const pages = s.context.pages();
+    if (pages.length > before) {
+      const np = pages[pages.length - 1];
+      await np.waitForLoadState('domcontentloaded').catch(() => {});
+      s.workPage = np;
+      s.page = np;
+      log.info('已切换到新打开的作业页');
+    }
+    return clicked;
   });
 }
 
