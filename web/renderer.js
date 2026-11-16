@@ -828,6 +828,25 @@ if ($('btnRefresh')) {
   });
 }
 
+// ===== 日志字号 =====
+function applyLogFont(v) {
+  document.documentElement.style.setProperty('--log-font', v + 'px');
+  document.querySelectorAll('button[data-logfont]').forEach((b) => {
+    b.classList.toggle('active', b.dataset.logfont === String(v));
+  });
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-logfont]');
+  if (!b) return;
+  applyLogFont(b.dataset.logfont);
+  try { localStorage.setItem('xxt-logfont', b.dataset.logfont); } catch (err) {}
+});
+(function initLogFont() {
+  let v = '12';
+  try { v = localStorage.getItem('xxt-logfont') || '12'; } catch (e) {}
+  applyLogFont(v);
+})();
+
 // ===== 作业答题 =====
 let hwWorks = [];
 let hwQuestions = [];
@@ -1048,8 +1067,11 @@ $('btnCopyLog').addEventListener('click', async () => {
     addLog('[ERROR] 复制失败：' + e.message);
   }
 });
-$('btnClearLog').addEventListener('click', () => {
+$('btnClearLog').addEventListener('click', async () => {
+  if (!(await showConfirm('清空界面日志和日志文件？'))) return;
   $('log').innerHTML = '';
+  logErrorCount = 0;
+  if ($('logErrCount')) $('logErrCount').style.display = 'none';
   try { window.api.clearLogFile(); } catch (e) {}
 });
 
@@ -1340,6 +1362,8 @@ document.querySelectorAll('.section').forEach((el) => {
   });
 });
 
+let logErrorCount = 0;
+
 function addLog(line) {
   const box = $('log');
   const div = document.createElement('div');
@@ -1348,7 +1372,13 @@ function addLog(line) {
   if (/\[ERROR\]/.test(line)) level = 'error';
   div.dataset.level = level;
   if (level !== 'info') div.className = level;
-  div.textContent = line;
+  const text = String(line).length > 500 ? String(line).slice(0, 500) + '…' : String(line);
+  div.textContent = text;
+  if (level === 'error') {
+    logErrorCount++;
+    const badge = $('logErrCount');
+    if (badge) { badge.textContent = String(logErrorCount); badge.style.display = ''; }
+  }
   const reverse = $('logReverse') && $('logReverse').checked;
   if (reverse) box.insertBefore(div, box.firstChild);
   else box.appendChild(div);

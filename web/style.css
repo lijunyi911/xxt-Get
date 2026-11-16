@@ -317,6 +317,20 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-variant-numeric: tabular-nums;
 }
 .empty { color: var(--muted); text-align: center; padding: 14px; font-size: 12px; }
+.log { font-size: var(--log-font, 12px); }
+.log-badge {
+  display: inline-block;
+  min-width: 16px;
+  padding: 0 5px;
+  margin-left: 6px;
+  border-radius: 9px;
+  background: #e5484d;
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  vertical-align: middle;
+}
 .empty::before {
   content: '';
   display: block;
