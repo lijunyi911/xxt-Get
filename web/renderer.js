@@ -1106,7 +1106,7 @@ if ($('hwAnswerBtn')) {
 
 if ($('hwQuestions')) {
   $('hwQuestions').addEventListener('input', (e) => {
-    const inp = e.target.closest('input[data-qi]');
+    const inp = e.target.closest('input[data-qi], textarea[data-qi]');
     if (!inp) return;
     const q = hwQuestions[Number(inp.dataset.qi)];
     if (!q) return;
