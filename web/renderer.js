@@ -375,6 +375,20 @@ if ($('btnExportState')) {
     }
   });
 }
+if ($('btnCheckSession')) {
+  $('btnCheckSession').addEventListener('click', async () => {
+    try {
+      const r = await window.api.checkSession();
+      if (r && r.alive) {
+        addLog(`[INFO] Edge 会话正常（${r.pages} 个标签页）`);
+        showToast('Edge 会话正常', 'success');
+      } else {
+        addLog('[WARN] Edge 会话未启动');
+        showToast('Edge 会话未启动，请先读取课程', 'warn');
+      }
+    } catch (e) { addLog(`[ERROR] ${e.message}`); }
+  });
+}
 if ($('btnOpenData')) {
   $('btnOpenData').addEventListener('click', () => {
     try { window.api.openDataDir(); } catch (e) {}

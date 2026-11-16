@@ -419,6 +419,14 @@ ipcMain.handle('clear-state', () => {
   }
 });
 
+ipcMain.handle('check-session', async () => {
+  try {
+    return { ok: true, ...(await engine().checkSession()) };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+});
+
 ipcMain.handle('open-data-dir', () => {
   try {
     const { shell } = require('electron');

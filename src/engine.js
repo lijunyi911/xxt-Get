@@ -655,6 +655,20 @@ async function submitHomework() {
   });
 }
 
+/** 会话健康检查 */
+async function checkSession() {
+  if (!session || !session.context) return { alive: false, pages: 0, url: '' };
+  try {
+    if (typeof session.context.isConnected === 'function' && !session.context.isConnected()) {
+      return { alive: false, pages: 0, url: '' };
+    }
+    const pages = session.context.pages();
+    return { alive: true, pages: pages.length, url: pages.length ? pages[0].url() : '' };
+  } catch (e) {
+    return { alive: false, pages: 0, url: '' };
+  }
+}
+
 module.exports = {
   getCourses,
   runCourses,
@@ -672,4 +686,5 @@ module.exports = {
   parseHomework,
   fillHomework,
   submitHomework,
+  checkSession,
 };
