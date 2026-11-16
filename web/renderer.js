@@ -707,6 +707,16 @@ $('btnAll').addEventListener('click', () => {
   addLog(`[INFO] ${allChecked ? '已取消全选' : '已全选'} ${boxes.length} 门课程`);
 });
 
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem('xxt-fav') || '[]'); } catch (e) { return []; }
+}
+function toggleFav(cid) {
+  const favs = getFavs();
+  const i = favs.indexOf(cid);
+  if (i >= 0) favs.splice(i, 1); else favs.push(cid);
+  try { localStorage.setItem('xxt-fav', JSON.stringify(favs)); } catch (e) {}
+}
+
 function renderCourses(list) {
   const box = $('courseList');
   if (!list.length) {
@@ -719,14 +729,22 @@ function renderCourses(list) {
   // 排序时保留本次勾选状态
   const checked = new Set([...document.querySelectorAll('#courseList input:checked')].map((i) => i.dataset.cid));
   const keepScroll = box.scrollTop;
-  const arr = sortByName
+  const favs = getFavs();
+  let arr = sortByName
     ? [...list].sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'zh'))
-    : list;
+    : list.slice();
+  // 收藏课程置顶
+  arr.sort((a, b) => {
+    const fa = favs.includes(a.courseId) ? 0 : 1;
+    const fb = favs.includes(b.courseId) ? 0 : 1;
+    return fa - fb;
+  });
   box.innerHTML = arr.map((c, i) => `
     <label class="course-item">
       <input type="checkbox" data-cid="${c.courseId}" />
       <span class="cnum">${i + 1}.</span>
       <span class="cname" title="${escapeHtml(c.title)}">${escapeHtml(c.title)}</span>
+      <button class="fav-btn ${favs.includes(c.courseId) ? 'on' : ''}" data-fav="${c.courseId}" title="收藏">${favs.includes(c.courseId) ? '★' : '☆'}</button>
     </label>
   `).join('');
   document.querySelectorAll('#courseList input[type="checkbox"]').forEach((inp) => {
