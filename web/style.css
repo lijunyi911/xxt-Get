@@ -370,6 +370,16 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-weight: 400;
   margin-left: 4px;
 }
+.log:empty::before {
+  content: '暂无日志';
+  color: var(--muted);
+  font-size: 11px;
+}
+.set-item {
+  border-radius: 8px;
+  transition: background .15s;
+}
+.set-item:hover { background: rgba(255, 140, 26, 0.04); }
 .empty::before {
   content: '';
   display: block;
