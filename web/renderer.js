@@ -522,7 +522,13 @@ if ($('btnExportHistory')) {
 const settingsMask = document.getElementById('settingsMask');
 const btnSettings = document.getElementById('btnSettings');
 if (btnSettings && settingsMask) {
-  btnSettings.addEventListener('click', () => settingsMask.classList.add('show'));
+  btnSettings.addEventListener('click', () => {
+    settingsMask.classList.add('show');
+    const panel = document.querySelector('.settings-panel');
+    if (panel) panel.scrollTop = 0;
+    if ($('setSearch')) $('setSearch').value = '';
+    document.querySelectorAll('.settings-body .set-item').forEach((i) => { i.style.display = ''; });
+  });
   const closeBtn = document.getElementById('btnSettingsClose');
   if (closeBtn) closeBtn.addEventListener('click', () => settingsMask.classList.remove('show'));
   settingsMask.addEventListener('click', (e) => {
@@ -1029,6 +1035,7 @@ if ($('hwList')) {
         $('hwFillBtn').disabled = true;
         $('hwSubmitBtn').disabled = true;
         addLog(`[INFO] 抓到 ${hwQuestions.length} 道题`);
+        if ($('hwHint')) $('hwHint').textContent = `已抓取 ${hwQuestions.length} 题`;
         if (hwQuestions.length === 0) {
           showToast('未抓到题目，请确认 Edge 已打开作业答题页');
         }
