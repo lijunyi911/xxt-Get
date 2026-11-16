@@ -923,6 +923,12 @@ if ($('hwList')) {
 if ($('hwAnswerBtn')) {
   $('hwAnswerBtn').addEventListener('click', async () => {
     if (!hwQuestions.length) return;
+    const aiKey = (localStorage.getItem('xxt-ai-key') || '').trim();
+    if (!aiKey) {
+      showToast('未填写 API Key，请到「设置 → AI 答题」中填写');
+      addLog('[WARN] 未填写 DeepSeek API Key，请先到设置里配置');
+      return;
+    }
     $('hwAnswerBtn').disabled = true;
     $('hwAnswerBtn').textContent = '答题中...';
     try {
