@@ -1482,6 +1482,12 @@ function updateLogStats() {
   el.textContent = `信息 ${logStatsCount.info} · 警告 ${logStatsCount.warn} · 错误 ${logStatsCount.error}`;
 }
 
+let filterTimer = null;
+function scheduleLogFilter() {
+  if (filterTimer) return;
+  filterTimer = setTimeout(() => { filterTimer = null; applyLogFilter(); }, 150);
+}
+
 function addLog(line) {
   const box = $('log');
   const div = document.createElement('div');
@@ -1506,7 +1512,7 @@ function addLog(line) {
     box.scrollTop = reverse ? 0 : box.scrollHeight;
   }
   while (box.childNodes.length > 500) box.removeChild(reverse ? box.lastChild : box.firstChild);
-  applyLogFilter();
+  scheduleLogFilter();
 }
 
 // 日志过滤
