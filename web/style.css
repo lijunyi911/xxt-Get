@@ -239,6 +239,7 @@ button {
   background: var(--panel2);
   color: var(--text);
   padding: 6px 10px;
+  min-height: 30px;
   transition: .15s;
 }
 button:hover:not(:disabled) { border-color: var(--accent); color: var(--hover-text); }
@@ -308,7 +309,13 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 }
 .course-item input { accent-color: var(--accent); }
 .course-item .cname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.course-item .cnum { color: var(--muted); font-size: 11px; min-width: 26px; text-align: right; }
+.course-item .cnum {
+  color: var(--muted);
+  font-size: 11px;
+  min-width: 26px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 .empty { color: var(--muted); text-align: center; padding: 14px; font-size: 12px; }
 
 /* 倍速 */
@@ -626,6 +633,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   outline: none;
 }
 .log-search:focus { border-color: var(--accent); }
+.log > div { line-height: 1.55; }
 .log > div:hover { background: rgba(255, 140, 26, 0.06); }
 .log {
   flex: 1; overflow-y: auto;
@@ -645,6 +653,10 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-size: 11px;
   color: var(--muted);
 }
+/* 操作行：开始占满，暂停/停止等宽对齐 */
+#btnStart { flex: 1 1 auto; }
+#btnPause, #btnStop, #btnRetry { flex: 0 0 76px; }
+#btnPause { font-size: 11px; }
 .mini:hover:not(:disabled) { color: var(--accent); border-color: var(--accent); }
 .mini.active { color: var(--accent); border-color: var(--accent); font-weight: 700; }
 
@@ -666,7 +678,11 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   font-size: 11px;
   color: var(--muted);
 }
-.stat-cell b { color: var(--accent3); font-weight: 700; }
+.stat-cell b {
+  color: var(--accent3);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 .daily-line {
   display: flex;
   justify-content: space-between;
