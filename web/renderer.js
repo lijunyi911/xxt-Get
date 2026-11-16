@@ -833,6 +833,7 @@ function renderCourses(list) {
   $('btnAll').disabled = false;
   $('btnAll').textContent = '全选';
   $('btnSort').disabled = false;
+  if ($('btnInvert')) $('btnInvert').disabled = false;
 }
 
 // 排序

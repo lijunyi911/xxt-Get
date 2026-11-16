@@ -146,14 +146,21 @@ async function parseQuestions(page) {
         const label = inp.closest('label') || inp.parentElement;
         let text = label ? label.textContent : '';
         text = text.trim().replace(/\s+/g, ' ');
-        return { value: String(inp.value || ''), text };
+        // 去掉「A. 」这类前缀，避免与选项字母重复
+        text = text.replace(/^[A-Za-z][\.、．\s]\s*/, '');
+        const value = String(inp.value || '').trim();
+        return { value, text };
       }).filter((o) => o.text);
 
       const textarea = c.querySelector('textarea');
       let type = 'unknown';
       if (textarea) type = 'essay';
       else if (c.querySelector('input[type="checkbox"]')) type = 'multi';
-      else if (c.querySelector('input[type="radio"]')) type = 'single';
+      else if (c.querySelector('input[type="radio"]')) {
+        type = 'single';
+        const joined = options.map((o) => o.text).join(' ');
+        if (options.length <= 2 && /^(对|错|正确|错误|是|否|√|×)/.test(joined)) type = 'judge';
+      }
 
       out.push({
         index: i + 1,
