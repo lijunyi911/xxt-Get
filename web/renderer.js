@@ -798,7 +798,9 @@ $('courseList').addEventListener('dblclick', (e) => {
 function updateCourseCount() {
   const total = document.querySelectorAll('#courseList input[type="checkbox"]').length;
   const sel = document.querySelectorAll('#courseList input:checked').length;
-  $('loadHint').textContent = total ? `已选 ${sel} / 共 ${total}` : '';
+  const favCount = getFavs().length;
+  const favText = favCount ? ` · 收藏 ${favCount}` : '';
+  $('loadHint').textContent = total ? `已选 ${sel} / 共 ${total}${favText}` : '';
 }
 $('courseList').addEventListener('change', updateCourseCount);
 $('btnInvert').addEventListener('click', () => {
