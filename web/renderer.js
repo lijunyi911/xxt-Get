@@ -395,7 +395,7 @@ if ($('btnClearHistory')) {
 // ===== 设置导出 / 导入 =====
 if ($('btnExportSettings')) {
   $('btnExportSettings').addEventListener('click', async () => {
-    const data = {};
+    const data = { _version: 2, _exportedAt: new Date().toISOString() };
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const k = localStorage.key(i);
@@ -412,10 +412,15 @@ if ($('btnImportSettings')) {
     const r = await window.api.importSettings();
     if (!r || !r.ok) return;
     try {
-      const data = JSON.parse(r.content);
+      const data = JSON.parse(r.content || '{}');
+      if (data._version && data._version > 2) {
+        if (!(await showConfirm('该配置文件来自更新的版本，继续导入可能不兼容。仍要导入吗？'))) return;
+      }
+      let count = 0;
       Object.keys(data).forEach((k) => {
-        if (k.startsWith('xxt-')) localStorage.setItem(k, data[k]);
+        if (k.startsWith('xxt-')) { localStorage.setItem(k, data[k]); count++; }
       });
+      addLog(`[INFO] 已导入 ${count} 项设置`);
       alert('设置已导入，即将刷新');
       location.reload();
     } catch (e) {
