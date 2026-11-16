@@ -912,6 +912,20 @@ document.addEventListener('keydown', (e) => {
   }
 }, true);
 
+// 日志开关持久化
+(function initLogToggles() {
+  try {
+    if (localStorage.getItem('xxt-logauto') === '0' && $('logAuto')) $('logAuto').checked = false;
+    if (localStorage.getItem('xxt-logreverse') === '1' && $('logReverse')) $('logReverse').checked = true;
+  } catch (e) {}
+  if ($('logAuto')) $('logAuto').addEventListener('change', () => {
+    try { localStorage.setItem('xxt-logauto', $('logAuto').checked ? '1' : '0'); } catch (e) {}
+  });
+  if ($('logReverse')) $('logReverse').addEventListener('change', () => {
+    try { localStorage.setItem('xxt-logreverse', $('logReverse').checked ? '1' : '0'); } catch (e) {}
+  });
+})();
+
 // ===== 作业答题 =====
 let hwWorks = [];
 let hwQuestions = [];
