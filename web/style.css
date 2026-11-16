@@ -357,6 +357,13 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   margin-left: 8px;
   white-space: nowrap;
 }
+#stage {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
 .empty::before {
   content: '';
   display: block;
