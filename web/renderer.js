@@ -987,27 +987,53 @@ if ($('hwList')) {
   });
 }
 
+function loadAnswerBank() {
+  try { return JSON.parse(localStorage.getItem('xxt-answer-bank') || '{}'); } catch (e) { return {}; }
+}
+function saveAnswerBank(b) {
+  try { localStorage.setItem('xxt-answer-bank', JSON.stringify(b)); } catch (e) {}
+}
+
 if ($('hwAnswerBtn')) {
   $('hwAnswerBtn').addEventListener('click', async () => {
     if (!hwQuestions.length) return;
     const aiKey = (localStorage.getItem('xxt-ai-key') || '').trim();
     if (!aiKey) {
-      showToast('未填写 API Key，请到「设置 → AI 答题」中填写');
+      showToast('未填写 API Key，请到「设置 → AI 答题」中填写', 'warn');
       addLog('[WARN] 未填写 DeepSeek API Key，请先到设置里配置');
       return;
     }
     $('hwAnswerBtn').disabled = true;
     $('hwAnswerBtn').textContent = '答题中...';
     try {
-      const r = await window.api.homeworkAnswer(hwQuestions);
-      if (r.ok) {
-        hwAnswers = r.answers || [];
-        renderHwQuestions();
-        $('hwFillBtn').disabled = false;
-        addLog(`[INFO] AI 已给出 ${hwAnswers.length} 个答案`);
-      } else {
-        addLog(`[ERROR] ${r.error}`);
+      const bank = loadAnswerBank();
+      const answers = [];
+      const miss = [];
+      hwQuestions.forEach((q) => {
+        const key = (q.stem || '').slice(0, 120);
+        if (bank[key]) answers.push({ index: q.index, answer: bank[key] });
+        else miss.push(q);
+      });
+      if (answers.length) addLog(`[INFO] 题库命中 ${answers.length} 题`);
+
+      if (miss.length) {
+        const r = await window.api.homeworkAnswer(miss);
+        if (!r.ok) {
+          addLog(`[ERROR] ${r.error}`);
+        } else {
+          (r.answers || []).forEach((a) => {
+            answers.push(a);
+            const q = miss.find((x) => x.index === a.index);
+            if (q) bank[(q.stem || '').slice(0, 120)] = a.answer;
+          });
+          saveAnswerBank(bank);
+          addLog(`[INFO] AI 已给出 ${(r.answers || []).length} 个答案`);
+        }
       }
+
+      hwAnswers = answers.sort((a, b) => a.index - b.index);
+      renderHwQuestions();
+      $('hwFillBtn').disabled = hwAnswers.length === 0;
     } catch (e) { addLog(`[ERROR] ${e.message}`); }
     $('hwAnswerBtn').disabled = false;
     $('hwAnswerBtn').textContent = 'AI 答题';
