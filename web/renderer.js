@@ -932,6 +932,114 @@ document.addEventListener('keydown', (e) => {
   });
 })();
 
+// ===== 命令面板（Ctrl+P）=====
+const COMMANDS = [
+  { label: '读取我的课程', keys: 'Ctrl+L', run: () => $('btnLoad') && $('btnLoad').click() },
+  { label: '开始刷课', keys: 'Ctrl+Enter', run: () => $('btnStart') && $('btnStart').click() },
+  { label: '暂停 / 继续', keys: '', run: () => $('btnPause') && $('btnPause').click() },
+  { label: '停止刷课', keys: 'Esc', run: () => $('btnStop') && $('btnStop').click() },
+  { label: '刷新会话', keys: 'Ctrl+R', run: () => $('btnRefresh') && $('btnRefresh').click() },
+  { label: '清除断点重刷', keys: '', run: () => $('btnClear') && $('btnClear').click() },
+  { label: '打开设置', keys: 'Ctrl+,', run: () => $('btnSettings') && $('btnSettings').click() },
+  { label: '作业答题', keys: 'Ctrl+D', run: () => $('btnHomework') && $('btnHomework').click() },
+  { label: '切换主题', keys: '', run: () => $('btnTheme') && $('btnTheme').click() },
+  { label: '导出日志', keys: '', run: () => $('btnExportLog') && $('btnExportLog').click() },
+  { label: '导出设置', keys: '', run: () => $('btnExportSettings') && $('btnExportSettings').click() },
+  { label: '关于', keys: '', run: () => $('btnAbout') && $('btnAbout').click() },
+];
+
+let cmdIndex = 0;
+let cmdFiltered = COMMANDS.slice();
+
+function renderCmd() {
+  const box = $('cmdList');
+  if (!box) return;
+  if (!cmdFiltered.length) {
+    box.innerHTML = '<div class="empty">没有匹配的命令</div>';
+    return;
+  }
+  box.innerHTML = cmdFiltered.map((c, i) => `
+    <div class="cmd-item ${i === cmdIndex ? 'active' : ''}" data-i="${i}">
+      <span>${escapeHtml(c.label)}</span>
+      <span class="kbd">${escapeHtml(c.keys || '')}</span>
+    </div>
+  `).join('');
+  const active = box.querySelector('.cmd-item.active');
+  if (active) active.scrollIntoView({ block: 'nearest' });
+}
+
+function openCmd() {
+  const mask = $('cmdMask');
+  if (!mask) return;
+  mask.classList.add('show');
+  const input = $('cmdInput');
+  if (input) { input.value = ''; input.focus(); }
+  cmdIndex = 0;
+  cmdFiltered = COMMANDS.slice();
+  renderCmd();
+}
+
+function closeCmd() {
+  const mask = $('cmdMask');
+  if (mask) mask.classList.remove('show');
+}
+
+function runCmd(c) {
+  if (!c) return;
+  closeCmd();
+  try { c.run(); } catch (e) {}
+}
+
+if ($('cmdInput')) {
+  $('cmdInput').addEventListener('input', (e) => {
+    const q = (e.target.value || '').trim().toLowerCase();
+    cmdFiltered = COMMANDS.filter((c) => c.label.toLowerCase().includes(q));
+    cmdIndex = 0;
+    renderCmd();
+  });
+  $('cmdInput').addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      cmdIndex = Math.min(cmdFiltered.length - 1, cmdIndex + 1);
+      renderCmd();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      cmdIndex = Math.max(0, cmdIndex - 1);
+      renderCmd();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      runCmd(cmdFiltered[cmdIndex]);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      closeCmd();
+    }
+  });
+}
+if ($('cmdList')) {
+  $('cmdList').addEventListener('click', (e) => {
+    const item = e.target.closest('.cmd-item');
+    if (!item) return;
+    runCmd(cmdFiltered[Number(item.dataset.i)]);
+  });
+  $('cmdList').addEventListener('mousemove', (e) => {
+    const item = e.target.closest('.cmd-item');
+    if (!item) return;
+    const i = Number(item.dataset.i);
+    if (i !== cmdIndex) { cmdIndex = i; renderCmd(); }
+  });
+}
+if ($('cmdMask')) {
+  $('cmdMask').addEventListener('click', (e) => {
+    if (e.target === $('cmdMask')) closeCmd();
+  });
+}
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+    e.preventDefault();
+    openCmd();
+  }
+});
+
 // ===== 作业答题 =====
 let hwWorks = [];
 let hwQuestions = [];
