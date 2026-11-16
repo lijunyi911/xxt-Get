@@ -1292,11 +1292,13 @@ window.api.onEvent((ev) => {
   } else if (ev.type === 'progress') {
     if (ev.pct != null) {
       $('bar').style.width = Math.min(100, ev.pct) + '%';
+      if ($('bar').parentElement) $('bar').parentElement.title = `进度 ${ev.pct}%`;
     } else {
       const m = (ev.text || '').match(/(\d+)\s*\/\s*(\d+)/);
       if (m) {
         const pct = Math.min(100, Math.round((parseInt(m[1]) / parseInt(m[2])) * 100));
         $('bar').style.width = pct + '%';
+        if ($('bar').parentElement) $('bar').parentElement.title = `进度 ${pct}%`;
       }
     }
     if (ev.text) $('stage').textContent = ev.text;
